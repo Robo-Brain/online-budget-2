@@ -1,0 +1,28 @@
+<!doctype html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <th:block th:include="_head"></th:block>
+    <th:block sec:authorize="isAuthenticated()">
+        <a href="/">Main</a>
+        <h3 th:id="${month[0].getDateId()}" th:text="${month[0].getDate()}"></h3>
+        <div th:each="m : ${month}" class="month" th:id="${m.getMonthlySpendsId()}">
+            Monthly Spends Id: <span th:text="${m.getMonthlySpendsId()}"></span>
+            /
+            Template Id: <span th:text="${m.getTemplateId()}"></span><br />
+
+            Spend Name: <span th:text="${m.getSpendName()}"></span><br />
+            Template Amount: <span th:text="${m.getTemplateAmount()}"></span><br />
+            Month Amount: <span th:text="${m.getMonthAmount()}"></span><br />
+            Month Amount: <span th:text="${m.isCashOrCard()}"></span><br />
+            Month Amount: <span th:text="${m.isSalaryOrPrepaid()}"></span><br /><br />
+        </div>
+    </th:block>
+<body>
+<script th:inline="javascript">
+    month = /*[[${month}]]*/ "";
+
+    $( document ).ready(function() {
+
+    })
+</script>
+</body>
+</html>

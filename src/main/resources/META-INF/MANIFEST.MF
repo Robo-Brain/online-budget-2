@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: m4dm4n
+Created-By: Apache Maven 3.5.2
+Build-Jdk: 1.8.0_77
+Main-Class: com.robo.OnlineBudget2App
+

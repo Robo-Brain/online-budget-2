@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+          idle-timeout: 10000
+          connection-timeout: 10000
+          connection-test-query: SELECT 1 FROM DUAL
+          minimum-idle: 1
+          maximum-pool-size: 5
+          auto-commit: false
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    open-in-view: false
+  thymeleaf:
+    cache: false
+
+security:
+  oauth2:
+    client:
+      clientId: 488442857934-bhqqq8t20euh4aj3vh0c9ufp5hs07nvs.apps.googleusercontent.com
+      clientSecret: ${CLIENT_SECRET}
+      accessTokenUri: https://www.googleapis.com/oauth2/v4/token
+      userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
+      clientAuthenticationScheme: form
+      scope: openid, email, profile
+    resource:
+      userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
+      preferTokenInfo: true
+
+server:
+  port: ${PORT:8080}

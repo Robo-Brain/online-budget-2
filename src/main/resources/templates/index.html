@@ -1,0 +1,68 @@
+<!doctype html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <th:block th:include="_head"></th:block>
+<body>
+
+    <th:block sec:authorize="isAnonymous()">
+        <div class="login">
+            Required login with
+            <a href="/login">
+                <blue>G</blue><red>o</red><yellow>o</yellow><blue>g</blue><green>l</green><red>e</red>
+            </a>
+        </div>
+    </th:block>
+
+    <th:block sec:authorize="isAuthenticated()">
+            <!--<a href="/month">Current Month</a> <a href="/spends">Spends</a> <a href="/templatesList">Templates</a>-->
+            <!--<div id="templatesList">-->
+                <!--<div class="template" v-for="template in templates" v-bind:class="{ active: template.templateEnabled }" v-bind:id="template.id">-->
+                    <!--{{ template.templateName }}-->
+                    <!--<input type="radio" v-bind:value="template.id" v-on:click="enableTemplate" :checked="template.templateEnabled">-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--<div id="wrap">-->
+        <div id="upper-menu">
+            <a id="upper-menu-templates" href="#">Mainpage</a>
+            <a id="upper-menu-month" href="#">Month</a>
+            <a id="upper-menu-allMonths" href="#">All Months</a>
+            <a id="upper-menu-spends" href="#">Spends</a>
+            <br />
+            <br />
+        </div>
+            <div id="month"></div>
+            <div id="allMonths"></div>
+            <div id="templates-list"></div>
+            <div id="spends"></div>
+        <!--</div>-->
+    <script th:inline="javascript">
+        // templatesList = /*[[${templatesList}]]*/ "";
+        // spends = /*[[${spends}]]*/ "";
+        $( document ).ready(function() {
+            showTemplatesList();
+
+            $('#upper-menu-month').click(function () {
+                showLastMonth();
+            });
+            $('#upper-menu-allMonths').click(function () {
+                showAllMonths();
+            });
+            $('#upper-menu-templates').click(function () {
+                $('#templates-list').show();
+                $('#allMonths').hide();
+                $('#month').hide();
+                $('#spends').hide();
+            });
+            $('#upper-menu-spends').click(function () {
+                showSpendsList();
+            });
+
+        })
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="/js/month-script.js"></script>
+    <script type="text/javascript" src="/js/all-months-script.js"></script>
+    <script type="text/javascript" src="/js/templates-script.js"></script>
+    <script type="text/javascript" src="/js/spends-script.js"></script>
+    </th:block>
+</body>
+</html>

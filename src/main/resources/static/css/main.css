@@ -1,0 +1,272 @@
+@font-face {
+    font-family: 'Futura Book';
+    src: url('FuturaBookC.eot');
+    src: url('FuturaBookC.eot?#iefix') format('embedded-opentype'),
+    url('FuturaBookC.woff') format('woff'),
+    url('FuturaBookC.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: Verdana, serif;
+    min-width: 480px;
+}
+
+input {
+    outline: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+}
+
+.login {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 1%;
+    -webkit-transform: translate(-1%, -50%);
+    transform: translate(-1%, -50%);
+    font-size: 1.5em;
+    text-align: center;
+}
+.login a {
+    font-family: 'Futura Book';
+    font-size: 2em;
+    font-weight: 600;
+    text-decoration: none;
+}
+.login a:hover {
+    border-bottom: solid 0.1em #FBBC05;
+}
+.login a:visited {
+    color: #000;
+    text-decoration: none;
+}
+.login a blue {color: #4285F4;}
+.login a red {color: #EA4335;}
+.login a yellow {color: #FBBC05;}
+.login a green {color: #34A853;}
+
+#wrap {
+    height:100%;
+    width: 100%;
+    position:fixed;
+    left: 0;
+    top:0;
+    background-color:rgba(0,0,0,.5);
+    z-index: 3;
+    display: none;
+}
+
+/*  TEMPLATES start  */
+
+.templatesList {
+    float: none !important;
+    display: inline-block;
+    width: 96%;
+    margin: 0 2% 0 2%;
+}
+
+.template-list {
+    list-style-type: none;
+    padding-left: 0.1em;
+}
+
+.template-list-item {
+    height: 1.5em;
+    display: list-item;
+
+    padding: 0.2em 0.3em 0.1em 0.3em;
+    margin-bottom: 0.2em ;
+    border-radius: 0.1em;
+    border-left: 0.4em solid #f05d22;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
+    -2px -2px 5px 0 rgba(0,0,0,.1),
+    2px 2px 5px 0 rgba(0,0,0,.1),
+    -2px 2px 5px 0 rgba(0,0,0,.1);
+    transition: 0.3s all linear;
+}
+.template-list-item:nth-child(odd) {
+    border-left: 0.4em solid #d42e0d;
+}
+
+.template-list-item .delete {
+    float: right;
+    border-radius: 0 0.2em 0.2em 0;
+    background-color: red;
+    transition: all 1s ease 0s;
+}
+
+.template-list-item .save {
+    float: right;
+    border-radius: 0 0.2em 0.2em 0;
+    background-color: green;
+    transition: all 1s ease 0s;
+}
+
+.template-list-item button {
+    width: 3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+}
+
+button.prepaid:after {
+    content: 'Аванс'
+}
+
+button.salary:after {
+    content: 'ЗП'
+}
+
+.template-list-item input {
+    font-size: 0.9em;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    text-align: right;
+    padding: 0 0.1em;
+    width: 2.8em;
+}
+
+button.cash {
+    width: 3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+    background: url("/img/cash.png") no-repeat 50%;
+}
+
+button.card{
+    width: 3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+    background: url("/img/card.png") no-repeat 50%;
+}
+
+.template {
+    background-color: #e6e6e6;
+    font-size: 1.2em;
+}
+
+.template.active {
+    background-color: #3badd6;
+}
+
+.template select {
+    font-size: 1em;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    text-align: right;
+    padding: 0 0.1em;
+    margin: 0 1%;
+    width: 98%;
+    height: 1.6em;
+}
+
+.templateSpendName, .templateAmount, .templateSalaryOrPrepaid, .templateCashOrCard {
+    display: block;
+    float: left;
+}
+
+/*  TEMPLATES end  */
+
+/*  SPENDS start  */
+
+#spends ul {
+    list-style-type: none;
+}
+
+.spends .new {
+    margin: 0.4em 0 0.3em 0;
+}
+
+/*  SPENDS end  */
+
+/*  MONTH start  */
+
+.monthDate {
+    text-align: center;
+    font-size: 1.4em;
+    padding-bottom: 1em;
+}
+
+.months tr:nth-child(even) {
+    background: #e6e6e6;
+}
+
+.month-item{
+    height: 32px;
+    vertical-align: center;
+    font-size: 1.3em;
+    padding: 0 0.1em;
+}
+
+.month-item input{
+    font-size: 1em;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    text-align: right;
+    padding: 0 0.1em;
+    width: 2.8em;
+}
+
+.month-item .name {
+    width: 48%;
+}
+
+.months button{
+
+}
+
+.spend-input input{
+    width: 4em;
+}
+
+.modal-mask {
+    position: fixed;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    display: table;
+    transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.modal-container {
+    width: 300px;
+    margin: 0px auto;
+    padding: 20px 30px;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+    transition: all .3s ease;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+    margin-top: 0;
+    color: #42b983;
+}
+
+.modal-body {
+    margin: 20px 0;
+}
+
+/*  MONTH end  */
