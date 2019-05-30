@@ -88,16 +88,16 @@ function showLastMonth() {
         data: function() {
             return {
                 date: '',
-                newMonthAmount: '',
                 showModal: false,
                 spendId: '',
-                missingSpendsList: ['one', 'two', 'three'],
+                missingSpendsList: [],
                 dateId: '',
                 showSpendInput: false,
                 templateAmount: '',
                 isCash: '',
                 isSalary: '',
-                editMode: false
+                editMode: false,
+                monthlySpendsId: ''
             }
         },
         template:
@@ -112,7 +112,7 @@ function showLastMonth() {
                 + '<tr v-if="!editMode"class="month-item" v-for="(month, index, key) in monthList" >'
                         + '<td class="name"> {{ month.spendName }}</td>'
                         + '<td class="deposited">'
-                            + '<input @input="editMonthAmount($event)" @change="editMonthAmount($event)" :id="month.monthlySpendsId" class="monthAmountInput" :value="month.monthAmount" />'
+                            + '<input class="monthAmountInput" :value="month.monthAmount" />'
                             + ' / {{ month.templateAmount }}'
                         + '</td>'
                         + '<td><button v-bind:class="[ month.salaryOrPrepaid ? \'salary\' : \'prepaid\' ]"> </button></td>'
@@ -121,9 +121,13 @@ function showLastMonth() {
                 + '<tr v-if="editMode" class="month-item" v-for="(month, index, key) in monthList" >'
                     + '<td class="name"> {{ month.spendName }}</td>'
                     + '<td class="deposited"> / <input :id="month.monthlySpendsId" :value="month.templateAmount" @input="setAmount($event)" /></td>'
-                    + '<td><button @click="salaryToggle($event)" v-bind:class="[ month.salaryOrPrepaid ? \'salary\' : \'prepaid\' ]"> </button></td>'
-                    + '<td><button @click="cashToggle($event)" v-bind:class="[ month.cashOrCard ? \'cash\' : \'card\' ]"> </button></td>'
-                    + '<td><button @click="delMonthSpend($event)" :id="month.monthlySpendsId">X</button></td>'
+                    + '<td><button :id="month.monthlySpendsId" @click="salaryToggle($event)" v-bind:class="[ month.salaryOrPrepaid ? \'salary\' : \'prepaid\' ]"> </button></td>'
+                    + '<td><button :id="month.monthlySpendsId" @click="cashToggle($event)" v-bind:class="[ month.cashOrCard ? \'cash\' : \'card\' ]"> </button></td>'
+                    + '<td>'
+                        + '<button @click="editSpendInMonth()">✓</button>'
+                            + '&nbsp;&nbsp;&nbsp;'
+                        + '<button @click="delMonthSpend($event)" :id="month.monthlySpendsId">X</button>'
+                    + '</td>'
                 + '</tr>'
             + '</table>'
                 + '<select v-if="!editMode" @change="toggleShowSpendInput()" v-model="spendId" >'
@@ -151,69 +155,95 @@ function showLastMonth() {
                 this.isSalary = false;
             },
             setAmount: function(event) { // установка новой суммы для spend в режиме редактирования monthly_spend
-                this.newMonthAmount = event.target.value;
-                let monthlySpendsId = event.target.id;
-                console.log('this.newMonthAmount = ' + this.newMonthAmount);
-                console.log('monthlySpendsId = ' + monthlySpendsId)
+                if (event.target.value.length > 2){
+                    this.templateAmount = event.target.value;
+                    this.monthlySpendsId = event.target.id;
+                }
             },
-            editTemplateAmount: function(event) {
-                this.templateAmount = event.target.value;
-                let monthlySpendsId = event.target.id;
-            },
-            salaryToggle: function (event) {
-                this.isSalary = !this.isSalary;
+            salaryToggle: function (event) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
+                this.monthlySpendsId = event.target.id;
                 if (event.target.className == 'salary') {
                     event.target.className = 'prepaid';
                 } else {
                     event.target.className = 'salary';
                 }
+                event.target.className == 'salary' ? this.isSalary = true : this.isSalary = false;
             },
-            cashToggle: function (event) {
-                this.isCash = !this.isCash;
+            cashToggle: function (event) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
+                this.monthlySpendsId = event.target.id;
                 if (event.target.className == 'cash') {
                     event.target.className = 'card';
-                } else if(event.target.className == 'card') {
+                } else {
                     event.target.className = 'cash';
+                }
+                event.target.className == 'cash' ? this.isCash = true : this.isCash = false;
+                console.log(this.isCash)
+            },
+            editSpendInMonth: function () {
+                let tmpMonthList = [];
+                if (this.monthlySpendsId.length > 0){
+                    const params = new URLSearchParams();
+                    params.append('monthlySpendsId', this.monthlySpendsId);
+                    params.append('amount', this.templateAmount);
+                    params.append('isCash', this.isCash);
+                    params.append('isSalary', this.isSalary);
+
+                    console.log(
+                        'monthlySpendsId: ' + this.monthlySpendsId
+                        + '\nspendId: ' + this.spendId
+                        + '\ntemplateAmount: ' + this.templateAmount
+                        + '\nisCash: ' + this.isCash
+                        + '\nisSalary: ' + this.isSalary
+                    );
+
+                    axios.put('month/editMonthSpend', params).then(result => {
+                        if(result.data.length > 0) {
+                            this.monthList = result.data;
+                            this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
+                            this.editMode = false;
+                        }
+                    });
                 }
             },
             pushSpendToTemplate: function () {
-                let tmpMonthList = [];
-                let tempSpendList = [];
-                const params = new URLSearchParams();
-                params.append('dateId', this.dateId);
-                params.append('spendId', this.spendId);
-                params.append('templateAmount', this.templateAmount);
-                params.append('isCash', this.isCash);
-                params.append('isSalary', this.isSalary);
+                if (this.dateId){
+                    let tmpMonthList = [];
+                    let tempSpendList = [];
+                    const params = new URLSearchParams();
+                    params.append('dateId', this.dateId);
+                    params.append('spendId', this.spendId);
+                    params.append('amount', this.templateAmount);
+                    params.append('isCash', this.isCash);
+                    params.append('isSalary', this.isSalary);
 
-                console.log(
-                    'dateId: ' + this.dateId
-                    + '\nspendId: ' + this.spendId
-                    + '\ntemplateAmount: ' + this.templateAmount
-                    + '\nisCash: ' + this.isCash
-                    + '\nisSalary: ' + this.isSalary
-                );
+                    console.log(
+                        'dateId: ' + this.dateId
+                        + '\nspendId: ' + this.spendId
+                        + '\ntemplateAmount: ' + this.templateAmount
+                        + '\nisCash: ' + this.isCash
+                        + '\nisSalary: ' + this.isSalary
+                    );
 
-                axios.put('month/pushSpendToMonth', params).then(result => {
-                    if(result.data.length > 0) {
-                        this.date = result.data[0].date;
-                        this.dateId = result.data[0].dateId;
-                        result.data.forEach(spend => {
-                            tmpMonthList.push(spend)
+                    axios.put('month/pushSpendToMonth', params).then(result => {
+                        if(result.data.length > 0) {
+                            this.date = result.data[0].date;
+                            this.dateId = result.data[0].dateId;
+                            result.data.forEach(spend => {
+                                tmpMonthList.push(spend)
+                            });
+                            this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
+                            this.showSpendInput = false;
+                        }
+                    }).then(function () {
+                        axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + this.dateId).then(res => {
+                            res.data.forEach(spend => {
+                                tempSpendList.push(spend);
+                            })
                         });
-                        this.spendId = '';
-                        this.showSpendInput = false;
-                        this.templateAmount = '';
-                    }
-                }).then(function () {
-                    axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + this.dateId).then(res => {
-                        res.data.forEach(spend => {
-                            tempSpendList.push(spend);
-                        })
+                        this.missingSpendsList = tempSpendList;
                     });
-                    this.missingSpendsList = tempSpendList;
-                });
-                this.monthList = tmpMonthList;
+                    this.monthList = tmpMonthList;
+                } else console.log('Не найден date.id!');
             },
             delMonthSpend: function (event) {
                 let tmpMonthList = [];

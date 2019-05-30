@@ -95,7 +95,6 @@ public class MonthController {
 
     @PutMapping("/pushSpendToMonth") //add spend to template and then to monthly_spends (spendId, amount, isCash, isSalary)
     public List<MonthlySpendsDTO> pushSpendToMonth(@RequestParam Map<String,String> requestParams){
-        System.out.println(requestParams);
         return mss.pushSpendToMonth(requestParams);
     }
 

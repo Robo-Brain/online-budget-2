@@ -63,32 +63,6 @@ public class MonthlySpendsService {
         }
     }
 
-    public List<MonthlySpendsDTO> editMonthSpend(Map<String,String> req) { // изменить template созданный в месяце, без участия шаблона
-        String monthlySpendsId = req.get("monthlySpendsId"); // обязательно, нужно знать какое поле меняем
-        if (Objects.nonNull(monthlySpendsId)){
-            MonthlySpends ms = msr.findOneById(Integer.valueOf(monthlySpendsId)).orElseThrow(NotFoundException::new);
-            Integer spendId = ms.getTemplates().getSpendId();
-            Integer dateId = ms.getDateId();
-
-            String amount = Objects.nonNull(req.get("amount")) & req.get("amount").length() > 2 // здесь и далее получать значения из Map || из существующего entity, если в Map их нет
-                    ? req.get("amount")
-                    : String.valueOf(ms.getTemplates().getAmount());
-
-            Boolean isSalary = Objects.nonNull(req.get("isSalary"))
-                    ? Boolean.parseBoolean(req.get("isSalary"))
-                    : ms.getTemplates().isSalaryOrPrepaid();
-
-            Boolean isCash = Objects.nonNull(req.get("isCash"))
-                    ? Boolean.parseBoolean(req.get("isCash"))
-                    : ms.getTemplates().isCashOrCard();
-
-            Templates t = ts.pushSpendToTemplate(String.valueOf(spendId), Integer.valueOf(amount), isSalary, isCash);
-            ms.setTemplateId(t.getId());
-            msr.save(ms);
-            return getMonthsDTOByDateID(dateId);
-        } else throw new NotFoundException();
-    }
-
     public List<MonthlySpendsDTO> getMonthsDTOByDateID(Integer dateID) {
         List<MonthlySpends> allMonthlySpends = getMonthlySpendsByDateId(dateID);
         if (Objects.nonNull(allMonthlySpends) && allMonthlySpends.size() > 0){
@@ -139,9 +113,38 @@ public class MonthlySpendsService {
         }
     }
 
+    public List<MonthlySpendsDTO> editMonthSpend(Map<String,String> req) { // изменить template созданный в месяце, без участия шаблона
+        String monthlySpendsId = req.get("monthlySpendsId"); // обязательно, нужно знать какое поле меняем
+        if (Objects.nonNull(monthlySpendsId)){
+            MonthlySpends ms = msr.findOneById(Integer.valueOf(monthlySpendsId)).orElseThrow(NotFoundException::new);
+            Integer spendId = ms.getTemplates().getSpendId();
+            Integer dateId = ms.getDateId();
+            System.out.println("req.get(isSalary): " + req.get("isSalary") + "req.get(isCash): " + req.get("isCash"));
+            String amount = Objects.nonNull(req.get("amount")) & req.get("amount").length() > 2 // здесь и далее получать значения из Map || из существующего entity, если в Map их нет
+                    ? req.get("amount")
+                    : String.valueOf(ms.getTemplates().getAmount());
+
+            Boolean isSalary = Objects.nonNull(req.get("isSalary")) && req.get("isSalary").length() > 0
+                    ? Boolean.parseBoolean(req.get("isSalary"))
+                    : ms.getTemplates().isSalaryOrPrepaid();
+
+            Boolean isCash = Objects.nonNull(req.get("isCash")) && req.get("isCash").length() > 0
+                    ? Boolean.parseBoolean(req.get("isCash"))
+                    : ms.getTemplates().isCashOrCard();
+
+            Templates t = ts.pushSpendToTemplate(String.valueOf(spendId), Integer.valueOf(amount), isSalary, isCash);
+            System.out.println("\n---\nTemplate: " + t);
+            ms.setTemplateId(t.getId());
+            System.out.println("MonthlySpend: " + ms);
+            msr.save(ms);
+            return getMonthsDTOByDateID(dateId);
+        } else throw new NotFoundException();
+    }
+
     public List<MonthlySpendsDTO> pushSpendToMonth(Map<String, String> req) {
-        String spendId = req.get("spendId");
-        Integer amount = Objects.isNull(req.get("templateAmount")) ? 0 : Integer.valueOf(req.get("templateAmount"));
+        String spendId = req.get("spendId"); // должно быть заполнено ТОЛЬКО если это НОВЫЙ spend добавляется непосредственно в monthly_spends
+
+        Integer amount = Objects.isNull(req.get("amount")) ? 0 : Integer.valueOf(req.get("amount"));
         boolean salaryOrPrepaid = !Objects.isNull(req.get("isCash")) && Boolean.parseBoolean(req.get("isCash"));
         boolean cashOrCard = !Objects.isNull(req.get("isSalary")) && Boolean.parseBoolean(req.get("isSalary"));
 
@@ -165,7 +168,7 @@ public class MonthlySpendsService {
         return getMonthsDTOByDateID(dateId);
     }
 
-    private MonthlySpends setMonthlySpends(Integer dateId, Integer spendId, Integer monthAmount) {
+    private MonthlySpends setMonthlySpends(Integer dateId, Integer spendId, Integer monthAmount) { // заполнить new MonthlySpends()
         MonthlySpends ms = new MonthlySpends();
         ms.setDateId(dateId);
         ms.setTemplateId(spendId);
