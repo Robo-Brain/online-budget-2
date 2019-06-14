@@ -11,6 +11,8 @@ public interface TemplatesListRepo extends JpaRepository<TemplatesList, Integer>
 
     Optional<TemplatesList> findOneById(Integer templateId);
 
+    Optional<TemplatesList> findByName(String name);
+
     Optional<List<TemplatesList>> findAllByEnabledTrue();
 
     @Query("SELECT t FROM TemplatesList t WHERE t.enabled = 1")

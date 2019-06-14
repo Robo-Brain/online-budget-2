@@ -25,10 +25,10 @@ public class TemplatesDTO {
 
     @Getter
     @Setter
-    boolean salaryOrPrepaid;
+    boolean isSalary;
 
     @Getter
     @Setter
-    boolean cashOrCard;
+    boolean isCash;
 
 }

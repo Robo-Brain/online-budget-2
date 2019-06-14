@@ -37,12 +37,12 @@ public class Templates { //it's actually some kind of specific payment, like: cr
     @Column(name = "salary_or_prepaid", nullable = false)
     @Getter
     @Setter
-    boolean salaryOrPrepaid;
+    boolean isSalary;
 
     @Column(name = "cash_or_card", nullable = false)
     @Getter
     @Setter
-    boolean cashOrCard;
+    boolean isCash;
 
     @Override
     public boolean equals(Object other) {
@@ -54,13 +54,13 @@ public class Templates { //it's actually some kind of specific payment, like: cr
 
         return this.spendId.equals(that.spendId)
                 && this.amount.equals(that.amount)
-                && this.salaryOrPrepaid == that.salaryOrPrepaid
-                && this.cashOrCard == that.cashOrCard;
+                && this.isSalary == that.isSalary
+                && this.isCash == that.isCash;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(spendId, amount, salaryOrPrepaid, cashOrCard);
+        return Objects.hash(spendId, amount, isSalary, isCash);
     }
 
 }

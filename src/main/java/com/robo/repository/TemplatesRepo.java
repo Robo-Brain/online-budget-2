@@ -12,6 +12,6 @@ public interface TemplatesRepo extends JpaRepository<Templates, Integer> {
 
     Optional<List<Templates>> findBySpendId(Integer spendId);
 
-    @Query("SELECT t FROM Templates t WHERE t.spendId = ?1 AND t.amount = ?2 AND t.cashOrCard = ?3 AND t.salaryOrPrepaid = ?4")
-    Optional<Templates> findSameSpend(Integer spendId, Integer amount, Boolean salaryOrPrepaid, Boolean cashOrCard);
+    @Query("SELECT t FROM Templates t WHERE t.spendId = ?1 AND t.isSalary = ?2 AND t.isCash = ?3")
+    Optional<List<Templates>> findSameSpend(Integer spendId, Boolean isSalary, Boolean isCash);
 }

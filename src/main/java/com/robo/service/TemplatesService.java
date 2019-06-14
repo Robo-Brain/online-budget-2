@@ -25,13 +25,16 @@ public class TemplatesService {
     TemplatesListRepo tlr;
 
     @Autowired
+    TemplatesListService tls;
+
+    @Autowired
     MonthlySpendsRepo msr;
 
     @Autowired
     DatesRepo dr;
 
-    public List<TemplatesDTO> getTemplatesDTOByTemplatesListId(Integer id) {
-        TemplatesList templatesList = tlr.findOneById(id).orElseThrow(RuntimeException::new);
+    public List<TemplatesDTO> getTemplatesDTOByTemplatesListId(Integer templatesListId) {
+        TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(RuntimeException::new);
         List<TemplatesDTO> resultListDTO = new ArrayList<>();
 
         if (Objects.nonNull(templatesList.getTemplateId()) && !templatesList.getTemplateId().equals("")){
@@ -52,97 +55,105 @@ public class TemplatesService {
         tDTO.setSpendId(template.getSpendId());
         tDTO.setSpendName(template.getSpends().getName());
         tDTO.setAmount(template.getAmount());
-        tDTO.setSalaryOrPrepaid(template.isSalaryOrPrepaid());
-        tDTO.setCashOrCard(template.isCashOrCard());
+        tDTO.setSalary(template.isSalary());
+        tDTO.setCash(template.isCash());
 
         return tDTO;
     }
 
-    public void pushSpendToTemplateAndTemplatesList(Map<String, String> tmpMap) { // запушить новый(?) spend в template, а также в templatesList по возможности
-        String templatesListId = tmpMap.get("templatesListId");
-        String spendId = tmpMap.get("spendId");
-        Integer amount = Objects.isNull(tmpMap.get("amount")) ? 0 : Integer.valueOf(tmpMap.get("amount"));
-        boolean salaryOrPrepaid = !Objects.isNull(tmpMap.get("salaryOrPrepaid")) && Boolean.parseBoolean(tmpMap.get("salaryOrPrepaid"));
-        boolean cashOrCard = !Objects.isNull(tmpMap.get("isCash")) && Boolean.parseBoolean(tmpMap.get("isCash"));
-
-        Templates template = pushSpendToTemplate(spendId, amount, salaryOrPrepaid, cashOrCard);
-        if (Objects.nonNull(templatesListId)){
-            TemplatesList templatesList = tlr.findOneById(Integer.valueOf(templatesListId)).orElseThrow(NotFoundException::new);
-            if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() >= 1 ){
-                templatesList.setTemplateId(templatesList.getTemplateId() + "," + template.getId()); // если уже есть айдишники, то взять их и приплюсовать к ним запятую и новый айди
-            } else {
-                templatesList.setTemplateId(String.valueOf(template.getId())); // если нет айдишников, то не надо ставить запятую
-            }
-            tlr.save(templatesList);
-        }
-    }
-
-    Templates pushSpendToTemplate(String spendId, Integer amount, Boolean isSalary, Boolean isCash) {
-        Optional<List<Templates>> template = tr.findBySpendId(Integer.valueOf(spendId));
+    public Templates pushSpendToTemplate(Integer spendId, Integer amount, Boolean isSalary, Boolean isCash) { // решить что-то с пушем в темплейтЛист
         Templates newTemplate = new Templates();
-        newTemplate.setSpendId(Integer.valueOf(spendId));
-        newTemplate.setAmount(amount);
-        newTemplate.setSalaryOrPrepaid(isSalary);
-        newTemplate.setCashOrCard(isCash);
+        newTemplate.setSpendId(spendId);
+        newTemplate.setAmount(Objects.nonNull(amount) && amount > 99 ? amount : 0);
+        newTemplate.setSalary(Objects.nonNull(isSalary) ? isSalary : true);
+        newTemplate.setCash(Objects.nonNull(isCash) ? isCash : true);
 
-        if (template.isPresent()){
-            List<Templates> templateList = template.get();
-            List<Templates> resultList = templateList.stream().filter(t -> t.equals(newTemplate)).collect(Collectors.toList());
-            if (resultList.size() == 0){
-                tr.save(newTemplate);
-                return newTemplate;
-            } else if (resultList.size() == 1){
-                return resultList.get(0);
-            } else throw new RuntimeException("В таблице templates обнаружены повтряющиеся значения, такого быть не должно, необходимо запустить процедуру проверки.");
-        } else { // если такого spend вообще нет в templates
-            tr.save(newTemplate); // значит добавляем неглядя
-            return newTemplate;
+        newTemplate = findSameTemplates(newTemplate);
+        if (newTemplate.getAmount().equals(0)){
+            newTemplate.setAmount(amount);
+        }
+        tr.save(newTemplate);
+        return newTemplate;
+    }
+
+    public Templates editTemplate(Integer templateId, Integer amount, Boolean isSalary, Boolean isCash) {
+        Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
+
+        Integer newAmount = Objects.nonNull(amount) && amount > 99 ? amount : template.getAmount();
+        Boolean newIsSalary = Objects.nonNull(isSalary) ? isSalary : template.isSalary();
+        Boolean newIsCash = Objects.nonNull(isCash) ? isCash : template.isCash();
+
+        if (msr.findAllByTemplateId(template.getId()).size() > 0){ // если шаблон найден в месяцах(использовался когда-либо), то не удалять его, а создать новый
+            return pushSpendToTemplate(template.getSpendId(), newAmount, newIsSalary, newIsCash); // метод создаст новый templates и, если нужно, поместит его в templatesList
+        } else { // если template не использовался до сих пор, то изменить его и сохранить (новый не создавать)
+            template.setAmount(newAmount);
+            template.setSalary(newIsSalary);
+            template.setCash(newIsCash);
+            tr.save(template);
+            return template;
         }
     }
 
-    public void editSpendInTemplate(Map<String, String> tmpMap) { //вообще этот метод не меняет Template, он создает новый, а старый остается в БД, на случай, если он был использован в прошлых шаблонах
-        String templatesListId = tmpMap.get("templatesListId");
-        String templateId = tmpMap.get("templateId");
-
-        if (Objects.nonNull(templatesListId)){
-            deleteTemplateFromTemplateList(templatesListId, templateId);
-        }
-        pushSpendToTemplateAndTemplatesList(tmpMap);
-    }
-
-    public void deleteTemplateFromTemplateList(String templatesListId, String templateId) {// удаляет template из одного конкретного листа, сам template НЕ удаляется!
-        TemplatesList templatesList = tlr.findOneById(Integer.valueOf(templatesListId)).orElseThrow(NotFoundException::new);
-        String[] ids = templatesListId.length() > 3 || templatesListId.contains(",") ? templatesListId.split(",") : templatesList.getTemplateId().split(",");
-        String result = Arrays.stream(ids).filter(i -> !i.equals(templateId)).collect(Collectors.joining(",","",""));
-        templatesList.setTemplateId(result);
-
-        tlr.save(templatesList);
-    }
-
-    public void deleteSpendFromTemplate(String templateId, String dateId) { //удалить САМ template отовсюду при условии, что его нет в monthly_spends
-        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(Integer.valueOf(templateId));
-        if (allMonthlySpends.size() == 0 & Objects.isNull(dateId)){ // если dateId не передается & в monthly_spends пусто, значит template удаляется только из таблицы templates, он еще не успел попасть в monthly_spends
-            List<TemplatesList> templatesList = tlr.findAll();
-            templatesList.forEach(list -> deleteTemplateFromTemplateList(String.valueOf(list.getId()), templateId));
-            Templates template = tr.findOneById(Integer.valueOf(templateId)).orElseThrow(NotFoundException::new);
-            tr.delete(template);
-        } else if (allMonthlySpends.size() == 1 & Objects.nonNull(dateId)) { // передается dateId, также template с таким ID найден в ОДНОМ месяце, а значит template удаляется из одного месяца и таблицы Templates
-            if (allMonthlySpends.get(0).getDateId().equals(Integer.valueOf(dateId))){ // если ЕДИНСТВЕННЫЙ месяц, из которого удаляется template имеет date_id == переданному с морды dateId, значит все в порядке, template удаляется только из этого конкретно месяца
-
-                Optional<List<MonthlySpends>> msList = msr.findAllByDateIdAndTemplateId(Integer.valueOf(dateId), Integer.valueOf(templateId));
+    public void deleteTemplate(Integer templateId, Integer dateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
+        Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
+        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
+        if (allMonthlySpends.size() == 0){ // если в monthly_spends пусто, значит template еще не успел попасть в monthly_spends и можно его смело удалять
+            tls.searchAndDeleteTemplateFromTemplatesList(templateId);
+            tr.delete(template); // раз нет в monthly_spends, то можно его мочить
+        } else if (allMonthlySpends.size() == 1
+                && Objects.nonNull(dateId)
+                && dateId > 0
+                ){ // передается dateId, также template с таким ID найден в ОДНОМ месяце, а значит template удаляется из одного месяца и таблицы Templates
+            if (allMonthlySpends.get(0).getDateId().equals(dateId)){ // если ЕДИНСТВЕННЫЙ месяц, из которого удаляется template имеет date_id == переданному с морды dateId, значит все в порядке, template удаляется только из этого конкретно месяца
+                Optional<List<MonthlySpends>> msList = msr.findAllByDateIdAndTemplateId(dateId, templateId);
 
                 msList.ifPresent(monthlySpends -> monthlySpends
                         .forEach(ms -> msr.delete(ms)));
 
-                dr.findOneById(Integer.valueOf(dateId))
+                dr.findOneById(dateId)
                         .ifPresent(listId ->
-                                deleteTemplateFromTemplateList(String.valueOf(listId.getTemplateListId()), templateId)); // если с dateId все ОК, найти какой templatesList к нему "прикреплен" и удалить из него template
+                                tls.deleteTemplateFromTemplateList(listId.getTemplateListId(), templateId)); // если с dateId все ОК, найти какой templatesList к нему "прикреплен" и удалить из него template
 
-                tr.findOneById(Integer.valueOf(templateId))
-                        .ifPresent(t -> tr.delete(t));
-            } else System.out.println("date_id != переданному с фронта dateId, нас хекают!");
-        } else if(allMonthlySpends.size() == 0 & Objects.nonNull(dateId)) {
-            System.out.println("dateId приходит с фронта, но в monthly_spends нет полей с таким templateId, что и откуда удаляем?");
+                tr.delete(template);
+            } else System.out.println("date_id != переданному с фронта dateId, на нас напали!");
+        }
+    }
+
+    private Templates findSameTemplates(Templates template){
+//        Optional<List<Templates>> templateList = tr.findBySpendId(template.getSpendId());
+        Optional<List<Templates>> templateList = tr.findSameSpend(template.getSpendId(), template.isSalary(), template.isCash());
+        if (templateList.isPresent()){
+            List<Templates> templates = templateList.get();
+//            List<Templates> resultList = templates.stream().filter( // проверить если уже есть template - положить его в список
+//                    t -> t.equals(template)
+//                            || (
+//                                t.getSpendId().equals(template.getSpendId())
+//                                && t.isSalary() == template.isSalary()
+//                                && t.isCash() == template.isCash()
+//                                && t.getAmount().equals(0) // или если есть точно такой же template с нулевой суммой
+//                            )
+//                ).collect(Collectors.toList());
+            List<Templates> resultList = templates.stream().filter( // проверить если уже есть template - положить его в список
+                    t ->    t.getSpendId().equals(template.getSpendId())
+                            && t.isSalary() == template.isSalary()
+                            && t.isCash() == template.isCash()
+                            && (
+                            t.getAmount().equals(template.getAmount())
+                                    || t.getAmount().equals(0)
+                    ) // или если есть точно такой же template с нулевой суммой
+                ).collect(Collectors.toList());
+
+            if (resultList.size() == 0) { // если количество найденных templates с точно такими же параметрами == 0, то сохранить новый template и вернуть его
+                return template;
+            } else if (resultList.size() == 1) { // если найден точно такой же template, то вернуть его
+//                if (resultList.get(0).getAmount().equals(0)) { // сделать что-то с полями с нулевыми amount
+//                    resultList.get(0).setAmount(amount);
+//                    tr.save(resultList.get(0));
+//                }
+                return resultList.get(0);
+            } else throw new RuntimeException("В таблице templates обнаружены повтряющиеся значения, такого быть не должно, необходимо инициировать экстерминатус.");
+        } else { // если такого spend вообще нет в templates
+            return template;
         }
     }
 

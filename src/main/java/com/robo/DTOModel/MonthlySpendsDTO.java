@@ -52,11 +52,11 @@ public class MonthlySpendsDTO {
 
     @Getter
     @Setter
-    boolean cashOrCard;
+    boolean isCash;
 
     @Getter
     @Setter
-    boolean salaryOrPrepaid;
+    boolean isSalary;
 
     public MonthlySpendsDTO (MonthlySpends ms){
         this.monthlySpendsId = ms.getId(); // monthly_spends.id
@@ -65,8 +65,8 @@ public class MonthlySpendsDTO {
         this.templateId = ms.getTemplateId(); // monthly_spends.spend_id
         this.spendName = ms.getTemplates().getSpends().getName(); // spends.name
         this.templateAmount = ms.getTemplates().getAmount(); // templates.amount
-        this.cashOrCard = ms.getTemplates().isCashOrCard(); // templates.amount
-        this.salaryOrPrepaid = ms.getTemplates().isSalaryOrPrepaid(); // templates.amount
+        this.isCash = ms.getTemplates().isCash(); // templates.amount
+        this.isSalary = ms.getTemplates().isSalary(); // templates.amount
         this.monthAmount = ms.getMonthAmount(); // monthly_spends.month_amount
     }
 

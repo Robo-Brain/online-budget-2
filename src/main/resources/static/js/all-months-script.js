@@ -32,7 +32,7 @@ function showAllMonths() {
                                 + '<td class="name"> {{ month.spendName }}</td>'
                                 + '<td class="deposited"> {{ month.monthAmount }} / {{ month.templateAmount }} </td>'
                                 + '<td v-bind:class="[ month.isCash ? \'cash\' : \'card\' ]"> </td>'
-                                + '<td v-if="month.salaryOrPrepaid" class="salary">ЗП</td>'
+                                + '<td v-if="month.salary" class="salary">ЗП</td>'
                                 + '<td v-else class="prepaid">Аванс</td>'
                             + '</tr>'
                         + '</table>'

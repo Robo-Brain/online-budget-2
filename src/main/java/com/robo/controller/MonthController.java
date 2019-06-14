@@ -68,7 +68,7 @@ public class MonthController {
 
     @GetMapping("/createFromEnabled")
     public List<MonthlySpendsDTO> createMonthFromEnabledTemplatesList(){
-        mss.createMonthFromEnabledTemplatesList();
+        mss.createMonthByEnabledTemplatesList();
         return getLastMonth();
     }
 
@@ -78,29 +78,48 @@ public class MonthController {
         return getLastMonth();
     }
 
+    @PutMapping("/createMonthFromTemplatesList")
+    public void createMonthFromTemplatesList(@RequestParam(name = "templateListId")  Integer templateListId){
+        mss.createNewMonthByTemplatesList(templateListId);
+    }
+
     @GetMapping("/getMonthWithDateId")
     public List<MonthlySpendsDTO> getMonthWithDateId(@RequestParam(name = "dateId") String dateId){
         return mss.getMonthsDTOByDateID(Integer.valueOf(dateId));
     }
 
-//    @PutMapping("/editMonthAmount")
-//    public List<MonthlySpendsDTO> editMonthAmount(@RequestParam(name = "monthlySpendsId") String monthlySpendsId, @RequestParam(name = "amount") String amount){
-//        return mss.editMonthAmount(monthlySpendsId, amount);
-//    }
 
-    @PutMapping("/editMonthSpend")
-    public List<MonthlySpendsDTO> editMonthSpend(@RequestParam Map<String,String> requestParams){
-        return mss.editMonthSpend(requestParams);
+    @PutMapping("/saveMonthAmount") //
+    public List<MonthlySpendsDTO> saveMonthAmount(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId,
+                                                 @RequestParam(name = "amount") Integer amount){
+        return mss.saveMonthAmount(monthlySpendsId, amount);
+    }
+
+    @PutMapping("/editMonthSpend") //
+    public List<MonthlySpendsDTO> editMonthSpend(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId,
+                                                 @RequestParam(name = "amount") Integer amount,
+                                                 @RequestParam(name = "isSalary") String isSalary,
+                                                 @RequestParam(name = "isCash") String isCash){
+        return mss.editMonthSpend(monthlySpendsId, amount, isSalary, isCash);
     }
 
     @PutMapping("/pushSpendToMonth") //add spend to template and then to monthly_spends (spendId, amount, isCash, isSalary)
-    public List<MonthlySpendsDTO> pushSpendToMonth(@RequestParam Map<String,String> requestParams){
-        return mss.pushSpendToMonth(requestParams);
+    public List<MonthlySpendsDTO> pushSpendToMonth(@RequestParam(name = "spendId") Integer spendId,
+                                                   @RequestParam(name = "monthlySpendsId") Integer monthlySpendsId,
+                                                   @RequestParam(name = "amount") Integer amount,
+                                                   @RequestParam(name = "isSalary") String isSalary,
+                                                   @RequestParam(name = "isCash") String isCash){
+        return mss.pushSpendToMonth(spendId, monthlySpendsId, amount, isSalary, isCash);
     }
 
     @DeleteMapping("/deleteSpendFromMonth")
-    public List<MonthlySpendsDTO> deleteSpendFromMonth(@RequestParam(name = "monthId") String monthId){
+    public List<MonthlySpendsDTO> deleteSpendFromMonth(@RequestParam(name = "monthId") Integer monthId){
         return mss.deleteSpendFromMonth(monthId);
+    }
+
+    @GetMapping("/getTotalMonthAmounts")
+    public Map<String, Integer> getTotalMonthAmounts(@RequestParam(name = "dateId") Integer dateId){
+        return mss.getTotalMonthAmounts(dateId);
     }
 
 }

@@ -84,7 +84,6 @@ input[type=number] {
 .template-list-item {
     height: 1.5em;
     display: list-item;
-
     padding: 0.2em 0.3em 0.1em 0.3em;
     margin-bottom: 0.2em ;
     border-radius: 0.1em;
@@ -93,20 +92,51 @@ input[type=number] {
     -2px -2px 5px 0 rgba(0,0,0,.1),
     2px 2px 5px 0 rgba(0,0,0,.1),
     -2px 2px 5px 0 rgba(0,0,0,.1);
-    transition: 0.3s all linear;
+    transition: 0.2s all linear;
 }
 .template-list-item:nth-child(odd) {
     border-left: 0.4em solid #d42e0d;
 }
-
-.template-list-item .delete {
-    float: right;
-    border-radius: 0 0.2em 0.2em 0;
-    background-color: red;
+.template-list-item button.save{
+    border-radius: 0.3em;
     transition: all 1s ease 0s;
+    width: 6.3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+    background-color: #82EA85; !important;
 }
 
-.template-list-item .save {
+
+.template .edit-block {
+    float: right;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
+    -2px -2px 5px 0 rgba(0,0,0,.1),
+    2px 2px 5px 0 rgba(0,0,0,.1),
+    -2px 2px 5px 0 rgba(0,0,0,.1);
+}
+
+.template-list-item .edit-block{
+    box-shadow: none; !important;
+}
+
+.edit-block button {
+    border-radius: 0 0.3em 0.3em 0;
+    background-color: red;
+    transition: all 1s ease 0s;
+    width: 3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+}
+
+.edit-block button.fill, .edit-block button.edit {
+    border-radius: 0.3em 0 0 0.3em; !important;
+    background-color: #82EA85; !important;
+    margin-right: 0.3em;
+}
+
+.template .save {
     float: right;
     border-radius: 0 0.2em 0.2em 0;
     background-color: green;
@@ -114,18 +144,45 @@ input[type=number] {
 }
 
 .template-list-item button {
+
+}
+
+button.cash {
     width: 3em;
     height: 2em;
     border: 0;
     vertical-align: top;
+    background: url("/img/cash.png") no-repeat 50%;
+    margin-left: 0.5em;
+}
+
+button.card{
+    width: 3em;
+    height: 2em;
+    border: 0;
+    vertical-align: top;
+    background: url("/img/card.png") no-repeat 50%;
+    margin-left: 0.5em;
+}
+
+button.prepaid {
+    border: 0;
+    background-color: transparent;
+    font-size: 1.2em;
+    margin-left: 0.5em;
+}
+button.salary {
+    border: 0;
+    background-color: transparent;
+    font-size: 1.2em;
+    margin-left: 0.5em;
 }
 
 button.prepaid:after {
-    content: 'Аванс'
+    content: 'Аванс';
 }
-
 button.salary:after {
-    content: 'ЗП'
+    content: 'ЗП';
 }
 
 .template-list-item input {
@@ -135,31 +192,52 @@ button.salary:after {
     text-align: right;
     padding: 0 0.1em;
     width: 2.8em;
+    margin-left: 1em;
 }
 
-button.cash {
-    width: 3em;
-    height: 2em;
-    border: 0;
-    vertical-align: top;
-    background: url("/img/cash.png") no-repeat 50%;
-}
-
-button.card{
-    width: 3em;
-    height: 2em;
-    border: 0;
-    vertical-align: top;
-    background: url("/img/card.png") no-repeat 50%;
+.template-list .amount {
+    font-size: 1.2em;
 }
 
 .template {
     background-color: #e6e6e6;
     font-size: 1.2em;
+    min-height: 1.5em;
+
+    display: list-item;
+    list-style: none;
+
+    padding: 0.2em 0.3em 0.1em 0.3em;
+    margin-bottom: 0.2em ;
+    border-radius: 0.1em;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
+    -2px -2px 5px 0 rgba(0,0,0,.1),
+    2px 2px 5px 0 rgba(0,0,0,.1),
+    -2px 2px 5px 0 rgba(0,0,0,.1);
+    transition: 0.3s all linear;
 }
 
 .template.active {
     background-color: #3badd6;
+}
+
+.template button.name {
+    border: none;
+    font-size: 1.3em;
+    background-color: transparent;
+    margin-left: 0.8em;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
+    -2px -2px 5px 0 rgba(0,0,0,.1),
+    2px 2px 5px 0 rgba(0,0,0,.1),
+    -2px 2px 5px 0 rgba(0,0,0,.1);
+    transition: 0.3s all linear;
+    border-radius: 0.1em;
+}
+
+.template .isActive {
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 1em;
 }
 
 .template select {

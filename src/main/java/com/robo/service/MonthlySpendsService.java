@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,16 +47,16 @@ public class MonthlySpendsService {
         if (Objects.nonNull(date.getId())){ // проверить, вернулся заполненный Dates или пустой
             return getMonthsDTOByDateID(date.getId()); // вернуть найденную дату, если она найдена
         } else {
-            throw new NotFoundException(); // временная заглушка, которая возвращает null, если в dates нет сегодняшнего месяца и на морде выскакивает модальное окно
+            throw new NotFoundException(); // если в dates нет сегодняшнего месяца и на морде выскакивает модальное окно
         }
     }
 
     public List<MonthlySpendsDTO> getLastMonth() {
-        Dates date = ds.getLastDate(); // получить сегодняшнюю дату и вернуть для нее entity dates иначе new Dates().
+        Dates date = ds.getLastDate(); // получить последнюю строку в таблице dates и вернуть для нее entity dates иначе new Dates().
         if (Objects.nonNull(date.getId())){ // проверить, вернулся заполненный Dates или пустой
             return getMonthsDTOByDateID(date.getId()); // вернуть найденную дату, если она найдена
         } else {
-            throw new NotFoundException(); // временная заглушка, которая возвращает null, если в dates нет месяца
+            throw new NotFoundException();
         }
     }
 
@@ -77,7 +74,7 @@ public class MonthlySpendsService {
         }
     }
 
-    public List<List<MonthlySpendsDTO>> getAllMonthlySpends() {
+    public List<List<MonthlySpendsDTO>> getAllMonthlySpends() { // получить все месяцы
         List<Dates> dates = dr.findAll();
         List<List<MonthlySpendsDTO>> resultList = new ArrayList<>();
         dates.forEach(date -> resultList.add(new ArrayList<>(getMonthsDTOByDateID(date.getId()))));
@@ -89,7 +86,7 @@ public class MonthlySpendsService {
         return msr.findAllByDateId(id).orElse(ms);
     }
 
-    public void createMonthFromEnabledTemplatesList() {
+    public void createMonthByEnabledTemplatesList() {
         createNewMonthByTemplatesList(tls.getEnabledTemplate().getId());
     }
 
@@ -100,8 +97,8 @@ public class MonthlySpendsService {
         createNewMonthByTemplatesList(tl.getId());
     }
 
-    private void createNewMonthByTemplatesList(Integer templatesListId) {
-        if (Objects.nonNull(templatesListId) && Objects.isNull(ds.getTodaysDate().getId())){
+    public void createNewMonthByTemplatesList(Integer templatesListId) {
+        if (Objects.nonNull(templatesListId) && Objects.isNull(ds.getTodaysDate().getId())){ // проверка закончился ли текущий месяц
             Dates d = new Dates();
             d.setDate(LocalDate.now());
             d.setTemplateListId(templatesListId);
@@ -109,66 +106,96 @@ public class MonthlySpendsService {
             dr.save(d);
 
             List<TemplatesDTO> templatesDTO = ts.getTemplatesDTOByTemplatesListId(templatesListId);
-            templatesDTO.forEach(template -> msr.save(setMonthlySpends(d.getId(), template.getTemplateId(), 0)));
+            if (templatesDTO.size() > 1){
+                templatesDTO.forEach(template -> msr.save(setMonthlySpends(d.getId(), template.getTemplateId(), 0)));
+            }
         }
     }
 
-    public List<MonthlySpendsDTO> editMonthSpend(Map<String,String> req) { // изменить template созданный в месяце, без участия шаблона
-        String monthlySpendsId = req.get("monthlySpendsId"); // обязательно, нужно знать какое поле меняем
+    public List<MonthlySpendsDTO> saveMonthAmount(Integer monthlySpendsId, Integer amount) {
+        MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
+        if (!ms.getMonthAmount().equals(amount) && amount > 99){
+            ms.setMonthAmount(amount);
+            msr.save(ms);
+        }
+        return getMonthsDTOByDateID(ms.getDateId());
+    }
+
+    public List<MonthlySpendsDTO> pushSpendToMonth(Integer spendId, Integer monthlySpendsId, Integer amount, String isSalary, String isCash) {
+        if (Objects.nonNull(spendId) && spendId > 0){
+
+//            if (Objects.isNull(dateId)){ // если dateId не передается с фронта, значит месяц не создан или хз
+//                Dates date = ds.getTodaysDate();// пробуем получить последний месяц
+//                if (Objects.isNull(date.getId())){ // если в полученном месяце нет id, значит вернулся новый пустой месяц
+//                    date.setDate(LocalDate.now());
+//                    dr.save(date);
+//                }
+//            }
+
+            Integer newAmount = Objects.isNull(amount) ? 0 : Integer.valueOf(amount);
+            boolean newIsSalary = !Objects.isNull(isSalary) && Boolean.parseBoolean(isSalary);
+            boolean newIsCash = !Objects.isNull(isCash) && Boolean.parseBoolean(isCash);
+            Integer monthDateId = null;
+
+            Templates templates = ts.pushSpendToTemplate(spendId, newAmount, newIsSalary, newIsCash); // искать template с такими же параметрами, если найден - вернуть его, если нет - добавить новый
+
+            if (Objects.nonNull(monthlySpendsId)) { // если найдена строка с таким monthlySpendsId, значит месяц НЕ новый, добавляется в существующий
+                Optional<MonthlySpends> monthlySpends = msr.findOneById(Integer.valueOf(monthlySpendsId));
+                if (monthlySpends.isPresent()) monthDateId = monthlySpends.get().getDateId();
+            } else { // если по указанному monthlySpendsId НИЧЕГО НЕ найдено
+                Dates date = ds.getTodaysDate(); //  попробовать получить последний месяц
+                if (Objects.isNull(date.getId())){ // если получить последний месяц не удалось, значит это новый месяц
+                    date.setDate(LocalDate.now());
+                    dr.save(date);
+                    monthDateId = date.getId();
+                } else { // если получить последний месяц удалось, значит попробовать сохранить в него?
+                    monthDateId = date.getId();
+                }
+            }
+
+            Optional<List<MonthlySpends>> msList = msr.findAllByDateId(monthDateId); //если dateId удалось получить
+            if (msList.isPresent()){ // и по этому dateId найдены какие-то записи в таблице monthly_spends
+                List<MonthlySpends> spendIdList = msList.get().stream().filter(
+                        ms -> ms.getTemplates()
+                                .getSpends()
+                                    .getId()
+                                        .equals(spendId))
+                        .collect(Collectors.toList()); // положить в список те строки, в которых уже есть указанный spendId
+                if (spendIdList.size() == 0){ // если таких spendId в этом месяце нет, то сохранить новый template
+                    msr.save(setMonthlySpends(monthDateId, templates.getId(), 0));
+                }
+            } else msr.save(setMonthlySpends(monthDateId, templates.getId(), 0));
+
+            return getMonthsDTOByDateID(monthDateId);
+        } else throw new RuntimeException("SpendId not found!");
+    }
+
+    public List<MonthlySpendsDTO> editMonthSpend(Integer monthlySpendsId, Integer amount, String isSalary, String isCash) { // изменить template созданный в месяце, без участия шаблона
         if (Objects.nonNull(monthlySpendsId)){
-            MonthlySpends ms = msr.findOneById(Integer.valueOf(monthlySpendsId)).orElseThrow(NotFoundException::new);
+            MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
             Integer spendId = ms.getTemplates().getSpendId();
             Integer dateId = ms.getDateId();
-            System.out.println("req.get(isSalary): " + req.get("isSalary") + "req.get(isCash): " + req.get("isCash"));
-            String amount = Objects.nonNull(req.get("amount")) & req.get("amount").length() > 2 // здесь и далее получать значения из Map || из существующего entity, если в Map их нет
-                    ? req.get("amount")
-                    : String.valueOf(ms.getTemplates().getAmount());
 
-            Boolean isSalary = Objects.nonNull(req.get("isSalary")) && req.get("isSalary").length() > 0
-                    ? Boolean.parseBoolean(req.get("isSalary"))
-                    : ms.getTemplates().isSalaryOrPrepaid();
+            Integer newAmount = Objects.nonNull(amount) && amount > 99 // здесь и далее присвоить входной аргумент, если входного их нет то из существующего entity
+                    ? amount
+                    : ms.getTemplates().getAmount();
 
-            Boolean isCash = Objects.nonNull(req.get("isCash")) && req.get("isCash").length() > 0
-                    ? Boolean.parseBoolean(req.get("isCash"))
-                    : ms.getTemplates().isCashOrCard();
+            Boolean newIsSalary = Objects.nonNull(isSalary) && !isSalary.isEmpty()
+                    ? Boolean.parseBoolean(isSalary)
+                    : ms.getTemplates().isSalary();
 
-            Templates t = ts.pushSpendToTemplate(String.valueOf(spendId), Integer.valueOf(amount), isSalary, isCash);
-            System.out.println("\n---\nTemplate: " + t);
+            Boolean newIsCash = Objects.nonNull(isCash) && !isCash.isEmpty()
+                    ? Boolean.parseBoolean(isCash)
+                    : ms.getTemplates().isCash();
+
+            Templates t = ts.pushSpendToTemplate(spendId, newAmount, newIsSalary, newIsCash);
             ms.setTemplateId(t.getId());
-            System.out.println("MonthlySpend: " + ms);
             msr.save(ms);
             return getMonthsDTOByDateID(dateId);
         } else throw new NotFoundException();
     }
 
-    public List<MonthlySpendsDTO> pushSpendToMonth(Map<String, String> req) {
-        String spendId = req.get("spendId"); // должно быть заполнено ТОЛЬКО если это НОВЫЙ spend добавляется непосредственно в monthly_spends
-
-        Integer amount = Objects.isNull(req.get("amount")) ? 0 : Integer.valueOf(req.get("amount"));
-        boolean salaryOrPrepaid = !Objects.isNull(req.get("isCash")) && Boolean.parseBoolean(req.get("isCash"));
-        boolean cashOrCard = !Objects.isNull(req.get("isSalary")) && Boolean.parseBoolean(req.get("isSalary"));
-
-        List<Integer> spendIdList; // список с SPEND.id полученный из templates для этого месяца
-
-        Templates templates = ts.pushSpendToTemplate(spendId, amount, salaryOrPrepaid, cashOrCard); // искать template с такими же параметрами, если найден - вернуть его, если нет - добавить новый
-        Integer dateId = Objects.nonNull(req.get("dateId")) && req.get("dateId").length() > 0 ? Integer.valueOf(req.get("dateId")) : ds.getTodaysDate().getId(); //использовать dateId с морды, иначе попробовать получить текущий месяц, иначе null
-
-        if (msr.findAllByDateId(dateId).isPresent()) { // если по указанному dateId что-то найдено, получить список monthly_spends на данный dateId
-            spendIdList = msr.findAllByDateId(dateId).get().stream().map(ms -> ms.getTemplates().getSpends().getId()).collect(Collectors.toList()); // положить в список SPEND.id
-            if (!spendIdList.contains(Integer.parseInt(spendId))){ //если monthly_spends в этом месяце НЕ содержит spends с таким ID
-                msr.save(setMonthlySpends(dateId, templates.getId(), 0));
-            }
-        } else { // если по указанному dateId НИЧЕГО НЕ найдено, значит это новый месяц, добавить в него template не глядя
-            Dates date = new Dates();
-            date.setDate(LocalDate.now());
-            dr.save(date);
-            dateId = date.getId();
-            msr.save(setMonthlySpends(dateId, templates.getId(), 0));
-        }
-        return getMonthsDTOByDateID(dateId);
-    }
-
-    private MonthlySpends setMonthlySpends(Integer dateId, Integer spendId, Integer monthAmount) { // заполнить new MonthlySpends()
+    private MonthlySpends setMonthlySpends(Integer dateId, Integer spendId, Integer monthAmount) { // просто заполнить и вернуть MonthlySpends()
         MonthlySpends ms = new MonthlySpends();
         ms.setDateId(dateId);
         ms.setTemplateId(spendId);
@@ -176,19 +203,38 @@ public class MonthlySpendsService {
         return ms;
     }
 
-    public List<MonthlySpendsDTO> deleteSpendFromMonth(String monthId) {
-        MonthlySpends ms = msr.findOneById(Integer.valueOf(monthId)).orElseThrow(NotFoundException::new);
+    public List<MonthlySpendsDTO> deleteSpendFromMonth(Integer monthId) {
+        MonthlySpends ms = msr.findOneById(monthId).orElseThrow(NotFoundException::new);
         Integer dateId = ms.getDateId();
         Integer templateId = ms.getTemplateId();
         msr.delete(ms);
-        ts.deleteSpendFromTemplate(String.valueOf(templateId), String.valueOf(dateId));
+        ts.deleteTemplate(templateId, dateId);
 
         if(!msr.findAllByDateId(dateId).isPresent()) { // если месячных трат с таким dateId больше нет(удалил единственный), то удалить и дату(dates)
             ds.deleteDate(dateId);
         }
 
-//        return getCurrentMonth();
         return getLastMonth();
+    }
+
+    public Map<String, Integer> getTotalMonthAmounts (Integer dateId){
+        Map<String, Integer> result = new HashMap<>();
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
+        Integer amountSalaryCash = 0, amountSalaryCard = 0, amountPrepaidCash = 0, amountPrepaidCard = 0;
+        for (MonthlySpends ms : msList) {
+            amountSalaryCash = ms.getTemplates().isSalary() && ms.getTemplates().isCash() ? amountSalaryCash + ms.getTemplates().getAmount() : amountSalaryCash;
+            amountSalaryCard = ms.getTemplates().isSalary() && !ms.getTemplates().isCash() ? amountSalaryCard + ms.getTemplates().getAmount() : amountSalaryCard;
+            amountPrepaidCash = !ms.getTemplates().isSalary() && ms.getTemplates().isCash() ? amountPrepaidCash + ms.getTemplates().getAmount() : amountPrepaidCash;
+            amountPrepaidCard = !ms.getTemplates().isSalary() && !ms.getTemplates().isCash() ? amountPrepaidCard + ms.getTemplates().getAmount() : amountPrepaidCard;
+        }
+        result.put("amountSalary", amountSalaryCash + amountSalaryCard);
+        result.put("amountPrepaid", amountPrepaidCash + amountPrepaidCard);
+        result.put("amountSalaryCash", amountSalaryCash);
+        result.put("amountSalaryCard", amountSalaryCard);
+        result.put("amountPrepaidCash", amountPrepaidCash);
+        result.put("amountPrepaidCard", amountPrepaidCard);
+
+        return result;
     }
 
 }

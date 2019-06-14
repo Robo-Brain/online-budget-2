@@ -2,13 +2,16 @@ package com.robo.service;
 
 import com.robo.DTOModel.TemplatesDTO;
 import com.robo.DTOModel.TemplatesListDTO;
+import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.TemplatesListRepo;
+import com.robo.repository.TemplatesRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TemplatesListService {
@@ -17,77 +20,82 @@ public class TemplatesListService {
     TemplatesListRepo tlr;
 
     @Autowired
+    TemplatesRepo tr;
+
+    @Autowired
     TemplatesService ts;
 
-    public void addTemplate(String name) {
-        tlr.save(new TemplatesList(name));
-    }
-
-    public List<TemplatesListDTO> getTemplatesList(){
-        List<TemplatesList> templatesLists = tlr.findAll();
-        List<TemplatesListDTO> spendsTemplatesDTOList = new ArrayList<>();
-
-        templatesLists.forEach(template -> {
-            TemplatesListDTO tlDTO = new TemplatesListDTO();
-            tlDTO.setId(template.getId()); // templates.id
-            tlDTO.setTemplateName(template.getName()); // templates.name
-            tlDTO.setTemplateEnabled(template.isEnabled()); // templates.enabled
-
-            spendsTemplatesDTOList.add(tlDTO);
-        });
-
-        return spendsTemplatesDTOList;
-    }
-
-    public List<TemplatesListDTO> getExtendedTemplatesList(){
-        List<TemplatesList> templatesLists = tlr.findAll();
-        List<TemplatesListDTO> spendsTemplatesDTOList = new ArrayList<>();
-
-        templatesLists.forEach(template -> {
-            TemplatesListDTO tlDTO = new TemplatesListDTO();
-            List<TemplatesDTO> tDTOList = ts.getTemplatesDTOByTemplatesListId(template.getId());
-
-            tlDTO.setId(template.getId()); // templates.id
-            tlDTO.setTemplateName(template.getName()); // templates.name
-            tlDTO.setTemplateEnabled(template.isEnabled()); // templates.enabled
-            tlDTO.setTemplatesDTOList(tDTOList);
-
-            spendsTemplatesDTOList.add(tlDTO);
-        });
-
-        return spendsTemplatesDTOList;
-    }
-
-    public void updateTemplateList(TemplatesList tl){
-        TemplatesList templatesList = tlr.findOneById(tl.getId()).orElseThrow(RuntimeException::new);
-
-        templatesList.setName(tl.getName());
-        templatesList.setTemplateId(tl.getTemplateId());
-
-        tlr.save(templatesList);
-    }
-
-//    public void deleteTemplatesList(Integer id) {
-//        TemplatesList templatesList = tlr.findOneById(id).orElseThrow(RuntimeException::new);
-//        tlr.delete(templatesList);
-//    }
-
-    public void addTemplateIdIntoTemplateList(Map<String, String> id) {
-        Integer templatesListId = Integer.valueOf(id.get("templateListId"));
-        String templateId = id.get("templateId");
-        String ids;
-
-        TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(RuntimeException::new);
-        if (templatesList.getTemplateId() == null){
-            ids = templateId;
-        } else {
-            ids = templatesList.getTemplateId() + "," + templateId;
+    public List<TemplatesListDTO> addTemplate(String name) {
+        if (!tlr.findByName(name).isPresent()){
+            tlr.save(new TemplatesList(name));
         }
-//        String ids2 = Optional.ofNullable(templatesList.getTemplateId()).orElse(templateId);
-//        ids += templateId;
-        templatesList.setTemplateId(ids);
+        return getAllTemplatesList();
+    }
 
+    public List<TemplatesListDTO> getAllTemplatesList(){
+        List<TemplatesList> templatesLists = tlr.findAll();
+        List<TemplatesListDTO> spendsTemplatesDTOList = new ArrayList<>();
+
+        templatesLists.forEach(tl -> {
+            TemplatesListDTO tlDTO = new TemplatesListDTO();
+            tlDTO.setId(tl.getId()); // templates.id
+            tlDTO.setTemplateName(tl.getName()); // templates.name
+
+            if (templatesLists.size() == 1) { // если шаблон всего 1
+                tl.setEnabled(true); //сделать его активным
+                tlr.save(tl);
+                tlDTO.setTemplateEnabled(true); // принудительно
+            } else tlDTO.setTemplateEnabled(tl.isEnabled()); // иначе спользовать значение из БД
+
+            spendsTemplatesDTOList.add(tlDTO);
+        });
+
+        return spendsTemplatesDTOList;
+    }
+
+    public void pushSpendToTemplateList(Integer templatesListId, Integer spendId) {
+        TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        Templates template = ts.pushSpendToTemplate(spendId, 0, true, true);
+        if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() >= 1 ){ // проверяем длину "списка" айдишников templates (template_id)
+            templatesList.setTemplateId(templatesList.getTemplateId() + "," + template.getId()); // значит там есть айдишники, нужно взять их и добавить к ним запятую + новый айди
+        } else {
+            templatesList.setTemplateId(String.valueOf(template.getId())); // если нет айдишников, то не надо ставить запятую
+        }
         tlr.save(templatesList);
+    }
+
+    public void deleteTemplateFromTemplateList(Integer templatesListId, Integer templateId) {// удаляет template из одного конкретного листа, сам template НЕ удаляется!
+        TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){
+            String[] ids = templatesList.getTemplateId().split(",");
+            String result = Arrays.stream(ids).filter(i -> !i.equals(String.valueOf(templateId))).collect(Collectors.joining(",","",""));
+            templatesList.setTemplateId(result);
+            tlr.save(templatesList);
+        }
+    }
+
+    void searchAndDeleteTemplateFromTemplatesList(Integer templateId) {
+        List<TemplatesList> templatesLists = tlr.findAll();
+        templatesLists.forEach(templatesList -> {
+            if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){
+                String[] ids = templatesList.getTemplateId().split(",");
+                if (Arrays.asList(ids).contains(String.valueOf(templateId))) {
+                    String result = Arrays.stream(ids).filter(i -> !i.equals(String.valueOf(templateId))).collect(Collectors.joining(",","",""));
+                    templatesList.setTemplateId(result);
+                    tlr.save(templatesList);
+                }
+            }
+        });
+    }
+
+    public List<TemplatesDTO> editTemplateInList(Integer templatesListId, Integer templateId, Integer amount, Boolean isSalary, Boolean isCash){
+        TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        Templates template = ts.editTemplate(templateId, amount, isSalary, isCash);
+        List<String> ids = Arrays.asList(templatesList.getTemplateId().split(","));
+        Collections.replaceAll(ids, String.valueOf(templateId), String.valueOf(template.getId()));
+        templatesList.setTemplateId(ids.stream().collect(Collectors.joining(",","","")));
+        tlr.save(templatesList);
+        return ts.getTemplatesDTOByTemplatesListId(templatesListId);
     }
 
     public void makeTemplateWithIdActive(Integer id) {
@@ -101,6 +109,11 @@ public class TemplatesListService {
             }
             tlr.save(templateList);
         });
+    }
+
+    public void deleteTemplatesList(Integer id){
+        TemplatesList tl = tlr.findOneById(id).orElseThrow(NotFoundException::new);
+        tlr.delete(tl);
     }
 
     public TemplatesList getEnabledTemplate() {

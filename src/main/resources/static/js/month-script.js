@@ -15,7 +15,7 @@ function showLastMonth() {
                     + '<slot name="header">Внимание, текущий месяц не найден!</slot>'
                 + '</div>'
                 + '<div class="modal-body">'
-                    + '<slot name="body">Создай новый месяц по активному шаблону или по предыдущему месяцу.</slot>'
+                    + '<slot name="body">Создай новый месяц по активному шаблону или по предыдущему месяцу:</slot>'
                 + '</div>'
                 + '<div class="modal-footer">'
                     + '<slot name="footer">'
@@ -94,10 +94,17 @@ function showLastMonth() {
                 dateId: '',
                 showSpendInput: false,
                 templateAmount: '',
+                newMonthAmount: null,
                 isCash: '',
                 isSalary: '',
                 editMode: false,
-                monthlySpendsId: ''
+                monthlySpendsId: '',
+                totalAmountSalary: 0,
+                totalAmountPrepaid: 0,
+                totalAmountSalaryCard: 0,
+                totalAmountSalaryCash: 0,
+                totalAmountPrepaidCard: 0,
+                totalAmountPrepaidCash: 0
             }
         },
         template:
@@ -112,37 +119,54 @@ function showLastMonth() {
                 + '<tr v-if="!editMode"class="month-item" v-for="(month, index, key) in monthList" >'
                         + '<td class="name"> {{ month.spendName }}</td>'
                         + '<td class="deposited">'
-                            + '<input class="monthAmountInput" :value="month.monthAmount" />'
+                            + '<input @input="setMonthAmount($event)" :id="month.monthlySpendsId" :value="month.monthAmount" />'
                             + ' / {{ month.templateAmount }}'
                         + '</td>'
-                        + '<td><button v-bind:class="[ month.salaryOrPrepaid ? \'salary\' : \'prepaid\' ]"> </button></td>'
-                        + '<td><button v-bind:class="[ month.cashOrCard ? \'cash\' : \'card\' ]"> </button></td>'
+                        + '<td><button v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button></td>'
+                        + '<td><button v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button></td>'
                 + '</tr>'
                 + '<tr v-if="editMode" class="month-item" v-for="(month, index, key) in monthList" >'
                     + '<td class="name"> {{ month.spendName }}</td>'
                     + '<td class="deposited"> / <input :id="month.monthlySpendsId" :value="month.templateAmount" @input="setAmount($event)" /></td>'
-                    + '<td><button :id="month.monthlySpendsId" @click="salaryToggle($event)" v-bind:class="[ month.salaryOrPrepaid ? \'salary\' : \'prepaid\' ]"> </button></td>'
-                    + '<td><button :id="month.monthlySpendsId" @click="cashToggle($event)" v-bind:class="[ month.cashOrCard ? \'cash\' : \'card\' ]"> </button></td>'
+                    + '<td><button :id="month.monthlySpendsId" @click="salaryToggle($event)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button></td>'
+                    + '<td><button :id="month.monthlySpendsId" @click="cashToggle($event)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button></td>'
                     + '<td>'
                         + '<button @click="editSpendInMonth()">✓</button>'
                             + '&nbsp;&nbsp;&nbsp;'
-                        + '<button @click="delMonthSpend($event)" :id="month.monthlySpendsId">X</button>'
+                        + '<button @click="delMonthSpend(month.monthlySpendsId)">X</button>'
                     + '</td>'
                 + '</tr>'
             + '</table>'
-                + '<select v-if="!editMode" @change="toggleShowSpendInput()" v-model="spendId" >'
+                + '<div v-if="!editMode" class="total-amount">'
+                    + 'ЗП: {{ totalAmountSalary }} : '
+                    + '<br /><button class="cash"> </button>: {{ totalAmountSalaryCash }} / <button class="card"> </button>: {{ totalAmountSalaryCard }}'
+                    + '<br />С аванса: {{ totalAmountPrepaid }}'
+                    + '<br /><button class="cash"> </button>: {{ totalAmountPrepaidCash }} / <button class="card"> </button>: {{ totalAmountPrepaidCard }}'
+                + '</div>'
+                + '<select v-if="editMode" @change="toggleShowSpendInput()" v-model="spendId" >'
                     + '<option v-for="spend in missingSpendsList" v-bind:value="spend.id">'
                         + '{{ spend.name }}'
                     + '</option>'
                 + '</select>'
-                + '<span v-if="!editMode & showSpendInput" class="spend-input">'
+                + '<span v-if="editMode && showSpendInput" class="spend-input">'
                     + 'Сумма: <input v-model="templateAmount" />'
                     + '&nbsp;<button v-bind:class="[ isSalary ? \'salary\' : \'prepaid\' ]" @click="salaryToggle($event)"> </button>'
                     + '&nbsp;<button v-bind:class="[ isCash ? \'cash\' : \'card\' ]" @click="cashToggle($event)"> </button>'
-                    + '&nbsp;<button v-if="templateAmount.length > 2" @click="pushSpendToTemplate()">Add</button>'
+                    + '&nbsp;<button v-if="templateAmount.length > 2" @click="pushSpendToMonth()">Add</button>'
                 + '</span>'
             + '<modal /></div>',
         methods: {
+            setMonthAmount: function(event) {
+                this.monthlySpendsId = event.target.id;
+                this.newMonthAmount = event.target.value;
+                if (this.newMonthAmount.length > 2){
+                    axios.put('month/saveMonthAmount?monthlySpendsId='
+                        + this.monthlySpendsId
+                        + "&amount="
+                        + this.newMonthAmount)
+                        .then(result => this.monthList = result.data)
+                }
+            },
             editModeToggle: function() { // режим редактирования monthly_spend On/Off
                 this.spendId = '';
                 this.showSpendInput = false;
@@ -177,83 +201,79 @@ function showLastMonth() {
                     event.target.className = 'cash';
                 }
                 event.target.className == 'cash' ? this.isCash = true : this.isCash = false;
-                console.log(this.isCash)
             },
             editSpendInMonth: function () {
-                let tmpMonthList = [];
                 if (this.monthlySpendsId.length > 0){
-                    const params = new URLSearchParams();
-                    params.append('monthlySpendsId', this.monthlySpendsId);
-                    params.append('amount', this.templateAmount);
-                    params.append('isCash', this.isCash);
-                    params.append('isSalary', this.isSalary);
-
-                    console.log(
-                        'monthlySpendsId: ' + this.monthlySpendsId
-                        + '\nspendId: ' + this.spendId
-                        + '\ntemplateAmount: ' + this.templateAmount
-                        + '\nisCash: ' + this.isCash
-                        + '\nisSalary: ' + this.isSalary
-                    );
-
-                    axios.put('month/editMonthSpend', params).then(result => {
+                    axios.put('month/editMonthSpend?monthlySpendsId=' + this.monthlySpendsId
+                        + '&amount=' + this.templateAmount
+                        + '&isSalary=' + this.isSalary
+                        + '&isCash=' + this.isCash
+                    ).then(async result => {
                         if(result.data.length > 0) {
                             this.monthList = result.data;
+                            await getTotalAmounts(this.dateId).then(response => {
+                                this.totalAmountSalary = response.data.amountSalary;
+                                this.totalAmountPrepaid = response.data.amountPrepaid;
+                                this.totalAmountSalaryCash = response.data.amountSalaryCash;
+                                this.totalAmountSalaryCard = response.data.amountSalaryCard;
+                                this.totalAmountPrepaidCash = response.data.amountPrepaidCash;
+                                this.totalAmountPrepaidCard = response.data.amountPrepaidCard;
+                            });
                             this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
                             this.editMode = false;
                         }
                     });
                 }
             },
-            pushSpendToTemplate: function () {
-                if (this.dateId){
-                    let tmpMonthList = [];
-                    let tempSpendList = [];
-                    const params = new URLSearchParams();
-                    params.append('dateId', this.dateId);
-                    params.append('spendId', this.spendId);
-                    params.append('amount', this.templateAmount);
-                    params.append('isCash', this.isCash);
-                    params.append('isSalary', this.isSalary);
+            pushSpendToMonth: function () {
+                axios.put('month/pushSpendToMonth?spendId=' + this.spendId
+                    + '&monthlySpendsId=' + this.monthlySpendsId
+                    + '&amount=' + this.templateAmount
+                    + '&isSalary=' + this.isSalary
+                    + '&isCash=' + this.isCash
+                    )
+                        .then(async result => {
+                            if (result.data.length > 0) {
+                                this.date = result.data[0].date;
+                                this.dateId = result.data[0].dateId;
 
-                    console.log(
-                        'dateId: ' + this.dateId
-                        + '\nspendId: ' + this.spendId
-                        + '\ntemplateAmount: ' + this.templateAmount
-                        + '\nisCash: ' + this.isCash
-                        + '\nisSalary: ' + this.isSalary
-                    );
+                                this.monthList = result.data;
+                                await getMissingSpends(this.dateId).then(res => {
+                                    this.missingSpendsList = res.data;
+                                });
 
-                    axios.put('month/pushSpendToMonth', params).then(result => {
-                        if(result.data.length > 0) {
-                            this.date = result.data[0].date;
-                            this.dateId = result.data[0].dateId;
-                            result.data.forEach(spend => {
-                                tmpMonthList.push(spend)
-                            });
-                            this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
-                            this.showSpendInput = false;
-                        }
-                    }).then(function () {
-                        axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + this.dateId).then(res => {
-                            res.data.forEach(spend => {
-                                tempSpendList.push(spend);
-                            })
+                                await getTotalAmounts(this.dateId).then(response => {
+                                    this.totalAmountSalary = response.data.amountSalary;
+                                    this.totalAmountPrepaid = response.data.amountPrepaid;
+                                    this.totalAmountSalaryCash = response.data.amountSalaryCash;
+                                    this.totalAmountSalaryCard = response.data.amountSalaryCard;
+                                    this.totalAmountPrepaidCash = response.data.amountPrepaidCash;
+                                    this.totalAmountPrepaidCard = response.data.amountPrepaidCard;
+                                });
+
+                                this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
+                                this.showSpendInput = false;
+                            }
                         });
-                        this.missingSpendsList = tempSpendList;
-                    });
-                    this.monthList = tmpMonthList;
-                } else console.log('Не найден date.id!');
+
             },
-            delMonthSpend: function (event) {
-                let tmpMonthList = [];
-                let monthId = event.target.id;
-                axios.delete('month/deleteSpendFromMonth?monthId=' + monthId).then(result =>
-                    result.data.forEach(spend => {
-                        tmpMonthList.push(spend)
-                    })
-                );
-                this.monthList = tmpMonthList;
+            delMonthSpend: function (monthlySpendsId) {
+                axios.delete('month/deleteSpendFromMonth?monthId=' + monthlySpendsId).then(async result => {
+                    await getMissingSpends(result.data[0].dateId).then(res => {
+                        this.missingSpendsList = res.data;
+                    });
+                    await getTotalAmounts(this.dateId).then(response => {
+                        this.totalAmountSalary = response.data.amountSalary;
+                        this.totalAmountPrepaid = response.data.amountPrepaid;
+                        this.totalAmountSalaryCash = response.data.amountSalaryCash;
+                        this.totalAmountSalaryCard = response.data.amountSalaryCard;
+                        this.totalAmountPrepaidCash = response.data.amountPrepaidCash;
+                        this.totalAmountPrepaidCard = response.data.amountPrepaidCard;
+                    });
+                    this.monthList = result.data;
+                    this.editMode = false;
+                });
+
             }
         },
         created: function () {
@@ -264,24 +284,37 @@ function showLastMonth() {
                 return axios.get('month/getPreviousMonth');
             }
 
-            getThisMonth().then(async result => {
+            getThisMonth().then(async result => {// получить текущий месяц
                 this.date = result.data[0].date;
                 this.dateId = result.data[0].dateId;
                 this.monthList = result.data;
-                await getMissingSpends(res.data[0].dateId).then(res => this.missingSpendsList = res.data);
+                await getTotalAmounts(this.dateId).then(response => {
+                    this.totalAmountSalary = response.data.amountSalary;
+                    this.totalAmountPrepaid = response.data.amountPrepaid;
+                    this.totalAmountSalaryCash = response.data.amountSalaryCash;
+                    this.totalAmountSalaryCard = response.data.amountSalaryCard;
+                    this.totalAmountPrepaidCash = response.data.amountPrepaidCash;
+                    this.totalAmountPrepaidCard = response.data.amountPrepaidCard;
+                });
+                await getMissingSpends(this.dateId).then(res => this.missingSpendsList = res.data);
             })
-                .catch(() => {
-                    getLastMonth().then(async res => {
+                .catch(error => { // прикрутить обработчик ошибок на код 404 чтобы вылетал modal
+                    getLastMonth().then(async res => {// если не вышло, то какой-то из прошлых
                         this.date = res.data[0].date;
                         this.dateId = res.data[0].dateId;
                         this.monthList = res.data;
+                        this.showModal = true;
                         await getMissingSpends(res.data[0].dateId).then(res => this.missingSpendsList = res.data);
                     })
-            });
+                        .catch(async () => {// если снова не вышло, то что-то пошло не так, вероятно таблица dates вообще пустая
+                            await getAllSpends().then(res => this.missingSpendsList = res.data);
+                        })
+                });
 
-            async function getMissingSpends(id) {
-                return await axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + id);
+            async function getAllSpends() {
+                return await axios.get('spends');
             }
+
         }
     });
 
@@ -292,4 +325,12 @@ function showLastMonth() {
             monthList: []
         }
     });
+
+    async function getTotalAmounts(id) {
+        return await axios.get('month/getTotalMonthAmounts?dateId=' + id);
+    }
+
+    async function getMissingSpends(id) {
+        return await axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + id);
+    }
 }
