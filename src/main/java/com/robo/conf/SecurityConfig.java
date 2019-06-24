@@ -2,7 +2,6 @@ package com.robo.conf;
 
 import com.robo.Entities.User;
 import com.robo.repository.UserDetailsRepo;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,36 +12,37 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 import java.time.LocalDateTime;
 
-//@EnableOAuth2Client
 @Configuration
 @EnableWebSecurity
-@EnableOAuth2Sso
+//@EnableOAuth2Sso
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers("/",
-                        "/login**",
-                        "/js/**",
-                        "/img/**",
-                        "/css/**",
-                        "/error**").permitAll()
-                .anyRequest().authenticated()
+//        http
+//            .antMatcher("/**")
+//            .authorizeRequests()
+//            .antMatchers("/",
+//                    "/login**",
+//                    "/js/**",
+//                    "/img/**",
+//                    "/css/**",
+//                    "/error**").permitAll()
+//            .anyRequest().authenticated()
+//
+//            .and()
+//            .logout()
+//            .deleteCookies("JSESSIONID")
+//            .logoutSuccessUrl("/")
+//            .permitAll()
+//
+//            .and()
+//            .rememberMe().key("uniqueAndSecret")
+//
+//            .and()
+//            .csrf().disable();
+        http.authorizeRequests().antMatchers("/login*").permitAll();
 
-                .and()
-                .logout()
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessUrl("/")
-                .permitAll()
-
-                .and()
-                .rememberMe().key("uniqueAndSecret")
-
-                .and()
-                .csrf().disable();
     }
 
     @Override

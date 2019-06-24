@@ -1,0 +1,149 @@
+@media only screen and (min-width : 320px) and (max-width : 600px) {
+
+    .template-name {
+        width: 70%;
+    }
+
+    .template-details {
+        font-size: 1em;
+    }
+
+    .template .edit-block {
+        width: 30%;
+    }
+
+    .template-list {
+        padding: 1em 0 0 0;
+    }
+
+    .template-list-item {
+        height: 2.9em;
+        margin-bottom: 0.5em;
+    }
+
+    .template-list-item .edit-block{
+        width: 20%;
+        float: right;
+        display: block;
+    }
+
+    .template-list-item .edit-block button{
+        width: 100%;
+        height: 1.3em;
+        border-radius: 0;
+        margin-bottom: 4%;
+    }
+
+    .template-list-item .spend-name {
+        width: 80%;
+        float: none;
+        display: block;
+        text-align: center;
+        border-bottom: solid #2793ba 2px;
+    }
+
+    .template-list-item input {
+        font-size: 1.6em;
+        width: 2.8em;
+        margin-left: 0.1em;
+        margin-top: 0.3em;
+    }
+
+    .template-details.edit button.salary, .template-details.edit button.prepaid {
+        font-size: 1.5em;
+        margin-left: 0.2em;
+    }
+
+    .template-details.edit button.cash, .template-details.edit button.card {
+        width: 5em;
+        height: 3em;
+        vertical-align: sub;
+        background-size: 100%;
+        margin-left: 0.3em;
+    }
+
+    /*  MONTH start  */
+
+    .month-item {
+        border-radius: 0.1em;
+        height: auto !important;
+        min-height: 2.3em;
+        padding: 0.5em 0.1em 0 0.1em !important;
+    }
+
+    .month-item .name {
+        font-size: 1.1em;
+        width: 31%;
+        margin-top: 0.1em;
+        height: auto;
+    }
+
+    .month-item .deposited {
+        width: 30%;
+        font-size: 1.1em;
+    }
+    .month-item .deposited.edit {
+        width: 22%;
+        font-size: 1.1em;
+    }
+
+    .month-item .deposited input {
+        margin-right: 0.2em;
+        font-size: 1.2em;
+        width: 51%;
+    }
+    .month-item .deposited.edit input {
+        margin: 0 !important;
+        width: 80%;
+    }
+
+    .month-item .month-amount {
+        margin-left: 0.1em;
+    }
+
+    .month-item .buttons {
+        /*border: solid slateblue 1px;*/
+        padding: 0 !important;
+        width: 38%;
+    }
+    .month-item .buttons.edit {
+        width: 45%;
+        float: right;
+    }
+    .month-item button.salary, .month-item button.prepaid {
+        vertical-align: top;
+        width: 40%;
+        font-size: 1.1em;
+        margin: 0.2em 0.7em 0 0.3em;
+        padding: 0 !important;
+    }
+
+    .buttons.edit button.salary, .buttons.edit button.prepaid {
+        width: 3.5em !important;
+    }
+
+    .month-item button.cash, .month-item button.card {
+        width: 21%;
+        height: 2.5em;
+        margin-top: 0;
+    }
+
+    .month-item button.notice {
+        /*border: solid red 1px;*/
+        width: 2.8em;
+        height: 2.8em;
+        display: block;
+        float: right;
+    }
+
+    .buttons.edit button.save,
+    .buttons.edit button.delete{
+        width: 2.8em;
+        height: 2.8em;
+        margin-left: 1em;
+    }
+
+    .month-amount {
+        font-size: 0.8em;
+    }
+}

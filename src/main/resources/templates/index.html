@@ -1,31 +1,42 @@
 <!doctype html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:v-bind="http://www.w3.org/1999/xhtml">
     <th:block th:include="_head"></th:block>
 <body>
-    <th:block sec:authorize="isAnonymous()">
-        <div class="login">
-            Required login with
-            <a href="/login">
-                <blue>G</blue><red>o</red><yellow>o</yellow><blue>g</blue><green>l</green><red>e</red>
-            </a>
-        </div>
-    </th:block>
-    <th:block sec:authorize="isAuthenticated()">
+    <!--<th:block sec:authorize="isAnonymous()">-->
+        <!--<div class="login">-->
+            <!--Required login with-->
+            <!--<a href="/login">-->
+                <!--<blue>G</blue><red>o</red><yellow>o</yellow><blue>g</blue><green>l</green><red>e</red>-->
+            <!--</a>-->
+        <!--</div>-->
+    <!--</th:block>-->
+    <!--<th:block sec:authorize="isAuthenticated()">-->
         <div id="upper-menu">
-            <a id="upper-menu-templates" href="#">Mainpage</a>
-            <a id="upper-menu-month" href="#">Month</a>
-            <a id="upper-menu-allMonths" href="#">All Months</a>
-            <a id="upper-menu-spends" href="#">Spends</a>
-            <br />
-            <br />
+            <div class="link">
+                <a id="upper-menu-templates" href="#">Templates</a>
+                <a id="upper-menu-month" href="#">Month</a>
+                <a id="upper-menu-allMonths" href="#">All Months</a>
+                <a id="upper-menu-spends" href="#">Spends</a>
+            </div>
         </div>
-            <div id="month"></div>
-            <div id="allMonths"></div>
-            <div id="templates-list"></div>
-            <div id="spends"></div>
+
+        <div id="month"></div>
+        <div id="allMonths"></div>
+        <div id="templates-list"></div>
+        <div id="spends"></div>
+
+        <script type="text/javascript" src="/js/month-script.js"></script>
+        <script type="text/javascript" src="/js/all-months-script.js"></script>
+        <script type="text/javascript" src="/js/templates-script.js"></script>
+        <script type="text/javascript" src="/js/spends-script.js"></script>
+
         <script th:inline="javascript">
             $( document ).ready(function() {
-                showTemplatesList();
+                showLastMonth();
+
+                $('#upper-menu-templates').click(function () {
+                    showTemplatesList();
+                });
 
                 $('#upper-menu-month').click(function () {
                     showLastMonth();
@@ -33,24 +44,44 @@
                 $('#upper-menu-allMonths').click(function () {
                     showAllMonths();
                 });
+                $('#upper-menu-spends').click(function () {
+                    showSpendsList();
+                });
+
                 $('#upper-menu-templates').click(function () {
                     $('#templates-list').show();
                     $('#allMonths').hide();
                     $('#month').hide();
                     $('#spends').hide();
                 });
-                $('#upper-menu-spends').click(function () {
-                    showSpendsList();
-                });
 
             })
         </script>
+        <script th:inline="javascript">
+            axios.get('/notices/reminds')
+                .then(result => {
+                    result.data.forEach(remind => {
+                        let n = new Noty({
+                            type: 'error',
+                            theme: 'metroui',
+                            text: remind.text,
+                            timeout: 7000,
+                            buttons: [
+                                Noty.button('MUTE', 'btn btn-success', function () {
+                                    axios.post('/notices/muteNotice/' + remind.id)
+                                        .then(() => n.close())
+                                        .catch(error => alert(error))
+                                }),
+                                Noty.button('HIDE', 'btn btn-error', function () {
+                                    n.close();
+                                })
+                            ]
+                        }).show();
+                    })
+            })
+                .catch(error => alert(error))
+        </script>
 
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script type="text/javascript" src="/js/month-script.js"></script>
-        <script type="text/javascript" src="/js/all-months-script.js"></script>
-        <script type="text/javascript" src="/js/templates-script.js"></script>
-        <script type="text/javascript" src="/js/spends-script.js"></script>
-    </th:block>
+    <!--</th:block>-->
 </body>
 </html>

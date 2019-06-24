@@ -28,6 +28,12 @@ input[type=number] {
     -moz-appearance:textfield; /* Firefox */
 }
 
+button,
+button:active,
+button:focus {
+    outline: none;
+}
+
 .login {
     position: absolute;
     width: 100%;
@@ -67,9 +73,20 @@ input[type=number] {
     display: none;
 }
 
+#upper-menu{
+    margin: 0 auto;
+    width: 98%;
+}
+.link{
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+}
+
 /*  TEMPLATES start  */
 
-.templatesList {
+.templates-list {
     float: none !important;
     display: inline-block;
     width: 96%;
@@ -77,13 +94,10 @@ input[type=number] {
 }
 
 .template-list {
-    list-style-type: none;
-    padding-left: 0.1em;
+    padding: 1em;
 }
-
 .template-list-item {
     height: 1.5em;
-    display: list-item;
     padding: 0.2em 0.3em 0.1em 0.3em;
     margin-bottom: 0.2em ;
     border-radius: 0.1em;
@@ -100,40 +114,59 @@ input[type=number] {
 .template-list-item button.save{
     border-radius: 0.3em;
     transition: all 1s ease 0s;
-    width: 6.3em;
-    height: 2em;
     border: 0;
     vertical-align: top;
-    background-color: #82EA85; !important;
+    background-color: #31D85E; !important;
+}
+.template-list-item .spend-name{
+    width: 40%;
+    float: left;
 }
 
+.template-name {
+    width: 90%;
+    display: inline-block;
+    vertical-align: text-bottom;
+}
+.template-name.editing {
+    width: 100% !important;
+}
+
+.template-details {
+    width: 80%;
+    float: left;
+}
 
 .template .edit-block {
-    float: right;
-    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
-    -2px -2px 5px 0 rgba(0,0,0,.1),
-    2px 2px 5px 0 rgba(0,0,0,.1),
-    -2px 2px 5px 0 rgba(0,0,0,.1);
+    display: inline-block;
+    /*box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),*/
+    /*-2px -2px 5px 0 rgba(0,0,0,.1),*/
+    /*2px 2px 5px 0 rgba(0,0,0,.1),*/
+    /*-2px 2px 5px 0 rgba(0,0,0,.1);*/
+    width: 10%;
+    margin: 0.1em 0 0.1em 0;
+    font-size: 1.5em;
 }
 
 .template-list-item .edit-block{
     box-shadow: none; !important;
+    font-size: 1em !important;
 }
 
 .edit-block button {
     border-radius: 0 0.3em 0.3em 0;
     background-color: red;
     transition: all 1s ease 0s;
-    width: 3em;
-    height: 2em;
+    width: 45%;
     border: 0;
     vertical-align: top;
+    font-size: 1em;
 }
 
 .edit-block button.fill, .edit-block button.edit {
     border-radius: 0.3em 0 0 0.3em; !important;
-    background-color: #82EA85; !important;
-    margin-right: 0.3em;
+    background-color: #31D85E; !important;
+    margin-right: 1%;
 }
 
 .template .save {
@@ -143,39 +176,33 @@ input[type=number] {
     transition: all 1s ease 0s;
 }
 
-.template-list-item button {
-
-}
-
 button.cash {
     width: 3em;
     height: 2em;
     border: 0;
-    vertical-align: top;
     background: url("/img/cash.png") no-repeat 50%;
-    margin-left: 0.5em;
+    margin: 0.3em 0.1em 0 0.1em;
 }
 
 button.card{
     width: 3em;
     height: 2em;
     border: 0;
-    vertical-align: top;
     background: url("/img/card.png") no-repeat 50%;
-    margin-left: 0.5em;
+    margin: 0 0.1em 0 0.1em;
 }
 
 button.prepaid {
     border: 0;
     background-color: transparent;
-    font-size: 1.2em;
-    margin-left: 0.5em;
+    font-size: 1em;
+    margin: 0 0.1em 0 0.1em;
 }
 button.salary {
     border: 0;
     background-color: transparent;
     font-size: 1.2em;
-    margin-left: 0.5em;
+    margin: 0 0.1em 0 0.1em;
 }
 
 button.prepaid:after {
@@ -187,7 +214,7 @@ button.salary:after {
 
 .template-list-item input {
     font-size: 0.9em;
-    border-radius: 0.2em;
+    border-radius: 0.1em;
     border: solid black 1px;
     text-align: right;
     padding: 0 0.1em;
@@ -201,12 +228,8 @@ button.salary:after {
 
 .template {
     background-color: #e6e6e6;
-    font-size: 1.2em;
-    min-height: 1.5em;
-
-    display: list-item;
-    list-style: none;
-
+    font-size: 1.5em;
+    min-height: 1.7em;
     padding: 0.2em 0.3em 0.1em 0.3em;
     margin-bottom: 0.2em ;
     border-radius: 0.1em;
@@ -223,7 +246,7 @@ button.salary:after {
 
 .template button.name {
     border: none;
-    font-size: 1.3em;
+    font-size: 1.4em;
     background-color: transparent;
     margin-left: 0.8em;
     box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
@@ -235,9 +258,10 @@ button.salary:after {
 }
 
 .template .isActive {
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.7em;
+    height: 1.7em;
     margin-left: 1em;
+    margin-right: 1em;
 }
 
 .template select {
@@ -256,6 +280,29 @@ button.salary:after {
     float: left;
 }
 
+.new-template-list input {
+    width: 80%;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    padding: 0.1em 0.2em;
+    font-size: 1.8em;
+    margin: 2% 0 0 0;
+}
+.new-template-list button {
+    width: 16%;
+    border: solid black 1px;
+    border-radius: 0.1em;
+    font-size: 1.8em;
+    margin: 2.1% 0 0 1%;
+}
+.new-template-list button:hover {
+    background-color: #c4c4c4;
+}
+.new-template-list button:active {
+    background-color: #ababab;
+    font-weight: bold;
+}
+
 /*  TEMPLATES end  */
 
 /*  SPENDS start  */
@@ -271,22 +318,50 @@ button.salary:after {
 /*  SPENDS end  */
 
 /*  MONTH start  */
-
+#month, .months {
+    width: 100%;
+}
 .monthDate {
+    width: 96%;
+    margin: 0 auto;
     text-align: center;
-    font-size: 1.4em;
-    padding-bottom: 1em;
+    font-size: 1.8em;
+    position: relative;
+    height: 3em;
 }
 
-.months tr:nth-child(even) {
-    background: #e6e6e6;
+.edit-button, .edit-button.true {
+    width: 4em;
+    height: 4em;
+    margin: 0 0 1em 0;
+    border: none;
+    background: url(/img/edit.png) no-repeat 50%;
+    background-size: 100%;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    top: 1em;
 }
+.edit-button.true {
+    background: url("/img/edit-true.png") no-repeat 50%;
+    background-size: 100%;
+    cursor: pointer;
+ }
 
 .month-item{
-    height: 32px;
-    vertical-align: center;
+    width: 96%;
+    height: 2.5em;
     font-size: 1.3em;
-    padding: 0 0.1em;
+    border-left: 0.4em solid #f05d22;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1), -2px -2px 5px 0 rgba(0,0,0,.1), 2px 2px 5px 0 rgba(0,0,0,.1), -2px 2px 5px 0 rgba(0,0,0,.1);
+    transition: 0.2s all linear;
+    background: #3BADD6;
+    margin-bottom: 0.4em;
+    padding: 0.2em;
+}
+
+.month-item:nth-child(odd) {
+    border-left: 0.4em solid #d42e0d;
 }
 
 .month-item input{
@@ -299,11 +374,48 @@ button.salary:after {
 }
 
 .month-item .name {
-    width: 48%;
+    float: left;
+    font-size: 1.8em;
 }
 
-.months button{
+.month-item .deposited {
+    float: left;
+}
 
+.month-item .buttons {
+    float: left;
+}
+
+.buttons.edit button.cash, .buttons.edit button.card{
+    border-top: none !important;
+    border-left: none !important;
+}
+
+.buttons.edit button.save{
+    background-color: #31D85E;
+    width: 2.2em;
+    height: 2.2em;
+    margin-left: 0.5em;
+    border: solid transparent 1px !important;
+    border-radius: 0.1em !important;
+    box-shadow: none !important;
+}
+.buttons.edit button.delete{
+    background-color: #FF0000;
+    width: 2.2em;
+    height: 2.2em;
+    margin-left: 0.7em;
+    border: solid transparent 1px !important;
+    border-radius: 0.1em !important;
+    box-shadow: none !important;
+}
+
+.month-item .buttons.edit button {
+    border: solid #2793ba 1px;
+    border-radius: 0.1em;
+    box-shadow: 1px 1px #2793ba, 2px 2px #2793ba, 3px 3px #2793ba;
+    -webkit-transform: translateX(-0.2em);
+    transform: translateX(-0.2em);
 }
 
 .spend-input input{
@@ -330,9 +442,9 @@ button.salary:after {
 .modal-container {
     width: 300px;
     margin: 0px auto;
-    padding: 20px 30px;
+    padding: 1em 2em;
     background-color: #fff;
-    border-radius: 2px;
+    /*border-radius: 0.2em;*/
     box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
     transition: all .3s ease;
     font-family: Helvetica, Arial, sans-serif;
@@ -347,4 +459,209 @@ button.salary:after {
     margin: 20px 0;
 }
 
+.salary-block, .prepaid-block {
+    width: 50%;
+    float: left;
+    padding: 0 !important;
+}
+.salary-total, .prepaid-total {
+    float: left;
+    height: 4em;
+    line-height: 2.8em;
+    font-size: 1.5em;
+}
+.salary-total span, .prepaid-total span{
+    font-size: 1.5em;
+}
+.cash-total, .card-total {
+    height: 2em;
+    line-height: 2em;
+    font-size: 1.3em;
+}
+.cash-total button, .card-total button{
+    margin: 0 !important;
+}
+
+.add-new-spend {
+    width: 98%;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    padding: 0.1em 0.2em;
+    font-size: 1.8em;
+    margin: 0.5em auto;
+}
+
 /*  MONTH end  */
+
+/*  MONTH start  */
+
+button.notice{
+    width: 2em;
+    height: 2em;
+    background: url("/img/notice.png") no-repeat 50%;
+    background-size: cover;
+}
+
+.modal-body.notice li {
+    display: inline-block;
+    font-weight: lighter;
+    padding: 0.2em 0 0.3em 0.1em;
+    list-style: circle;
+}
+
+.error {
+    color: red;
+}
+
+.modal-body textarea {
+    width: 15em;
+    height: 4em;
+    font-size: 1em;
+    resize: none;
+}
+
+.modal-header {
+    background: #e6e6e6;
+    padding: 0.2em 0.5em;
+}
+
+.modal {
+    position: fixed;
+    z-index: 999; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.2); /* Black w/ opacity */
+}
+
+.fadeIn-enter-active {
+    animation: fadeIn .3s;
+}
+.fadeIn-leave-active {
+    animation: fadeIn 0.3s reverse;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    60% {
+        opacity(1);
+    }
+    100% {}
+}
+
+.slideIn-enter-active {
+    animation: slideIn .6s ease-out;
+}
+.slideIn-leave-active {
+    animation: slideOut .7s ease-in;
+}
+
+@keyframes slideIn {
+    0% {
+        right: -100%;
+        opacity: 0;
+    }
+    50% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 0.1;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    95% {
+        opacity: 0.6;
+        right: 1%;
+    }
+    100% {
+        right: 0;
+        opacity(1);
+    }
+}
+
+@keyframes slideOut {
+    0% {
+        opacity: 1;
+        right: 0;
+    }
+    5% {
+        right: 1%;
+        opacity: 0.7;
+    }
+    10% {
+        opacity: 0.4;
+    }
+    25% {
+        opacity: 0.1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        right: -100%;
+        opacity: 0;
+    }
+
+}
+
+.modal-content {
+    background-color: #60A917;
+    position: relative;
+    margin: auto 1% auto 1%;
+    top: calc(50% - 9em);
+    /*width: 96%;*/
+    max-height: 15em;
+    padding: 2em 1em 1em 1em;
+    font-size: 1.2em;
+    color: #ffffff;
+    border-radius: 0.2em;
+    overflow-y: auto;
+}
+
+.modal-content .notices{
+    width: 95%;
+}
+
+.notice-text{
+    width: calc(100% - 1.5em);
+    float: left;
+    margin-bottom: 0.3em;
+    box-shadow: rgba(0, 0, 0, 0.298039) 0 0 5px 0;
+    border-radius: 0.1em;
+    padding: 0.2em;
+    word-break: break-all;
+}
+
+.modal-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    float: right;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+    cursor: pointer;
+    -webkit-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+    box-shadow: rgba(0, 0, 0, 0.298039) 0 0 5px 0;
+}
+
+.modal-button.delete {
+    position: relative !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: 0.1em !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    font-size: 0.8em !important;
+}

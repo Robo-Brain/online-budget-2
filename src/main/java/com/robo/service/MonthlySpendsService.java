@@ -81,7 +81,7 @@ public class MonthlySpendsService {
         return resultList;
     }
 
-    private List<MonthlySpends> getMonthlySpendsByDateId(Integer id){
+    List<MonthlySpends> getMonthlySpendsByDateId(Integer id){
         List<MonthlySpends> ms = new ArrayList<>();
         return msr.findAllByDateId(id).orElse(ms);
     }
@@ -114,7 +114,7 @@ public class MonthlySpendsService {
 
     public List<MonthlySpendsDTO> saveMonthAmount(Integer monthlySpendsId, Integer amount) {
         MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
-        if (!ms.getMonthAmount().equals(amount) && amount > 99){
+        if (!ms.getMonthAmount().equals(amount) && amount >= 0){
             ms.setMonthAmount(amount);
             msr.save(ms);
         }
@@ -217,25 +217,6 @@ public class MonthlySpendsService {
         return getLastMonth();
     }
 
-    public Map<String, Integer> getTotalMonthAmounts (Integer dateId){
-        Map<String, Integer> result = new HashMap<>();
-        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
-        Integer amountSalaryCash = 0, amountSalaryCard = 0, amountPrepaidCash = 0, amountPrepaidCard = 0;
-        for (MonthlySpends ms : msList) {
-            amountSalaryCash = ms.getTemplates().isSalary() && ms.getTemplates().isCash() ? amountSalaryCash + ms.getTemplates().getAmount() : amountSalaryCash;
-            amountSalaryCard = ms.getTemplates().isSalary() && !ms.getTemplates().isCash() ? amountSalaryCard + ms.getTemplates().getAmount() : amountSalaryCard;
-            amountPrepaidCash = !ms.getTemplates().isSalary() && ms.getTemplates().isCash() ? amountPrepaidCash + ms.getTemplates().getAmount() : amountPrepaidCash;
-            amountPrepaidCard = !ms.getTemplates().isSalary() && !ms.getTemplates().isCash() ? amountPrepaidCard + ms.getTemplates().getAmount() : amountPrepaidCard;
-        }
-        result.put("amountSalary", amountSalaryCash + amountSalaryCard);
-        result.put("amountPrepaid", amountPrepaidCash + amountPrepaidCard);
-        result.put("amountSalaryCash", amountSalaryCash);
-        result.put("amountSalaryCard", amountSalaryCard);
-        result.put("amountPrepaidCash", amountPrepaidCash);
-        result.put("amountPrepaidCard", amountPrepaidCard);
-
-        return result;
-    }
 
 }
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("month")
@@ -53,9 +53,9 @@ public class MonthController {
     }
 
     @GetMapping("/getMonthlyMissingSpends")
-    public List<Spends> getMonthlyMissingSpends(@RequestParam(name = "monthlyDateId") String monthlyDateId){
-        if (monthlyDateId.length() > 0 && !monthlyDateId.equals("undefined")){
-            return ss.getMonthlyMissingSpends(Integer.valueOf(monthlyDateId));
+    public List<Spends> getMonthlyMissingSpends(@RequestParam(name = "monthlyDateId") Integer monthlyDateId){
+        if (Objects.nonNull(monthlyDateId) && monthlyDateId > 0){
+            return ss.getMonthlyMissingSpends(monthlyDateId);
         } else {
             return sr.findAll();
         }
@@ -115,11 +115,6 @@ public class MonthController {
     @DeleteMapping("/deleteSpendFromMonth")
     public List<MonthlySpendsDTO> deleteSpendFromMonth(@RequestParam(name = "monthId") Integer monthId){
         return mss.deleteSpendFromMonth(monthId);
-    }
-
-    @GetMapping("/getTotalMonthAmounts")
-    public Map<String, Integer> getTotalMonthAmounts(@RequestParam(name = "dateId") Integer dateId){
-        return mss.getTotalMonthAmounts(dateId);
     }
 
 }

@@ -21,30 +21,29 @@ function showTemplatesList() {
             }
         },
         template:
-        '<ul class="template-list">'
-            + '<li class="template-list-item" v-for="(currentTemplate, index) in openedListTemplates" v-if="!!currentTemplate.spendName" :key="currentTemplate.templateId">'
-                + '{{ currentTemplate.spendName }}'
-                + '<span v-if="!editMode || editingIndex != index">'
+        '<div class="template-list">'
+            + '<div class="template-list-item" v-for="(currentTemplate, index) in openedListTemplates" v-if="!!currentTemplate.spendName" :key="currentTemplate.templateId">'
+                + '<div class="template-details" v-if="!editMode || editingIndex != index">'
+                    + '<span class="spend-name">{{ currentTemplate.spendName }}</span>'
                     + '<span class="amount"> - {{ currentTemplate.amount }}₽</span>'
-                    + '&nbsp;'
                     + ' / <button v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                    + '&nbsp;'
                     + ' / <button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
-                + '</span>'
-                + '<span v-if="editMode && editingIndex == index">'
+                + '</div>'
+                + '<div class="template-details edit" v-if="editMode && editingIndex == index">'
                     + '<input type="number" @change="editTemplateAmount($event)" @input="editTemplateAmount($event)" class="templateAmountInput" :value="currentTemplate.amount" />'
                     + '&nbsp;'
-                    + '<button @click="salaryToggle($event)" class="edit" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                    + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
                     + '&nbsp;'
-                    + '<button @click="cashToggle($event)" class="edit" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
-                    + '&nbsp;<button class="save" :id="currentTemplate.templateId" @click="editTemplateInList($event)">Save</button>'
-                + '</span>'
-                + '<span v-if="editingIndex != index" class="edit-block">'
-                    + '&nbsp;<button @click="editTemplate(index, $event)" :id="currentTemplate.templateId" class="edit">Edit</button>'
-                    + '<button class="delete" :id="currentTemplate.templateId" @click="deleteTemplateFromTemplateList($event)">X</button>'
-                + '</span>'
-            + '</li>'
-        + '</ul>',
+                    + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
+                + '</div>'
+                + '<div class="edit-block">'
+                    + '<button v-if="editingIndex != index" @click="editTemplate(index, $event)" :id="currentTemplate.templateId" class="edit">Edit</button>'
+                    + '<button v-if="editingIndex != index" class="delete" :id="currentTemplate.templateId" @click="deleteTemplateFromTemplateList($event)">X</button>'
+                    + '<button v-if="editMode && editingIndex == index" class="edit" :id="currentTemplate.templateId" @click="saveEditedTemplate($event)">Save</button>'
+                    + '<button v-if="editMode && editingIndex == index" class="delete" @click="editingIndex = null">X</button>'
+                + '</div>'
+            + '</div>'
+        + '</div>',
         methods: {
             deleteTemplateFromTemplateList: function (event) {
                 let openedListId = this.openedListId;
@@ -74,30 +73,14 @@ function showTemplatesList() {
                 if (event.target.value > 2) this.amount = event.target.value;
             },
             salaryToggle: function (event) {
-                if (event.target.className == 'salary') {
-                    event.target.className = 'prepaid';
-                } else {
-                    event.target.className = 'salary';
-                }
-                event.target.className == 'salary' ? this.isSalary = true : this.isSalary = false;
+                this.isSalary = event.target.className !== 'salary';
+                event.target.className = this.isSalary ? 'salary' : 'prepaid';
             },
             cashToggle: function (event) {
-                if (event.target.className == 'cash') {
-                    event.target.className = 'card';
-                } else {
-                    event.target.className = 'cash';
-                }
-                event.target.className == 'cash' ? this.isCash = true : this.isCash = false;
+                this.isCash = event.target.className !== 'cash';
+                event.target.className = this.isCash ? 'cash' : 'card';
             },
-            editTemplateInList: function () {
-                console.log(
-                    'templateId: ' + this.editingTemplateId
-                    + '\namount: ' + this.amount
-                    + '\nisCash: ' + this.isCash
-                    + '\nisSalary: ' + this.isSalary
-                    + '\ntemplatesListId: ' + this.openedListId
-                );
-
+            saveEditedTemplate: function () {
                 axios.put('templatesList/editTemplateInList?templatesListId=' + this.openedListId
                     + '&templateId=' + this.editingTemplateId
                     + '&amount=' + this.amount
@@ -120,7 +103,7 @@ function showTemplatesList() {
         '<div class="templatesList">' //родительский шаблон, который вмещает в себя дочерний 'template'
         // <div v-if="templatesList.length > 0"><div v-else>Has no templates yet.</div></div>
             +'<div v-if="templatesList.length > 0" v-for="template in templatesList" class="template" :class="{ active: template.templateEnabled }" >'
-                + '<span :id="template.id">'
+                + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate($event)" :id="template.id" :checked="template.templateEnabled" />'
                     + '<button class="name" :id="template.id" @click="openOneMonth($event)"> {{ template.templateName }} </button>' // по клику в метод toggle() передается название класса(соотв-ющее названию шаблона), который присваивает его переменной "openedListClass"
                     + '<div v-if="template.id == openedListId">' // если имя переменной "openedListId" соотв-вует id шаблона, то блок рендерится
@@ -131,15 +114,17 @@ function showTemplatesList() {
                             + '</option>'
                         + '</select>'
                     + '</div>'
-                + '</span>'
-                + '<span class="edit-block" v-if="template.id != openedListId">'
+                + '</div>'
+                + '<div class="edit-block" v-if="template.id != openedListId">'
                     + '<button :id="template.id" @click="createMonthFromThisTemplate($event)" class="fill"> => </button>'
                     + '<button :id="template.id" @click="deleteTemplateList($event)" class="delete"> X </button>'
-                + '</span>'
+                + '</div>'
             + '</div>'
             + '<div v-if="templatesList.length == 0"><h4>Has no templates yet.</h4></div>'
-            + 'Name: <input @input="handleInputListName($event.target.value)" @change="handleInputListName($event.target.value)" type="text">'
+            + '<div class="new-template-list">'
+                + '<input @input="handleInputListName($event.target.value)" @change="handleInputListName($event.target.value)" type="text">'
                 + '<button @click="pushNewList()" id="pushList" type="button">Add</button>'
+            + '</div>'
         + '</div>',
         data: function() {
             return  {
@@ -158,8 +143,6 @@ function showTemplatesList() {
             },
             openOneMonth: function(event){
                 this.openedListId = event.target.id == this.openedListId ? null : event.target.id;
-                // this.openedListClass = event.target.className == this.openedListClass ? null : event.target.className;
-                console.log(this.openedListId);
                 if (this.openedListId != null){ //нажата кнопка открыть/закрыть-> проверка, если открыт какой-то пункт меню, то запросить разностный массив для него, иначе нажата кнопка закрыть и делать ничего не надо
                     this.openedListTemplates = [];
                     this.missingSpendsList = [];
@@ -208,7 +191,7 @@ function showTemplatesList() {
                 if (this.newListName.length > 1){
                     let name = this.newListName;
                     let newTemplatesList = [];
-                    axios.put('templatesList/create?name=' + name).then(result => // получаем все листы из spends
+                    axios.put('templatesList/create?name=' + name).then(result => // получаем все листы из spendsid="templates-list"
                         this.templatesList = result.data
                     );
                     // this.templatesList = newTemplatesList;
@@ -224,14 +207,14 @@ function showTemplatesList() {
                     .then(result => alert('success'))
             }
         },
-        created: function () { //функция, котора ожидает подгрузки всего необходимого и ДО рендера страницы меняет содержимое на то, что получено через axios.get()
+        created: function () {
             axios.get('templatesList').then(result => this.templatesList = result.data); // получаем все листы из templates_list
         }
     });
 
     let templatesLists = new Vue({
         el: '#templates-list', // айдишник блока, куда рендерить
-        template: '<div id="templates-list"><templates-list :templatesList = "templatesList" /></div>', // ссылка на название компонента 1 и ссылка название коллекции в data.
+        template: '<div id="templates-list" class="templates-list"><templates-list :templatesList = "templatesList" /></div>', // ссылка на название компонента 1 и ссылка название коллекции в data.
         data: {
             templatesList: []
         }
