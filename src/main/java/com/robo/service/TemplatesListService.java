@@ -25,11 +25,26 @@ public class TemplatesListService {
     @Autowired
     TemplatesService ts;
 
+    @Autowired
+    MonthlySpendsService mss;
+
     public List<TemplatesListDTO> addTemplate(String name) {
         if (!tlr.findByName(name).isPresent()){
             tlr.save(new TemplatesList(name));
         }
         return getAllTemplatesList();
+    }
+
+    public void createTemplatesListByMonth(Integer dateId, String name){
+        if (!tlr.findByName(name).isPresent()){
+            String templateIds = mss.getMonthlySpendsByDateId(dateId).stream().map(ms -> String.valueOf(ms.getTemplateId())).collect(Collectors.joining(",","",""));
+            if (templateIds.length() > 0) {
+                TemplatesList tl = new TemplatesList();
+                tl.setName(name);
+                tl.setTemplateId(templateIds);
+                tlr.save(tl);
+            } else throw new NotFoundException();
+        } else throw new RuntimeException("Found Template List with same name.");
     }
 
     public List<TemplatesListDTO> getAllTemplatesList(){

@@ -7,6 +7,8 @@ import com.robo.repository.SpendsRepo;
 import com.robo.service.MonthlySpendsService;
 import com.robo.service.SpendsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class MonthController {
 
     @GetMapping
     public List<MonthlySpendsDTO> getLastMonth() {
-        return mss.getCurrentMonth();
+        return mss.getLastMonth();
     }
 
     @GetMapping("/getPreviousMonth")
@@ -78,14 +80,35 @@ public class MonthController {
         return getLastMonth();
     }
 
+    @GetMapping("/checkBeforeCreateNewMonth")
+    public ResponseEntity checkBeforeCreateNewMonth(@RequestParam(name = "dateId") Integer dateId){
+        String resp = mss.checkBeforeCreateNewMonth(dateId);
+        switch (resp) {
+            case "MONTH_OK.FULL_NOT":
+                return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
+            case "MONTH_NOT.FULL_OK":
+                return new ResponseEntity<>("MONTH_NOT.FULL_OK", HttpStatus.OK);
+            case "MONTH_NOT.FULL_NOT":
+                return new ResponseEntity<>("MONTH_NOT.FULL_NOT", HttpStatus.OK);
+            default:
+                return new ResponseEntity<>("error", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/createNewMonthByDateId")
+    public List<MonthlySpendsDTO> createNewMonthByDateId(@RequestParam(name = "dateId") Integer dateId){
+        mss.createNewMonthByDateId(dateId);
+        return getLastMonth();
+    }
+
     @PutMapping("/createMonthFromTemplatesList")
-    public void createMonthFromTemplatesList(@RequestParam(name = "templateListId")  Integer templateListId){
+    public void createMonthFromTemplatesList(@RequestParam(name = "templateListId") Integer templateListId){
         mss.createNewMonthByTemplatesList(templateListId);
     }
 
     @GetMapping("/getMonthWithDateId")
-    public List<MonthlySpendsDTO> getMonthWithDateId(@RequestParam(name = "dateId") String dateId){
-        return mss.getMonthsDTOByDateID(Integer.valueOf(dateId));
+    public List<MonthlySpendsDTO> getMonthWithDateId(@RequestParam(name = "dateId") Integer dateId){
+        return mss.getMonthsDTOByDateID(dateId);
     }
 
 
@@ -105,11 +128,8 @@ public class MonthController {
 
     @PutMapping("/pushSpendToMonth") //add spend to template and then to monthly_spends (spendId, amount, isCash, isSalary)
     public List<MonthlySpendsDTO> pushSpendToMonth(@RequestParam(name = "spendId") Integer spendId,
-                                                   @RequestParam(name = "monthlySpendsId") Integer monthlySpendsId,
-                                                   @RequestParam(name = "amount") Integer amount,
-                                                   @RequestParam(name = "isSalary") String isSalary,
-                                                   @RequestParam(name = "isCash") String isCash){
-        return mss.pushSpendToMonth(spendId, monthlySpendsId, amount, isSalary, isCash);
+                                                   @RequestParam(name = "dateId") Integer dateId){
+        return mss.pushSpendToMonth(spendId, dateId);
     }
 
     @DeleteMapping("/deleteSpendFromMonth")

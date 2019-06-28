@@ -71,6 +71,14 @@ public class TemplatesListController {
         return tls.addTemplate(name);
     }
 
+    @PutMapping("createTemplatesListByMonth")
+    public void createTemplatesListByMonth(
+            @RequestParam(name = "dateId") Integer dateId,
+            @RequestParam(name = "name") String name){
+        System.out.println(dateId + " / " + name);
+        tls.createTemplatesListByMonth(dateId, name);
+    }
+
     @PutMapping("/editTemplateInList")
     public List<TemplatesDTO> editTemplateInList(@RequestParam(name = "templatesListId") Integer templatesListId,
                                                  @RequestParam(name = "templateId") Integer templateId,

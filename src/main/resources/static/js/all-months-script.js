@@ -8,36 +8,85 @@ function showAllMonths() {
 
     $('#spends').hide();
 
-    Vue.component('notice', {
-        props: ['notices'],
+    Vue.component('allMonthsAddNotice', {
+        props: ['monthlySpendsId'],
         data: function() {
-            return  {
-                showSubModal: true
+            return {
+                text: null,
+                bodyText: 'Текст заметки:',
+                isError: false,
+                remind: false
             }
         },
         template:
-            '<div class="modal">'
-                + '<transition name="slideIn" appear>'
-                    + '<ul v-show="showSubModal" class="modal-content">'
-                        + '<li v-for="notice in notices" :key="notice.id"> '
-                            + '{{ notice.text }} '
-                            + '&nbsp;<button v-if="notice.remind" @click="muteNotice(notice.id)"> Mute </button>'
-                            + '&nbsp;<button @click="deleteNotice(notice.id)"> X </button>'
-                            + '&nbsp;<button @click="closeModal()"> close </button>'
-                        + '</li>'
-                    + '</ul>'
-                + '</transition>'
-            + '</div>',
+        '<div v-if="this.$parent.addNoticeModal" class="modal">'
+            + '<transition name="slideIn" appear>'
+                + '<div class="modal-content notice">'
+                    + '<div @click="closeModal()" class="modal-button close">×</div>'
+                    + '<p>'
+                        + '{{ bodyText }}<br />'
+                        + '<textarea v-model="text" ></textarea>'
+                        + '<input id="is-remind" v-model="remind" type="checkbox" /> <label for="is-remind">Remind</label>'
+                        + '<button @click="saveNotice()">Сохранить</button>'
+                    + '</p>'
+                + '</div>'
+            + '</transition>'
+        + '</div>',
         methods: {
             closeModal: function () {
-                let that = this;
-                that.showSubModal = false;
-                setTimeout(function(){
-                    that.$parent.modal = false;
-                    that.showSubModal = true;
-                }, 500);
+                this.$parent.addNoticeModal = false;
+                this.text = null;
+                this.bodyText = 'Текст заметки:';
+                this.isError = false;
+                this.remind = false;
             },
+            saveNotice: function () {
+                axios.put('notices/add?monthlySpendId=' + this.monthlySpendsId + '&text=' + this.text + '&remind=' + this.remind)
+                    .then(() => {
+                        this.bodyText = 'OK';
+                        let self = this;
+                        setTimeout(function(){
+                            self.closeModal();
+                        }, 1000);
+                    })
+            }
         }
+    });
+
+    Vue.component('haveNoticesButton', {
+        props: ['monthlySpendId'],
+        data: function() {
+            return {
+                showNoticeModal: false,
+                notices: []
+            }
+        },
+        template:
+            '<span>'
+                + '<button @click="showNoticeModalFunc()" class="month-notices-show-button" > </button>'
+                + '<div v-if="showNoticeModal" class="modal">'
+                    + '<transition name="slideIn" appear>'
+                        + '<div class="modal-content notice">'
+                            + '<div @click="closeModal()" class="modal-button close">×</div>'
+                            + '<div v-if="notices.length > 0" v-for="notice in notices">'
+                                + '<p>{{ notice.text }}</p>'
+                            + '</div>'
+                        + '</div>'
+                    + '</transition>'
+                + '</div>'
+            + '</span>',
+        methods: {
+            showNoticeModalFunc: function () {
+                this.showNoticeModal = true;
+                axios.get('notices/getByMonthlySpendsId/' + this.monthlySpendId).then(result => {
+                    this.notices = result.data;
+                });
+            },
+            closeModal: function () {
+                this.showNoticeModal = false;
+            }
+        }
+
     });
 
     Vue.component('dates-list', {
@@ -45,57 +94,44 @@ function showAllMonths() {
         data: function() {
             return  {
                 monthList: [],
+                noticesByDateId: [],
+                noticesByMonthlySpendsId: [],
                 openedListId: '',
                 monthlySpendsId: null,
                 dateId: '',
                 date: '',
-                modal: false,
-                addNoticeModal: false,
-                notices : [],
-                showSubModal: true
+                addNoticeModal: false
             }
         },
         template:
-            '<div>'
-                + '<div v-if="datesList.length > 0" v-for="date in datesList">'
-                    + '<button :id="date.id" @click="getMonthWithDateId($event, date.date)">{{ date.date }}</button>'
-                    + '<div :id="date.date" v-if="monthList.length > 0 && date.id == dateId">'
-                        + '<table class="months">'
-                            + '<tr class="head">'
-                                + '<td>Название:</td>'
-                                + '<td>Внесено:</td>'
-                                + '<td>??:</td>'
-                                + '<td>??:</td>'
-                            + '</tr>'
-                            + '<tr class="month-item" v-for="month in monthList" >'
-                                    + '<td class="name"> {{ month.spendName }}</td>'
-                                    + '<td class="deposited"> {{ month.monthAmount }} / {{ month.templateAmount }} </td>'
-                                    + '<td v-bind:class="[ month.isCash ? \'cash\' : \'card\' ]"> </td>'
-                                    + '<td v-if="month.salary" class="salary">ЗП</td>'
-                                    + '<td v-else-if="!month.salary" class="prepaid">Аванс</td>'
-                                    + '<td class="notice">'
-                                        + '<button class="notice" v-if="month.haveNotice" @click="getNoticesByMonthlySpendsId(month.monthlySpendsId)"> </button>'
-                                        + '<button @click="showAddNoticeModal(month.monthlySpendsId)"> + </button>'
-                                    + '</td>'
-                            + '</tr>'
-                        + '</table>'
+            '<div class="all-month-buttons">'
+                + '<div class="date-block" v-if="datesList.length > 0" v-for="date in datesList">'
+                    + '<div class="date-button">'
+                        // + '<div v-if="date.id != dateId" class="all-month-notices-quantity"> </div>'
+                        + '<button v-if="date.id != dateId && dateHasNotice(date.id)" class="all-month-notices-button" > </button>'
+                        + '<button :id="date.id" class="all-monts-date-button" @click="getMonthWithDateId($event, date.date)">{{ date.date }}</button>'
                     + '</div>'
-                    + '<transition v-if="modal" name="fadeIn">'
-                        + '<div class="modal">'
-                            + '<transition name="slideIn" appear>'
-                                + '<div v-show="showSubModal" class="modal-content">'
-                                    + '<div @click="closeNoticeModal()" class="modal-button close">×</div>'
-                                    + '<div class="notices" v-for="notice in notices" :key="notice.id"> '
-                                        + '<div class="notice-text">'
-                                            + '○ {{ notice.text }} '
-                                            + '&nbsp;<button v-if="notice.remind" @click="muteNotice(notice.id)"> Mute </button>'
-                                        + '</div>'
-                                        + '<div @click="deleteNotice(notice.id)" class="modal-button delete">×</div>'
+                    + '<div :id="date.date" v-if="monthList.length > 0 && date.id == dateId">'
+                        + '<div class="months">'//+ '<div class="months all-months">'
+                            + '<div class="date">{{ date.date }}</div>'
+                                + '<div class="month-item" v-for="(month, index, key) in monthList" >'
+                                    + '<div class="name-notices-block">'
+                                        + '<div class="name"> {{ month.spendName }}</div>'
+                                        + '<haveNoticesButton v-if="hasNotice(month.monthlySpendsId)" :monthlySpendId="month.monthlySpendsId" />'
                                     + '</div>'
+                                    + '<div class="name"> {{ month.spendName }}</div>'
+                                    + '<div class="deposited">'
+                                        + '<span class="month-amount">{{ month.monthAmount }} / {{ month.templateAmount }}</span>'
+                                    + '</div>'
+                                    + '<div class="buttons">'
+                                        + '<button v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                                        + '<button v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
+                                        + '<button @click="addNoticeModalFunc(month.monthlySpendsId)" class="notice"> </button>'
                                 + '</div>'
-                            + '</transition>'
+                            + '</div>'
                         + '</div>'
-                    + '</transition>'
+                    + '</div>'
+                    + '<allMonthsAddNotice :monthlySpendsId="monthlySpendsId" />'
                 + '</div>'
                 + '<h4 v-if="datesList.length == 0">Has no months.</h4>'
             + '</div>',
@@ -110,43 +146,9 @@ function showAllMonths() {
                     });
                 }
             },
-            getNoticesByMonthlySpendsId: function (monthlySpendsId) {
-                axios.get('notices/' + monthlySpendsId).then(result => {
-                    this.notices = result.data;
-                });
-                this.modal = true;
-            },
-            showAddNoticeModal: function (monthlySpendId) {
-                let that = this;
-                let n = new Noty({
-                    type: 'success',
-                    theme: 'metroui',
-                    layout: 'center',
-                    text: '<div class="modal-body"><textarea class="remindText"></textarea><br />Remind: <input class="remindCheckbox" type="checkbox" /></div>',
-                    modal: true,
-                    closeWith: ['button'],
-                    buttons: [
-                        Noty.button('Save', 'btn btn-success', function () {
-                            let text = $('.remindText').val();
-                            let isRemind = $('.remindCheckbox').is(':checked');
-                            axios.put('notices/add?monthlySpendId=' + monthlySpendId + '&text=' + text + '&remind=' + isRemind)
-                                .then(() => {
-                                    axios.get('allMonths/' + that.dateId)
-                                        .then(result => that.monthList = result.data);
-                                    n.close();
-                                })
-                                .catch(error => alert(error));
-                        })
-                    ]
-                }).show();
-            },
-            closeNoticeModal: function () {
-                let that = this;
-                that.showSubModal = false;
-                setTimeout(function(){
-                    that.modal = false;
-                    that.showSubModal = true;
-                }, 500);
+            addNoticeModalFunc: function (monthlySpendId) {
+                this.monthlySpendsId = monthlySpendId;
+                this.addNoticeModal = true;
             },
             deleteNotice: function (noticeId) {
                 axios.delete('/notices/' + noticeId)
@@ -154,7 +156,6 @@ function showAllMonths() {
                         if (result.data < 1) {
                             this.$parent.modal = false;
                         }
-                        this.notices = result.data;
                     })
                     .catch(error => alert(error));
 
@@ -163,12 +164,28 @@ function showAllMonths() {
                 axios.post('/notices/muteNotice/' + noticeId)
                     .then(result => this.notices = result.data)
                     .catch(error => alert(error))
+            },
+            hasNotice: function(monthlySpendId) {
+                return this.noticesByMonthlySpendsId.includes(monthlySpendId);
+            },
+            dateHasNotice: function(dateId) {
+                return this.noticesByDateId.includes(dateId);
             }
         },
         created: function () {
-            axios.get('dates').then(result => {
+            axios.get('dates').then( result => {
                 this.datesList = result.data;
             });
+
+            axios.get('notices/getAllDateIdsWhereHasNotices')
+                .then( result => this.noticesByDateId = result.data);
+
+            axios.get('notices')
+                .then( result => {
+                    result.data.forEach(note => {
+                        this.noticesByMonthlySpendsId.push(note.monthlySpendId)
+                    });
+                })
         }
     });
 
@@ -180,8 +197,5 @@ function showAllMonths() {
         }
     });
 
-    async function axiosMonthWithDateId(dateId) {
-        return await axios.get('allMonths/' + dateId);
-    }
 
 }

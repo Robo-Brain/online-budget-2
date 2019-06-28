@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +22,9 @@ public class DatesService {
 
     @Autowired
     MonthlySpendsRepo msr;
+
+    @Autowired
+    NoticesService ns;
 
     Dates getTodaysDate() { // метод ищет месяц и год равные сегодняшним, если не находит, то создает новую дату
         String todayYearAndMonth = LocalDate.now().toString().substring(0, 7);
@@ -33,7 +39,7 @@ public class DatesService {
                 throw new RuntimeException("TOO MANY dates! What's happening???");
             }
         } else {
-            msr.deleteAll(); // ACHTUNG !!! тестовая фигня, не знаю, нужна ли, но по идее если нет дат, то нужно дропнуть всю таблицу monthly_spends // WARNING!!
+            msr.deleteAll(); // ACHTUNG !!! тестовая фигня, не знаю, нужна ли, но, по идее, если нет дат, то нужно дропнуть всю таблицу monthly_spends // WARNING!!
             return new Dates();
         }
         //        return dr.findDistinctFirstByDateBeforeOrderByDateDesc(today).orElse(getLastDate());
@@ -47,6 +53,19 @@ public class DatesService {
         Dates d = dr.findOneById(dateId).orElseThrow(NotFoundException::new);
         dr.delete(d);
     }
+
+    public List<Map<String, String>> getDatesWithNoticeCounter() {
+        List<Map<String, String>> result = new ArrayList<>();
+        dr.findAll().forEach(date -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("id", String.valueOf(date.getId()));
+            map.put("date", date.getDate().toString());
+            map.put("noticeQuantity", String.valueOf(ns.getNoticeCountForDateId(date.getId())));
+            result.add(map);
+        });
+        return result;
+    }
+
 
 //    private Dates findOneDate(){
 //       List<Dates> datesList = dr.findAll();

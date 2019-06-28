@@ -7,13 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import java.time.LocalDateTime;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 //@EnableOAuth2Sso
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -41,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //
 //            .and()
 //            .csrf().disable();
-        http.authorizeRequests().antMatchers("/login*").permitAll();
+        http.authorizeRequests().antMatchers("/**").permitAll().and().csrf().disable();
 
     }
 

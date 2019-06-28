@@ -38,9 +38,19 @@ public class NoticesController {
         return ns.deleteNoticeByNoticeId(noticeId);
     }
 
-    @GetMapping("{monthlySpendId}")
-    public List<Notices> findNoticeByMonthlySpendId(@PathVariable Integer monthlySpendId) {
+    @GetMapping("/getByMonthlySpendsId/{monthlySpendId}")
+    public List<Notices> getNoticeByMonthlySpendId(@PathVariable Integer monthlySpendId) {
         return nr.findAllByMonthlySpendId(monthlySpendId);
+    }
+
+    @GetMapping("getNoticesByDateId/{dateId}")
+    public List<Notices> getNoticeByDateId(@PathVariable Integer dateId) {
+        return ns.getNoticesByDateId(dateId);
+    }
+
+    @GetMapping("getAllDateIdsWhereHasNotices")//получить List dateId которые имеют заметки(привязанные к monthly_spends с данным date.id)
+    public List<Integer> getAllDateIdsWhereHasNotices() {
+        return ns.getAllDateIdsWhereHasNotices();
     }
 
     @PostMapping("/muteNotice/{noticeId}")

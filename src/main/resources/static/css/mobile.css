@@ -65,22 +65,25 @@
     /*  MONTH start  */
 
     .month-item {
+        display: table;
+        height: 100%;
         border-radius: 0.1em;
-        height: auto !important;
         min-height: 2.3em;
-        padding: 0.5em 0.1em 0 0.1em !important;
+        /*padding: 0.5em 0.1em 0 0.1em !important;*/
     }
 
     .month-item .name {
         font-size: 1.1em;
         width: 31%;
-        margin-top: 0.1em;
         height: auto;
+        line-height: 1.5em;
+        padding: 0.2em 0;
     }
 
     .month-item .deposited {
         width: 30%;
         font-size: 1.1em;
+        line-height: 1.8em;
     }
     .month-item .deposited.edit {
         width: 22%;
@@ -91,14 +94,11 @@
         margin-right: 0.2em;
         font-size: 1.2em;
         width: 51%;
+        vertical-align: middle;
     }
     .month-item .deposited.edit input {
         margin: 0 !important;
         width: 80%;
-    }
-
-    .month-item .month-amount {
-        margin-left: 0.1em;
     }
 
     .month-item .buttons {
@@ -111,11 +111,17 @@
         float: right;
     }
     .month-item button.salary, .month-item button.prepaid {
-        vertical-align: top;
-        width: 40%;
+        width: 33%;
         font-size: 1.1em;
-        margin: 0.2em 0.7em 0 0.3em;
+        height: 2em;
+        margin: 0 0.7em 0 0.3em;
         padding: 0 !important;
+        vertical-align: bottom;
+    }
+
+    .month-amount {
+        margin-left: 0.1em;
+        font-size: 0.8em;
     }
 
     .buttons.edit button.salary, .buttons.edit button.prepaid {
@@ -123,17 +129,30 @@
     }
 
     .month-item button.cash, .month-item button.card {
-        width: 21%;
-        height: 2.5em;
+        width: 25%;
+        font-size: 1.1em;
+        /* height: 2.5em; */
         margin-top: 0;
     }
 
     .month-item button.notice {
-        /*border: solid red 1px;*/
+        margin-top: 0.4em;
         width: 2.8em;
         height: 2.8em;
         display: block;
         float: right;
+
+        border-right: solid #2793ba 1px;
+        border-bottom: solid #2793ba 1px;
+        border-top: none;
+        border-left: none;
+        border-radius: 0.1em;
+        box-shadow: 1px 1px #2793ba, 2px 2px #2793ba, 3px 3px #2793ba;
+    }
+    .month-item button.notice:hover {
+        /*border: solid #2793ba 1px;*/
+        box-shadow: inset 2px 2px 2px 2px rgba(	21, 81, 102, 0.5);
+        /*box-shadow: 0 0 #2793ba, 1px 1px #2793ba, 2px 2px #2793ba;*/
     }
 
     .buttons.edit button.save,
@@ -143,7 +162,4 @@
         margin-left: 1em;
     }
 
-    .month-amount {
-        font-size: 0.8em;
-    }
 }

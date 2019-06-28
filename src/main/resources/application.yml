@@ -17,18 +17,18 @@ spring:
   thymeleaf:
     cache: false
 
-security:
-  oauth2:
-    client:
-      clientId: 488442857934-bhqqq8t20euh4aj3vh0c9ufp5hs07nvs.apps.googleusercontent.com
-      clientSecret: ${CLIENT_SECRET}
-      accessTokenUri: https://www.googleapis.com/oauth2/v4/token
-      userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
-      clientAuthenticationScheme: form
-      scope: openid, email, profile
-    resource:
-      userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
-      preferTokenInfo: true
+#security:
+#  oauth2:
+#    client:
+#      clientId: 488442857934-bhqqq8t20euh4aj3vh0c9ufp5hs07nvs.apps.googleusercontent.com
+#      clientSecret: ${CLIENT_SECRET}
+#      accessTokenUri: https://www.googleapis.com/oauth2/v4/token
+#      userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
+#      clientAuthenticationScheme: form
+#      scope: openid, email, profile
+#    resource:
+#      userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
+#      preferTokenInfo: true
 
 server:
   port: ${PORT:8080}
