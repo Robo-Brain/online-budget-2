@@ -8,8 +8,11 @@ import com.robo.repository.NoticesRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NoticesService {
@@ -24,12 +27,14 @@ public class NoticesService {
     MonthlySpendsService mss;
 
     public void addNotice(Integer monthlySpendId, String text, Boolean remind) {
+        System.out.println(text);
         if (text.length() > 2) {
             Integer msID = msr.findOneById(monthlySpendId).isPresent() ? monthlySpendId : null; // проверить есть ли в monthly_spends поле с таким ID, если нет, то заnullить его
             Notices notice = new Notices();
             notice.setMonthlySpendId(msID);
             notice.setText(text);
             notice.setRemind(remind);
+            notice.setCreationDate(LocalDate.now());
             nr.save(notice);
         }
     }
@@ -70,6 +75,24 @@ public class NoticesService {
         if(!noticesList.isEmpty()){
             noticesList.forEach(notice -> msr.findById(notice.getMonthlySpendId())
                     .ifPresent(monthlySpends -> result.add(monthlySpends.getDateId())));
+        }
+        return result;
+    }
+
+    public List<Map<String, String>> getAllReminds() {
+        List<Notices> noticesList = nr.findAllByRemind(true);
+        List<Map<String, String>> result = new ArrayList<>();
+        if (!noticesList.isEmpty()){
+            noticesList.forEach(remind -> {
+                Map<String, String> tmpMap = new HashMap<>();
+                MonthlySpends ms = msr.findOneById(remind.getMonthlySpendId()).orElseThrow(NotFoundException::new);
+                tmpMap.put("id", remind.getId().toString());
+                tmpMap.put("text", remind.getText());
+                tmpMap.put("spendName", ms.getTemplates().getSpends().getName());
+                tmpMap.put("date", ms.getDates().getDate().toString());
+                tmpMap.put("creationDate", remind.getCreationDate().toString());
+                result.add(tmpMap);
+            });
         }
         return result;
     }

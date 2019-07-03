@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +23,7 @@ public class DatesService {
     @Autowired
     NoticesService ns;
 
-    Dates getTodaysDate() { // метод ищет месяц и год равные сегодняшним, если не находит, то создает новую дату
+    public Dates getTodaysDate() { // метод ищет месяц и год равные сегодняшним, если не находит, то создает новую дату
         String todayYearAndMonth = LocalDate.now().toString().substring(0, 7);
         List<Dates> datesList = dr.findAll();
         if (datesList.size() > 0) {
@@ -39,13 +36,11 @@ public class DatesService {
                 throw new RuntimeException("TOO MANY dates! What's happening???");
             }
         } else {
-            msr.deleteAll(); // ACHTUNG !!! тестовая фигня, не знаю, нужна ли, но, по идее, если нет дат, то нужно дропнуть всю таблицу monthly_spends // WARNING!!
             return new Dates();
         }
-        //        return dr.findDistinctFirstByDateBeforeOrderByDateDesc(today).orElse(getLastDate());
     }
 
-    Dates getLastDate() {
+    public Dates getLastDate() {
         return dr.findTopByOrderByIdDesc().orElse(new Dates());
     }
 
@@ -64,6 +59,36 @@ public class DatesService {
             result.add(map);
         });
         return result;
+    }
+
+    private LocalDate makeNewDate() {
+        LocalDate date = LocalDate.now();
+        if (date.getMonthValue() == 12) {
+            date = date.plusYears(1);
+            date = date.withMonth(1);
+        }
+        else {
+            date = date.plusMonths(1);
+        }
+        date = date.plusDays(1); //БД уменьшает все на день из-за таймзоны, потом удалю эту строку, как разберусь с БД
+        return date;
+    }
+
+    Dates generateDate() {
+        Dates date = getTodaysDate(); //получить сегодняшнюю дату или пустую
+        if (Objects.isNull(date.getId())) { // все ок, сегодняшней даты в базе нет, календарный месяц завершен
+            date.setDate(makeNewDate());
+            date.setCompleted(false);
+            dr.save(date);
+        } else { // сегодняшняя дата в базе есть, календарный месяц не завершен
+            if (msr.findAllByDateId(date.getId()).isPresent()){ // сегодняшняя дата найдена и для нее есть платежи, значит создается следующий месяц, все ок, новую дату НУЖНО создать
+                date = new Dates();
+                date.setDate(makeNewDate());
+                date.setCompleted(false);
+                dr.save(date);
+            } // else сегодняшняя дата найдена и для нее нет платежей, значит заполняется "пустой" месяц, новую дату создавать НЕ нужно
+        }
+        return date;
     }
 
 

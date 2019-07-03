@@ -1,19 +1,21 @@
-Vue.component('modalCreateMonth', {
-    props: ['dateId'],    data: function() {
+Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMonthModal" :dateId="dateId" />
+        props: ['dateId'],
+        data: function() {
         return {
             bodyText: 'Создать новый месяц?',
             warning: false,
-            ignoreWarning: false
+            ignoreWarning: false,
+            subModal: true
         }
     },
     template:
-    '<div v-if="this.$parent.showModalCreateMonth" class="modal">'
+    '<div class="modal">'// v-if="this.$parent.showCreateMonthModal"
         + '<transition name="slideIn" appear>'
-            + '<div class="modal-content new-month">'
-                + '<div @click="closeModal()" class="modal-button close">×</div>'
+            + '<div v-if="subModal" class="modal-content new-month">'
+                + '<div @click="$emit(\'close\'), closeModal()" class="modal-button close">×</div>'
                 + '<p>'
                     + '{{ bodyText }}<br />'
-                    + '<button class="new-month-button no" @click="closeModal()">NO</button> <button @click="createNewMonth()" class="new-month-button yes">YES</button><br /><br />'
+                    + '<button class="new-month-button no" @click="closeModal()">NO</button> <button :disabled="warning && !ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button><br /><br />'
                     + '<span class="new-month-warning" v-if="warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
                 + '</p>'
             + '</div>'
@@ -21,7 +23,11 @@ Vue.component('modalCreateMonth', {
     + '</div>',
     methods: {
         closeModal: function () {
-            this.$parent.showModalCreateMonth = false;
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showCreateMonthModal = false;
+            }, 500);
             this.ignoreWarning = this.warning = false;
             this.bodyText = 'Создать новый месяц?';
         },
@@ -44,9 +50,10 @@ Vue.component('modalCreateMonth', {
                                 break;
                         }
                     })
-            } else if (this.ignoreWarning){
+            } else if (this.ignoreWarning && this.dateId > 0){
                 axios.put('month/createNewMonthByDateId?dateId=' + this.dateId)
                     .then(result => {
+                        console.log(result.data);
                         this.$parent.monthList = result.data;
                         this.closeModal();
                     })
@@ -56,68 +63,67 @@ Vue.component('modalCreateMonth', {
     }
 });
 
-Vue.component('templateHaveNoticesButton', {
-    props: ['monthlySpendId'],
+Vue.component('noticeModal', {
+    props: ['notices'],
     data: function() {
         return {
-            showNoticeModal: false,
-            notices: []
+            subModal: true
         }
     },
     template:
-    '<span>'
-        + '<button @click="showNoticeModalFunc()" class="month-notices-show-button" > </button>'
-        + '<div v-if="showNoticeModal" class="modal">'
-            + '<transition name="slideIn" appear>'
-                + '<div class="modal-content notice">'
-                    + '<div @click="closeModal()" class="modal-button close">×</div>'
-                    + '<div v-if="notices.length > 0" v-for="notice in notices">'
-                        + '<p>{{ notice.text }}</p>'
-                    + '</div>'
-                + '</div>'
-            + '</transition>'
-        + '</div>'
-    + '</span>',
-    methods: {
-        showNoticeModalFunc: function () {
-            this.showNoticeModal = true;
-            axios.get('notices/getByMonthlySpendsId/' + this.monthlySpendId).then(result => {
-                this.notices = result.data;
-            });
-        },
-        closeModal: function () {
-            this.showNoticeModal = false;
-        }
-    }
-});
-
-Vue.component('modalCreateTemplate', {
-    props: ['dateId'],
-    data: function() {
-        return {
-            name: '',
-            bodyText: 'Имя шаблона:'
-        }
-    },
-    template:
-    '<div v-if="this.$parent.showModalCreateTemplate" class="modal">'
+    '<div class="modal">'
         + '<transition name="slideIn" appear>'
-            + '<div class="modal-content new-template">'
+            + '<div v-if="subModal" class="modal-content">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
-                + '{{ bodyText }}'
-                + '<p><input v-model="name" /> <button class="save-button" @click="saveTemplateList()"> </button></p>'
+                + '<div v-if="notices.length > 0" v-for="notice in notices">'
+                    + '<li>{{ notice.text }}</li>'
+                + '</div>'
             + '</div>'
         + '</transition>'
     + '</div>',
     methods: {
         closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showNoticeModal = false;
+            }, 500);
+        }
+    }
+});
+
+Vue.component('createTemplateModal', {// <modalCreateTemplate v-if="this.showCreateTemplateModal" :dateId="dateId" />
+    props: ['dateId'],
+    data: function() {
+        return {
+            name: '',
+            bodyText: 'Имя шаблона:',
+            subModal: true
+        }
+    },
+    template:
+    '<div class="modal">'
+    + '<transition name="slideIn" appear>'
+        + '<div v-if="subModal" class="modal-content new-template">'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'
+                + '{{ bodyText }}'
+                + '<p><input v-model="name" autofocus/> <button class="save-button" @click="saveTemplateList()"> </button></p>'
+            + '</div>'
+        + '</transition>'
+    + '</div>',
+    methods: {
+        closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showCreateTemplateModal = false;
+            }, 500);
             this.name = '';
             this.bodyText = 'Имя шаблона:';
-            this.$parent.showModalCreateTemplate = false;
         },
         saveTemplateList: function () {
             if (this.dateId > 0 && this.name.length > 1){
-                axios.put('templatesList/createTemplatesListByMonth?dateId=' + this.dateId + '&name=' + this.name)
+                axios.put('templatesList/createTemplatesListFromMonth?dateId=' + this.dateId + '&name=' + this.name)
                     .then(() => {
                         this.bodyText = 'OK';
                         let self = this;
@@ -131,32 +137,37 @@ Vue.component('modalCreateTemplate', {
     }
 });
 
-Vue.component('notice', {
+Vue.component('createNoticeModal', {//<createNotice v-if="this.showNoticeModal" :monthlySpendsId="monthlySpendsId" />
     props: ['monthlySpendsId'],
     data: function() {
         return {
             text: null,
             bodyText: 'Текст заметки:',
             isError: false,
-            remind: false
+            remind: false,
+            subModal: true
         }
     },
     template:
-    '<div v-if="this.$parent.showNoticeModal" class="modal">'
+    '<div class="modal">'
         + '<transition name="slideIn" appear>'
-            + '<div class="modal-content notice">'
-                + '<div @click="closeModal()" class="modal-button close">×</div>'
+            + '<div v-if="subModal" class="modal-content notice">'
+                + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//<input style="width: 0; height: 0; border: none; margin: 0; padding: 0" @keydown.esc="$parent.showNoMonthModal = false" autofocus/>
                 + '<p>'
                     + '{{ bodyText }}<br />'
-                    + '<textarea v-model="text" ></textarea>'
-                    + '<input id="is-remind" v-model="remind" type="checkbox" /> <label for="is-remind">Remind</label> <button @click="saveNotice()">Сохранить</button>'
+                    + '<textarea v-model="text" @keydown.esc="$parent.showNoMonthModal = false" autofocus></textarea>'
+                    + '<input id="is-remind" v-model="remind" type="checkbox"> <label for="is-remind">Remind</label> <button class="save-button" @click="saveNotice()"> </button>'
                 + '</p>'
             + '</div>'
         + '</transition>'
     + '</div>',
     methods: {
         closeModal: function () {
-            this.$parent.showNoticeModal = false;
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showCreateNoticeModal = false;
+            }, 500);
             this.text = null;
             this.bodyText = 'Текст заметки:';
             this.isError = false;
@@ -164,70 +175,77 @@ Vue.component('notice', {
         },
         saveNotice: function () {
             axios.put('notices/add?monthlySpendId=' + this.monthlySpendsId + '&text=' + this.text + '&remind=' + this.remind)
-                .then(() => {
+                .then(async () => {
                     this.bodyText = 'OK';
+                    this.$parent.noticesMonthlySpendsId = await getNotices();
                     let self = this;
                     setTimeout(function(){
                         self.closeModal();
                     }, 1000);
-                })
+                });
+
         }
     }
 });
 
-Vue.component('modalNoMonth', { // модальное окно с сообщением о том, что текущего месяца нет
-    template:
-    '<div v-if="this.$parent.showModal == true && (enabledTemplatesHasFound || previousMonthHasFound)" id="modal-template">'
-        + '<div class="modal-mask"><div class="modal-wrapper"><div class="modal-container">'
-            + '<div class="modal-header">'
-                + '<slot name="header">Внимание, текущий месяц не найден!</slot>'
-            + '</div>'
-            + '<div class="modal-body">'
-                + '<slot name="body">Создай новый месяц по активному шаблону или по предыдущему месяцу:</slot>'
-            + '</div>'
-            + '<div class="modal-footer">'
-                + '<slot name="footer">'
-            + '<button @click="closeModal()">X</button> <button :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">by Enabled</button>'
-                + '&nbsp;'
-                + '<button :disabled="!previousMonthHasFound" @click="createMonthByLast()">by Last</button>'
-                + '</slot>'
-            + '</div>'
-        + '</div></div></div>'
-    + '</div>',
+Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == true" />
     data: function() {
         return {
             enabledTemplatesHasFound: false,
-            previousMonthHasFound: false
+            previousMonthHasFound: false,
+            hideTimeoutIsOver: false,
+            subModal: true
         }
     },
+    mounted() {
+        if (localStorage.date) {
+            if (new Date() >= new Date(localStorage.date)){ // если текущее время больше, чем сохранненое в localStorage(там сохраняется время + 1минута), значит минута прошла
+                this.hideTimeoutIsOver = true; // показать модальное окно "создай новый месяц"
+                localStorage.removeItem("date");// удалить дату на всякий случай
+            }
+        } else {
+            this.hideTimeoutIsOver = true;
+        }
+    },
+    template:
+        '<div v-if="(enabledTemplatesHasFound || previousMonthHasFound) && hideTimeoutIsOver" class="modal">' //  && this.date <= actualDate
+            + '<transition name="slideIn" appear>'
+                + '<div v-if="subModal" class="modal-content notice">'
+                    + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
+                    + '<p>Внимание, текущий месяц не найден!</p>'
+                    + '<p>'
+                        + 'Создать новый месяц по активному шаблону или по предыдущему месяцу:<br />'
+                        + '<button :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">по шаблону</button>'
+                        + '<button :disabled="!previousMonthHasFound" @click="createMonthByLast()">по месяцу</button>'
+                    + '</p>'
+                + '</div>'
+            + '</transition>'
+        + '</div>',
     methods: {
         closeModal: function () {
-            this.$parent.showModal = false;
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showNoMonthModal = false;
+            }, 500);
+            let d = new Date();
+            d.setMinutes(d.getMinutes()+1);
+            localStorage.date = d; // записать время+1мин в localStorage
         },
         createMonthByEnabled: function () {
             if (this.enabledTemplatesHasFound){
-                let tmpList = [];
                 axios.get('month/createFromEnabled').then(result =>
-                    // result.data.forEach(month => {
-                    //     tmpList.push(month);
-                    this.$parent.monthList = result.data
-                    // })
+                    this.$parent.localMonthList = result.data
                 );
-                this.$parent.showModal = false;
-                // this.$parent.monthList = tmpList;
+                this.$parent.showNoMonthModal = false;
             }
         },
         createMonthByLast: function () {
             if (this.previousMonthHasFound) {
-                var tmpList = [];
                 axios.get('month/createFromLastMonth').then(result =>
-                    this.$parent.monthList = result.data
-                    // result.data.forEach(month => {
-                    //     tmpList.push(month);
-                    // })
+                    this.$parent.localMonthList = result.data
                 );
-                this.$parent.showModal = false;
-                // this.$parent.monthList = tmpList;
+                this.$parent.showNoMonthModal = false;
             }
         }
     },
@@ -251,4 +269,16 @@ Vue.component('modalNoMonth', { // модальное окно с сообщен
             error => this.previousMonthHasFound = false
         );
     }
+
 });
+
+async function getNotices() {
+    let arr = [];
+    await axios.get('notices')
+        .then(result => {
+            result.data.forEach(note => {
+                arr.push(note.monthlySpendId);//this.noticesMonthlySpendsId
+            });
+        });
+    return arr;
+}

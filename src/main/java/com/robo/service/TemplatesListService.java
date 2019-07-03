@@ -35,7 +35,7 @@ public class TemplatesListService {
         return getAllTemplatesList();
     }
 
-    public void createTemplatesListByMonth(Integer dateId, String name){
+    public void createTemplatesListFromMonth(Integer dateId, String name){
         if (!tlr.findByName(name).isPresent()){
             String templateIds = mss.getMonthlySpendsByDateId(dateId).stream().map(ms -> String.valueOf(ms.getTemplateId())).collect(Collectors.joining(",","",""));
             if (templateIds.length() > 0) {

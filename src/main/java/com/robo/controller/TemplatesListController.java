@@ -71,12 +71,11 @@ public class TemplatesListController {
         return tls.addTemplate(name);
     }
 
-    @PutMapping("createTemplatesListByMonth")
-    public void createTemplatesListByMonth(
+    @PutMapping("createTemplatesListFromMonth")
+    public void createTemplatesListFromMonth(
             @RequestParam(name = "dateId") Integer dateId,
             @RequestParam(name = "name") String name){
-        System.out.println(dateId + " / " + name);
-        tls.createTemplatesListByMonth(dateId, name);
+        tls.createTemplatesListFromMonth(dateId, name);
     }
 
     @PutMapping("/editTemplateInList")

@@ -1,21 +1,18 @@
 package com.robo.service;
 
 import com.robo.DTOModel.MonthlySpendsDTO;
-import com.robo.DTOModel.TemplatesDTO;
 import com.robo.Entities.Dates;
 import com.robo.Entities.MonthlySpends;
 import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
-import com.robo.repository.DatesRepo;
-import com.robo.repository.MonthlySpendsRepo;
-import com.robo.repository.SpendsRepo;
-import com.robo.repository.TemplatesListRepo;
+import com.robo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +35,9 @@ public class MonthlySpendsService {
     MonthlySpendsService mss;
 
     @Autowired
+    TemplatesRepo tr;
+
+    @Autowired
     TemplatesService ts;
 
     @Autowired
@@ -46,7 +46,7 @@ public class MonthlySpendsService {
     @Autowired
     DatesRepo dr;
 
-    public List<MonthlySpendsDTO> getCurrentMonth() {
+    public List<MonthlySpendsDTO> getCurrentMonth() {// переписать метод, не нужно кидать 404
         Dates date = ds.getTodaysDate(); // получить сегодняшнюю дату и вернуть для нее entity dates иначе new Dates()
         if (Objects.nonNull(date.getId())){ // проверить, вернулся заполненный Dates или пустой
             return getMonthsDTOByDateID(date.getId()); // вернуть найденную дату, если она найдена
@@ -73,8 +73,8 @@ public class MonthlySpendsService {
                 resultList.add(msDTO);
             });
             return resultList;
-        } else {
-            return null;
+        } else { // если с таким dateId ничего не найдено, вернуть пустой список, для добавления пользователем вручную
+            return new ArrayList<>();
         }
     }
 
@@ -91,24 +91,28 @@ public class MonthlySpendsService {
     }
 
     public void createMonthByEnabledTemplatesList() {
-        createNewMonthByTemplatesList(tls.getEnabledTemplate().getId());
+        createNewMonthByTemplatesListId(tls.getEnabledTemplate().getId());
     }
 
     public void createMonthFromLastMonth() {
         MonthlySpends ms = msr.findTopByOrderByIdDesc();
-        Integer templatesListId = ms.getDates().getTemplateListId();
-        TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
-        createNewMonthByTemplatesList(tl.getId());
+        createNewMonthByDateId(ms.getDateId());
+    }
+
+    public String checkLastMonthBeforeCreateNewMonth() {
+        Integer dateId = msr.findTopByOrderByIdDesc().getDateId();
+        return checkBeforeCreateNewMonth(dateId);
     }
 
     public String checkBeforeCreateNewMonth(Integer dateId) {
         if (Objects.nonNull(dateId) && dateId > 0) {
             List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
-            if (msList.get(0).getDates().getDate() == ds.getTodaysDate().getDate()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
-                if (checkMonthForCompletion(dateId)) { // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
-                    createNewMonthByDateId(dateId);
-                    return "";
-                } else return "MONTH_OK.FULL_NOT";
+            if (msList.get(0).getDates().getDate().getYear() != LocalDate.now().getYear()
+                || msList.get(0).getDates().getDate().getMonthValue() != LocalDate.now().getMonthValue()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
+                    if (checkMonthForCompletion(dateId)) { // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
+                        createNewMonthByDateId(dateId);
+                        return "";
+                    } else return "MONTH_OK.FULL_NOT";
             } else { // дата ежемесячных платежей совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц еще не закончен с точки зрения календаря
                 if (checkMonthForCompletion(dateId))
                     return "MONTH_NOT.FULL_OK";
@@ -119,26 +123,20 @@ public class MonthlySpendsService {
 
     public void createNewMonthByDateId(Integer dateId) {
         List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
-        if (dr.findOneById(dateId).isPresent()){ // && msList.get(0).getDates().getDate() == dr.findOneById(dateId).get().getDate()
-
-            if (Objects.nonNull(ds.getTodaysDate().getId())){ //проверка существует ли такой год+месяц в dates
-                Dates date = new Dates();// если да, то все ок, создаем новую dates с месяцем +1 от найденного
-                LocalDate d = LocalDate.now().plusMonths(1).withDayOfMonth(2); //с месяцем +1 от найденного //почему-то БД уменьшает на один день дату
-                date.setDate(d);
-                dr.save(date);
-
-                msList.forEach(ms -> {
-                    MonthlySpends monthlySpends = new MonthlySpends();
-                    monthlySpends.setDateId(date.getId());
-                    monthlySpends.setTemplateId(ms.getTemplateId());
-                    monthlySpends.setMonthAmount(0);
-                    msr.save(monthlySpends);
-                });
-            } else throw new RuntimeException("Something wrong, cause can't find current month in dates!");
-        }
+        Dates date = ds.generateDate();
+        System.out.println("Dates date = ds.generateDate() = " + date);
+        if (!msList.isEmpty()) {
+            msList.forEach(ms -> {
+                MonthlySpends monthlySpends = new MonthlySpends();
+                monthlySpends.setDateId(date.getId());
+                monthlySpends.setTemplateId(ms.getTemplateId());
+                monthlySpends.setMonthAmount(0);
+                msr.save(monthlySpends);
+            });
+        }else throw new RuntimeException("Something wrong, cause can't find monthly_spends for date_id: " + dateId);
     }
 
-    public void createNewMonthByTemplatesList(Integer templatesListId) {
+    public void createNewMonthByTemplatesListId(Integer templatesListId) {
         if (Objects.nonNull(templatesListId) && Objects.isNull(ds.getTodaysDate().getId())){ // проверка закончился ли текущий месяц
             Dates d = new Dates();
             d.setDate(LocalDate.now());
@@ -146,10 +144,16 @@ public class MonthlySpendsService {
             d.setCompleted(false);
             dr.save(d);
 
-            List<TemplatesDTO> templatesDTO = ts.getTemplatesDTOByTemplatesListId(templatesListId);
-            if (templatesDTO.size() > 1){
-                templatesDTO.forEach(template -> msr.save(setMonthlySpends(d.getId(), template.getTemplateId(), 0)));
-            }
+            TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+            String[] tmpIds = tl.getTemplateId().split(",");
+            Arrays.stream(tmpIds).forEach(tmpId -> {
+                Templates template = tr.findOneById(Integer.valueOf(tmpId)).orElseThrow(NotFoundException::new);
+                MonthlySpends ms = new MonthlySpends();
+                ms.setDateId(d.getId());
+                ms.setTemplateId(template.getId());
+                ms.setMonthAmount(0);
+                msr.save(ms);
+            });
         }
     }
 
@@ -165,7 +169,6 @@ public class MonthlySpendsService {
     public List<MonthlySpendsDTO> pushSpendToMonth(Integer spendId, Integer dateId) {
         if (Objects.nonNull(spendId) && spendId > 0 && Objects.nonNull(dateId) && dateId > 0){
             Templates template = ts.pushSpendToTemplate(spendId, 0, true, true); // искать template с такими же параметрами, если найден - вернуть его, если нет - добавить новый
-            MonthlySpends ms = new MonthlySpends();
             msr.save(setMonthlySpends(dateId, template.getId(), 0));
             return getMonthsDTOByDateID(dateId);
         } else throw new RuntimeException("SpendId not found!");
@@ -218,13 +221,10 @@ public class MonthlySpendsService {
         return getLastMonth();
     }
 
-    public Boolean checkMonthForCompletion(Integer dateId) {
+    private Boolean checkMonthForCompletion(Integer dateId) { // проверка месяца на завершенность с точки зрения платежей
         List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
         Long res = msList.stream().filter(ms -> ms.getMonthAmount() < ms.getTemplates().getAmount()).count();
         return res <= 0;
-//        Integer templateAmount= msList.stream().mapToInt(ms -> ms.getTemplates().getAmount()).sum(); // сумма всех платежей согласно шаблону
-//        Integer monthAmount= msList.stream().mapToInt(MonthlySpends::getMonthAmount).sum(); // сумма фактически внесенных в бюджет платежей
-
     }
 
 }

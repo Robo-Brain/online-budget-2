@@ -26,6 +26,9 @@ public class DatesController {
         return dr.findAll();
     }
 
+    @GetMapping("/lastDate")
+    public Dates getLastDate() { return ds.getLastDate(); }
+
     @GetMapping("/dateWithNoticeCount")
     public List<Map<String, String>> getDatesWithNoticeCounter(){
         return ds.getDatesWithNoticeCounter();

@@ -1,6 +1,8 @@
 <!doctype html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:v-bind="http://www.w3.org/1999/xhtml">
     <th:block th:include="_head"></th:block>
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
+    <meta name="viewport" content="initial-scale=0.7, maximum-scale=0.7">
 <body>
     <!--<th:block sec:authorize="isAnonymous()">-->
         <!--<div class="login">-->
@@ -62,19 +64,25 @@
             axios.get('/notices/reminds')
                 .then(result => {
                     result.data.forEach(remind => {
+                        let text = remind.text.length > 1 ? remind.text : 'Ошибка. Нет текста.';
+                        let spendName = remind.spendName.length > 1 ? remind.spendName : '';
+                        let date = remind.date.length > 1 ? remind.date : '';
+                        let creationDate = remind.creationDate.length > 1 ? remind.creationDate : '';
                         let n = new Noty({
-                            type: 'error',
+                            type: 'success',
                             theme: 'metroui',
-                            text: remind.text,
-                            timeout: 7000,
+                            text: '<div class="modal-remind">'
+                                        + '<div class="remind-spend-name">Прикреплено к:<br /><span>' + spendName + '</span></div>'
+                                        + '<div class="remind-date">Для месяца:<br /><span>' + date + '</span></div>'
+                                        + '<p class="remind-text">' + text + '</p>'
+                                        + '<div class="remind-creation-date">Создано: ' + creationDate + '</div>'
+                                + '</div>',
+                            // timeout: 7000,
                             buttons: [
-                                Noty.button('MUTE', 'btn btn-success', function () {
+                                Noty.button(' ', 'button-mute', function () {
                                     axios.post('/notices/muteNotice/' + remind.id)
                                         .then(() => n.close())
                                         .catch(error => alert(error))
-                                }),
-                                Noty.button('HIDE', 'btn btn-error', function () {
-                                    n.close();
                                 })
                             ]
                         }).show();

@@ -8,19 +8,19 @@ function showSpendsList() {
     $('#spends').show();
 
     Vue.component('spends-list', {
-        props: ['spendsList'],
+        data: function() {
+            return  {
+                localSpends: [],
+                newSpendName: ''
+            }
+        },
         template:
         '<ul class="spends">'
-            + '<li v-for="spend in spendsList" >'
+            + '<li v-for="spend in localSpends" >'
                 + '<i>{{ spend.id }}</i> <span v-bind:value="spend.id">{{ spend.name }}</span>'
             + '</li>'
             + '<li class="new">Name: <input @input="handleInputSpendName($event.target.value)" type="text"></li><button @click="pushSpend()" id="pushSpend" type="button">Send</button>'
         + '</ul>',
-        data: function() {
-            return  {
-                newSpendName: ''
-            }
-        },
         methods: {
             handleInputSpendName(value) {
                 this.newSpendName = value;
@@ -39,19 +39,12 @@ function showSpendsList() {
             }
         },
         created: function () { //функция, котора ожидает подгрузки всего необходимого и ДО рендера страницы меняет содержимое на то, что получено через axios.get()
-            axios.get('spends').then(result => // получаем все листы из spends
-                result.data.forEach(spend => {
-                    this.spendsList.push(spend);
-                })
-            );
+            axios.get('spends').then(result => this.localSpends = result.data);
         }
     });
 
     var spendsList = new Vue({
         el: '#spends', // айдишник блока, куда рендерить
-        template: '<div id="spends"><spends-list :spendsList = "spendsList" /></div>',
-        data: {
-            spendsList: []
-        }
+        template: '<div id="spends"><spends-list /></div>',
     });
 }

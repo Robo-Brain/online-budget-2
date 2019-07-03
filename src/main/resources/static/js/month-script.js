@@ -8,14 +8,15 @@ function showLastMonth() {
     $('#allMonths').hide();
 
     Vue.component('month-list', {
-        props: ['monthList'],
         data: function() {
             return {
+                localMonthList: [],
                 date: '',
-                showModal: false,
+                showNoMonthModal: false,
+                showCreateNoticeModal: false,
                 showNoticeModal: false,
-                showModalCreateTemplate: false,
-                showModalCreateMonth: false,
+                showCreateTemplateModal: false,
+                showCreateMonthModal: false,
                 spendId: '',
                 missingSpendsList: [],
                 noticesMonthlySpendsId: [],
@@ -32,16 +33,20 @@ function showLastMonth() {
                 totalAmountPrepaidCard: 0,
                 totalAmountPrepaidCash: 0,
                 editingIndex: null,
-                newAmount: null
+                notices: []
             }
         },
         template:
             '<div class="months">'
                 + '<div class="date">{{ date }}</div>'
-                + '<div v-if="!editMode"class="month-item" v-for="(month, index, key) in monthList" >'
+                + '<div v-if="localMonthList.length < 1">'
+                    + 'Список пуст, добавь статьи расходов вручную, <a href="#" @click="showNoMonthModal = true">заполни по активному шаблону по предыдущему месяцу</a>'
+                + '</div>'
+                + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
                         + '<div class="name-notices-block">'
                             + '<div class="name"> {{ month.spendName }}</div>'
-                            + '<templateHaveNoticesButton v-if="hasNotice(month.monthlySpendsId)" :monthlySpendId="month.monthlySpendsId" />'
+                            + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
+                            // + '<templateHaveNoticesButton  :monthlySpendId="month.monthlySpendsId" />'
                         + '</div>'
                         + '<div class="deposited">'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount" />'
@@ -53,7 +58,7 @@ function showLastMonth() {
                             + '<button @click="toggleNoticeModal(month.monthlySpendsId)" class="notice"> </button>'
                         + '</div>'
                 + '</div>'
-                + '<div v-if="editMode" class="month-item" v-for="(month, index, key) in monthList" >'
+                + '<div v-if="editMode" class="month-item" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name">'
                         + ' {{ month.spendName }}'
                     + '</div>'
@@ -97,12 +102,27 @@ function showLastMonth() {
                     + '</option>'
                 + '</select>'
                 + '<div class="submenu-buttons">'
-                    + '<button v-show="!editMode" title="Создать следующий месяц" class="create-month-button" @click="showModalCreateMonth = true"> </button>'
-                    + '<button v-show="!editMode" title="Создать шаблон по текущему месяцу" class="create-template-button" @click="showModalCreateTemplate = true"> </button>'
-                    + '<button v-show="editMode" title="Удалить текущий месяц" class="delete-month-button" @click="deleteCurrentMonth()"> </button>'
-                    + '<button title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
+                    + '<button v-show="!editMode" title="Создать следующий месяц по текущему месяцу" class="create-month-button" @click="showCreateMonthModal = true"> </button>'
+                    + '<button v-show="!editMode" title="Создать шаблон по текущему месяцу" class="create-template-button" @click="showCreateTemplateModal = true"> </button>'
+                    + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="deleteCurrentMonth()"> </button>'
+                    + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
-            + '<modalNoMonth /><modalCreateMonth  :dateId="dateId" /><modalCreateTemplate :dateId="dateId" /><notice :monthlySpendsId="monthlySpendsId" /></div>',
+                + '<noMonthModal v-if="showNoMonthModal" />'
+                + '<createMonthModal v-if="showCreateMonthModal" :dateId="dateId" />'
+                + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'
+                + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
+                + '<noticeModal v-if="showNoticeModal" :notices="notices" />'
+            + '</div>',
+        watch: {
+            noticesMonthlySpendsId: {
+                handler: function (val, oldVal) {},
+                deep: true
+            },
+            localMonthList: {
+                handler: function (val, oldVal) {},
+                deep: true
+            }
+        },
         methods: {
             setMonthAmount: function(monthlySpendId) {
                 this.monthlySpendsId = monthlySpendId;
@@ -111,14 +131,16 @@ function showLastMonth() {
                     + this.monthlySpendsId
                     + "&amount="
                     + this.newMonthAmount)
-                    .then(result => this.monthList = result.data)
+                    .then(result => this.localMonthList = result.data)
             },
             editModeToggle: function() { // режим редактирования monthly_spend On/Off
-                this.spendId = '';
-                this.showSpendInput = false;
-                this.templateAmount = '';
-                this.editMode = !this.editMode;
-                this.deleteMode = true;
+                if (this.localMonthList.length > 0){
+                    this.spendId = '';
+                    this.showSpendInput = false;
+                    this.templateAmount = '';
+                    this.editMode = !this.editMode;
+                    this.deleteMode = true;
+                }
             },
             setAmount: function(event, index) { // установка новой суммы для spend в режиме редактирования monthly_spend
                 // this.editingIndex = this.editingIndex == index ? null : index;
@@ -147,7 +169,7 @@ function showLastMonth() {
                         + '&isCash=' + this.isCash
                     ).then(async result => {
                         if(result.data.length > 0) {
-                            this.monthList = result.data;
+                            this.localMonthList = result.data;
                             await getTotalAmounts(result.data).then(amountsArr => {
                                 this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
                                 this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
@@ -168,7 +190,7 @@ function showLastMonth() {
                                 this.date = result.data[0].date;
                                 this.dateId = result.data[0].dateId;
 
-                                this.monthList = result.data;
+                                this.localMonthList = result.data;
                                 await getMissingSpends(this.dateId).then(res => {
                                     this.missingSpendsList = res.data;
                                 });
@@ -196,14 +218,19 @@ function showLastMonth() {
                         this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
                         this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
                     });
-                    this.monthList = result.data;
-                    this.editMode = false;
+                    this.localMonthList = result.data;
                 });
 
             },
+            async getNoticesAndShowNoticeModal(monthlySpendId) {
+                await axios.get('notices/getByMonthlySpendsId/' + monthlySpendId).then(result => {
+                    this.notices = result.data;
+                    this.showNoticeModal = true;
+                });
+            },
             toggleNoticeModal: function (monthlySpendId) {
                 this.monthlySpendsId = monthlySpendId;
-                this.showNoticeModal = true;
+                this.showCreateNoticeModal = true;
             },
             hasNotice: function(monthlySpendId) {
                 return this.noticesMonthlySpendsId.includes(monthlySpendId);
@@ -212,9 +239,18 @@ function showLastMonth() {
         created: function () {
             axios.get('month')
                 .then(async result => {// получить текущий месяц
+                    if (result.data.length == 0){ //если месяц "пустой"
+                        this.editMode = true; // включить режим редактирования принудительно
+                        await getLastDate() // попробовать получить dateId
+                            .then(result => {
+                                this.date = result.data.date;
+                                this.dateId = result.data.id
+                            });
+                    }
+
                     this.date = result.data[0].date;
                     this.dateId = result.data[0].dateId;
-                    this.monthList = result.data;
+                    this.localMonthList = result.data;
 
                     await getTotalAmounts(result.data)
                         .then(amountsArr => {
@@ -231,9 +267,20 @@ function showLastMonth() {
                     axios.get('month/getPreviousMonth').then(async res => {// если не вышло, то какой-то из прошлых
                         this.date = res.data[0].date;
                         this.dateId = res.data[0].dateId;
-                        this.monthList = res.data;
-                        this.showModal = true;
-                        await getMissingSpends(res.data[0].dateId).then(res => this.missingSpendsList = res.data);
+                        this.localMonthList = res.data;
+
+                        this.showNoMonthModal = true;
+
+                        await getTotalAmounts(res.data)
+                            .then(amountsArr => {
+                                this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
+                                this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
+                                this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
+                                this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
+                            });
+
+                        await getMissingSpends(res.data[0].dateId)
+                            .then(res => this.missingSpendsList = res.data);
                     })
                         .catch(async () => {// если снова не вышло, то что-то пошло не так, вероятно таблица dates вообще пустая
                             await getAllSpends().then(res => this.missingSpendsList = res.data);
@@ -243,12 +290,15 @@ function showLastMonth() {
             axios.get('notices')
                 .then(result => {
                     result.data.forEach(note => {
-                        this.noticesMonthlySpendsId.push(note.monthlySpendId);
+                        this.noticesMonthlySpendsId.push(note.monthlySpendId);//this.noticesMonthlySpendsId
                     });
                 });
 
             async function getAllSpends() {
                 return await axios.get('spends');
+            }
+            async function getLastDate() {
+                return await axios.get('dates/lastDate');
             }
 
         }
@@ -256,10 +306,7 @@ function showLastMonth() {
 
     let monthList = new Vue({
         el: '#month',
-        template: '<div id="month"><month-list :monthList = "monthList" /></div>',
-        data: {
-            monthList: []
-        }
+        template: '<div id="month"><month-list /></div>'
     });
 
     async function getTotalAmounts(data) {
@@ -271,6 +318,7 @@ function showLastMonth() {
             amountPrepaidCash = !item.salary && item.cash ? amountPrepaidCash + item.templateAmount : amountPrepaidCash;
             amountPrepaidCard = !item.salary && !item.cash ? amountPrepaidCard + item.templateAmount : amountPrepaidCard;
         }
+
         return await {
             amountSalaryCash: amountSalaryCash,
             amountSalaryCard: amountSalaryCard,

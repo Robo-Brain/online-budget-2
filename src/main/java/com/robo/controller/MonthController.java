@@ -39,14 +39,14 @@ public class MonthController {
 //        }
 //    }
 
-    @GetMapping("/all")
-    public List<List<MonthlySpendsDTO>> getAllMonths() {
-        return mss.getAllMonthlySpends();
-    }
-
     @GetMapping
     public List<MonthlySpendsDTO> getLastMonth() {
         return mss.getLastMonth();
+    }
+
+    @GetMapping("/all")
+    public List<List<MonthlySpendsDTO>> getAllMonths() {
+        return mss.getAllMonthlySpends();
     }
 
     @GetMapping("/getPreviousMonth")
@@ -63,11 +63,6 @@ public class MonthController {
         }
     }
 
-//    @GetMapping("/getMonthlyMissingSpends")
-//    public List<Spends> getMonthlyMissingSpends(@RequestParam(name = "monthlySpendsId") String monthlySpendsId){
-//        return ss.getMonthlyMissingSpends(Integer.valueOf(monthlySpendsId));
-//    }
-
     @GetMapping("/createFromEnabled")
     public List<MonthlySpendsDTO> createMonthFromEnabledTemplatesList(){
         mss.createMonthByEnabledTemplatesList();
@@ -80,9 +75,18 @@ public class MonthController {
         return getLastMonth();
     }
 
+
     @GetMapping("/checkBeforeCreateNewMonth")
     public ResponseEntity checkBeforeCreateNewMonth(@RequestParam(name = "dateId") Integer dateId){
         String resp = mss.checkBeforeCreateNewMonth(dateId);
+        return getResponseEntity(resp);
+    }
+    @GetMapping("/checkLastMonthBeforeCreateNewMonth")
+    public ResponseEntity checkLastMonthBeforeCreateNewMonth(){
+        String resp = mss.checkLastMonthBeforeCreateNewMonth();
+        return getResponseEntity(resp);
+    }
+    private ResponseEntity getResponseEntity(String resp) {
         switch (resp) {
             case "MONTH_OK.FULL_NOT":
                 return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
@@ -95,15 +99,16 @@ public class MonthController {
         }
     }
 
+
     @PutMapping("/createNewMonthByDateId")
     public List<MonthlySpendsDTO> createNewMonthByDateId(@RequestParam(name = "dateId") Integer dateId){
         mss.createNewMonthByDateId(dateId);
         return getLastMonth();
     }
 
-    @PutMapping("/createMonthFromTemplatesList")
-    public void createMonthFromTemplatesList(@RequestParam(name = "templateListId") Integer templateListId){
-        mss.createNewMonthByTemplatesList(templateListId);
+    @PutMapping("/createNewMonthByTemplatesListId")
+    public void createMonthByTemplatesList(@RequestParam(name = "templateListId") Integer templateListId){
+        mss.createNewMonthByTemplatesListId(templateListId);
     }
 
     @GetMapping("/getMonthWithDateId")

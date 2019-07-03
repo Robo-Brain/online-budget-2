@@ -3,6 +3,7 @@ package com.robo.Entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -32,5 +33,10 @@ public class Notices {
     @Getter
     @Setter
     boolean remind;
+
+    @Column(name = "creationDate", nullable = false)
+    @Getter
+    @Setter
+    LocalDate creationDate;
 
 }

@@ -13,8 +13,8 @@
     opacity: 0.2;
     filter: alpha(opacity=20); }
   .noty_theme__metroui.noty_bar .noty_body {
-    padding: 1.25em;
-    font-size: 18px; }
+    padding: .5em;
+    font-size: 1em; }
   .noty_theme__metroui.noty_bar .noty_buttons {
     padding: 0 10px .5em 10px; }
 
@@ -37,5 +37,5 @@
   color: #FFF; }
 
 .noty_theme__metroui.noty_type__success {
-  background-color: #60A917;
+  background-color: #3AD391;/* #60A917;*/
   color: #fff; }
