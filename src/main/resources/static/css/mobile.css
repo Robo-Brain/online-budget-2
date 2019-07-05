@@ -70,6 +70,7 @@
         height: 100%;
         border-radius: 0.1em;
         min-height: 2.3em;
+        line-height: 1em;
         /*padding: 0.5em 0.1em 0 0.1em !important;*/
     }
 
@@ -188,6 +189,7 @@
     .total-amount {
         height: 5em;
         width: 100%;
+        margin-bottom: 1em;
     }
     .salary-block, .prepaid-block {
         width: 48%;
