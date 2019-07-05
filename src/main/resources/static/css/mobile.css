@@ -66,6 +66,7 @@
 
     .month-item {
         display: table;
+        width: 96%;
         height: 100%;
         border-radius: 0.1em;
         min-height: 2.3em;
@@ -74,7 +75,6 @@
 
     .month-item .name {
         font-size: 1.1em;
-        width: 30%;
         height: auto;
         line-height: 1.5em;
         padding: 0.2em 0;
@@ -82,8 +82,8 @@
 
     .month-item .deposited {
         width: 34%;
-        font-size: 1.1em;
-        line-height: 1.8em;
+        font-size: 1em;
+        line-height: 2em;
     }
     .month-item .deposited.edit {
         width: 22%;
@@ -132,11 +132,12 @@
         width: 25%;
         font-size: 1.1em;
         /* height: 2.5em; */
-        margin-top: 0;
+        margin: 0;
     }
 
     .month-item button.notice {
         margin-top: 0.4em;
+        margin-left: 0;
         width: 2.8em;
         height: 2.8em;
         display: block;
@@ -182,6 +183,19 @@
 
     .modal-content .save-button{
         margin-right: .4em;
+    }
+
+    .total-amount {
+        height: 5em;
+        width: 100%;
+    }
+    .salary-block, .prepaid-block {
+        width: 48%;
+        float: left;
+        padding: 0 !important;
+    }
+    .prepaid-block {
+        width: 52% !important;
     }
 
 }

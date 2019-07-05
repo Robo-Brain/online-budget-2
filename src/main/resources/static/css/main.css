@@ -182,7 +182,7 @@ button.cash {
     height: 2em;
     border: 0;
     background: url("/img/cash.png") no-repeat 50%;
-    /*margin: 0.3em 0.1em 0 0.1em;*/
+    margin: 0 1em;
 }
 
 button.card{
@@ -190,21 +190,21 @@ button.card{
     height: 2em;
     border: 0;
     background: url("/img/card.png") no-repeat 50%;
-    /*margin: 0 0.1em 0 0.1em;*/
+    margin: 0 1em;
 }
 
-button.prepaid {
+button.salary, button.prepaid {
     border: 0;
     background-color: transparent;
-    font-size: 1em;
-    /*margin: 0 0.1em 0 0.1em;*/
+    font-size: 1.8em;
+    margin: 0 1em;
 }
-button.salary {
-    border: 0;
-    background-color: transparent;
-    font-size: 1.2em;
-    /*margin: 0 0.1em 0 0.1em;*/
-}
+/*button.salary {*/
+    /*border: 0;*/
+    /*background-color: transparent;*/
+    /*font-size: 1.8em;*/
+    /*margin: 0 1em;*/
+/*}*/
 
 button.prepaid:after {
     content: 'Аванс';
@@ -366,7 +366,7 @@ button.salary:after {
  }
 
 .month-item{
-    width: 96%;
+    width: 65%;
     height: 2.5em;
     font-size: 1.3em;
     box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1), -2px -2px 5px 0 rgba(0,0,0,.1), 2px 2px 5px 0 rgba(0,0,0,.1), -2px 2px 5px 0 rgba(0,0,0,.1);
@@ -386,11 +386,13 @@ button.salary:after {
 .month-item .name {
     float: left;
     font-size: 1.8em;
-    line-height: 1.3em;
+    width: 30%;
 }
 
 .month-item .deposited {
     float: left;
+    font-size: 1.8em;
+    width: 30%;
 }
 
 .month-item .deposited input{
@@ -405,11 +407,13 @@ button.salary:after {
 .month-item .deposited.lack input{
     border: solid #bc1a0c 1px;
     color: #bc1a0c;
+    margin-right: 0.2em;
 }
 
 .month-item .buttons {
-    float: left;
+    float: right;
     display: table;
+    font-size: 1em;
 }
 
 .buttons.edit button.cash, .buttons.edit button.card{
@@ -452,14 +456,17 @@ button.salary:after {
 
 .total-amount {
     height: 5em;
+    width: 65%;
+    margin: 0 auto;
 }
 .salary-block, .prepaid-block {
-    width: 48%;
+    width: 35%;
     float: left;
-    padding: 0 !important;
+    padding: 0 0 0 10% !important;
 }
 .prepaid-block {
-    width: 52% !important;
+    width: 40% !important;
+    padding: 0 0 0 15% !important;
   }
 .salary-total, .prepaid-total {
     float: left;
@@ -493,10 +500,11 @@ button.salary:after {
 /*  MONTH start  */
 
 button.notice{
-    width: 2em;
-    height: 2em;
+    width: 3em;
+    height: 3em;
     background: url("/img/notice.png") no-repeat 50%;
     background-size: cover;
+    margin-left: 2em;
 }
 
 .modal-body.notice li {
