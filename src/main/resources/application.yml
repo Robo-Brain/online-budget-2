@@ -15,9 +15,11 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     open-in-view: false
     properties:
-      hibernate.connection.characterEncoding=utf-8
-      hibernate.connection.CharSet=utf-8
-      hibernate.connection.useUnicode=true
+      hibernate:
+      connection:
+        characterEncoding=utf-8
+        CharSet=utf-8
+        useUnicode=true
   thymeleaf:
     cache: false
   http:
