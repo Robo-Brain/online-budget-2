@@ -2,9 +2,11 @@ package com.robo.service;
 
 import com.robo.DTOModel.TemplatesDTO;
 import com.robo.DTOModel.TemplatesListDTO;
+import com.robo.Entities.MonthlySpends;
 import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
+import com.robo.repository.MonthlySpendsRepo;
 import com.robo.repository.TemplatesListRepo;
 import com.robo.repository.TemplatesRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class TemplatesListService {
 
     @Autowired
     TemplatesService ts;
+
+    @Autowired
+    MonthlySpendsRepo msr;
 
     @Autowired
     MonthlySpendsService mss;
@@ -71,7 +76,7 @@ public class TemplatesListService {
     public void pushSpendToTemplateList(Integer templatesListId, Integer spendId) {
         TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
         Templates template = ts.pushSpendToTemplate(spendId, 0, true, true);
-        if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() >= 1 ){ // проверяем длину "списка" айдишников templates (template_id)
+        if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0 ){ // проверяем длину "списка" айдишников templates (template_id)
             templatesList.setTemplateId(templatesList.getTemplateId() + "," + template.getId()); // значит там есть айдишники, нужно взять их и добавить к ним запятую + новый айди
         } else {
             templatesList.setTemplateId(String.valueOf(template.getId())); // если нет айдишников, то не надо ставить запятую
@@ -81,15 +86,31 @@ public class TemplatesListService {
 
     public void deleteTemplateFromTemplateList(Integer templatesListId, Integer templateId) {// удаляет template из одного конкретного листа, сам template НЕ удаляется!
         TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        Templates tmp = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
         if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){
             String[] ids = templatesList.getTemplateId().split(",");
             String result = Arrays.stream(ids).filter(i -> !i.equals(String.valueOf(templateId))).collect(Collectors.joining(",","",""));
             templatesList.setTemplateId(result);
             tlr.save(templatesList);
+
+            Boolean templatesListsHaveThisTemplateId = false;
+            List<TemplatesList> templatesLists = tlr.findAll();
+            for (TemplatesList tl : templatesLists) {
+                if (!templatesListsHaveThisTemplateId) {
+                    String[] id = tl.getTemplateId().split(","); // для каждого templates_list'a получить список template_id
+                    templatesListsHaveThisTemplateId = Arrays.asList(id).contains(String.valueOf(templateId)); // если найден templates_list с таким template_id, то прервать цикл и не удалять template_id
+                }
+            }
+            if (!templatesListsHaveThisTemplateId){ // если в шаблонах не найдено template с таким id
+                List<MonthlySpends> monthlySpendsList = msr.findAllByTemplateId(templateId);
+                if (monthlySpendsList.isEmpty()){ // если нет template с таким id в monthly_spends, то этот template можно удалять
+                    tr.delete(tmp);
+                }
+            }
         }
     }
 
-    void searchAndDeleteTemplateFromTemplatesList(Integer templateId) {
+    void searchAndDeleteTemplateFromTemplatesList(Integer templateId) { // ?????
         List<TemplatesList> templatesLists = tlr.findAll();
         templatesLists.forEach(templatesList -> {
             if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){

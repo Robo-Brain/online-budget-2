@@ -48,7 +48,7 @@ function showLastMonth() {
                             + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                             // + '<templateHaveNoticesButton  :monthlySpendId="month.monthlySpendsId" />'
                         + '</div>'
-                        + '<div class="deposited">'
+                        + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount" />'
                             + '/<span class="month-amount">{{ month.templateAmount }}</span>'
                         + '</div>'
@@ -239,13 +239,19 @@ function showLastMonth() {
         created: function () {
             axios.get('month')
                 .then(async result => {// получить текущий месяц
-                    if (result.data.length == 0){ //если месяц "пустой"
+                    if (result.data.length === 0){ //если месяц "пустой"
                         this.editMode = true; // включить режим редактирования принудительно
                         await getLastDate() // попробовать получить dateId
                             .then(result => {
                                 this.date = result.data.date;
                                 this.dateId = result.data.id
                             });
+                    }
+                    let d1 = new Date(result.data[0].date).getMonth();
+                    let d2 = new Date().getMonth();
+                    if (parseInt(d1,10) !== parseInt(d2,10)){
+                        console.log('месяц НЕ совпадает');
+                        this.showNoMonthModal = true;
                     }
 
                     this.date = result.data[0].date;
@@ -262,29 +268,6 @@ function showLastMonth() {
 
                     await getMissingSpends(this.dateId)
                         .then(res => this.missingSpendsList = res.data);
-                })
-                .catch(error => { // прикрутить обработчик ошибок на код 404 чтобы вылетал modal
-                    axios.get('month/getPreviousMonth').then(async res => {// если не вышло, то какой-то из прошлых
-                        this.date = res.data[0].date;
-                        this.dateId = res.data[0].dateId;
-                        this.localMonthList = res.data;
-
-                        this.showNoMonthModal = true;
-
-                        await getTotalAmounts(res.data)
-                            .then(amountsArr => {
-                                this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
-                                this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
-                                this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
-                                this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
-                            });
-
-                        await getMissingSpends(res.data[0].dateId)
-                            .then(res => this.missingSpendsList = res.data);
-                    })
-                        .catch(async () => {// если снова не вышло, то что-то пошло не так, вероятно таблица dates вообще пустая
-                            await getAllSpends().then(res => this.missingSpendsList = res.data);
-                        })
                 });
 
             axios.get('notices')

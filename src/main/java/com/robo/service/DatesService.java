@@ -61,8 +61,10 @@ public class DatesService {
         return result;
     }
 
-    private LocalDate makeNewDate() {
+    private java.sql.Date makeNewDate() {
         LocalDate date = LocalDate.now();
+//        Dates lastDate = dr.findTopByOrderByIdDesc().orElse(new Dates());
+//        if (lastDate.getDate().getMonth() )
         if (date.getMonthValue() == 12) {
             date = date.plusYears(1);
             date = date.withMonth(1);
@@ -71,13 +73,13 @@ public class DatesService {
             date = date.plusMonths(1);
         }
         date = date.plusDays(1); //БД уменьшает все на день из-за таймзоны, потом удалю эту строку, как разберусь с БД
-        return date;
+        return java.sql.Date.valueOf(date);
     }
 
     Dates generateDate() {
         Dates date = getTodaysDate(); //получить сегодняшнюю дату или пустую
         if (Objects.isNull(date.getId())) { // все ок, сегодняшней даты в базе нет, календарный месяц завершен
-            date.setDate(makeNewDate());
+            date.setDate(java.sql.Date.valueOf(LocalDate.now().plusDays(1)));
             date.setCompleted(false);
             dr.save(date);
         } else { // сегодняшняя дата в базе есть, календарный месяц не завершен

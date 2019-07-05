@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @Data
@@ -23,7 +22,9 @@ public class Dates {
     @Column(name = "date", nullable = false)
     @Getter
     @Setter
-    LocalDate date;
+    java.sql.Date date;
+//    java.sql.Date date = java.sql.Date.valueOf( todayLocalDate );
+//    LocalDate date;
 
     @Column(name = "template_list_id", nullable = false)
     @Getter

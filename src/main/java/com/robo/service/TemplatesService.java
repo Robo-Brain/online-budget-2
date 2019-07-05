@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TemplatesService {
@@ -67,8 +66,7 @@ public class TemplatesService {
         newTemplate.setAmount(Objects.nonNull(amount) && amount > 99 ? amount : 0);
         newTemplate.setSalary(Objects.nonNull(isSalary) ? isSalary : true);
         newTemplate.setCash(Objects.nonNull(isCash) ? isCash : true);
-
-        newTemplate = findSameTemplates(newTemplate);
+        newTemplate = findSameTemplates(newTemplate); // вернуть найденный template с такими параметрами, либо вернуть ЭТОТ ЖЕ обратно
         if (newTemplate.getAmount().equals(0)){
             newTemplate.setAmount(amount);
         }
@@ -78,17 +76,12 @@ public class TemplatesService {
 
     public Templates editTemplate(Integer templateId, Integer amount, Boolean isSalary, Boolean isCash) {
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
-
-        Integer newAmount = Objects.nonNull(amount) && amount > 99 ? amount : template.getAmount();
-        Boolean newIsSalary = Objects.nonNull(isSalary) ? isSalary : template.isSalary();
-        Boolean newIsCash = Objects.nonNull(isCash) ? isCash : template.isCash();
-
-        if (msr.findAllByTemplateId(template.getId()).size() > 0){ // если шаблон найден в месяцах(использовался когда-либо), то не удалять его, а создать новый
-            return pushSpendToTemplate(template.getSpendId(), newAmount, newIsSalary, newIsCash); // метод создаст новый templates и, если нужно, поместит его в templatesList
+        if (!msr.findAllByTemplateId(template.getId()).isEmpty()){ // если шаблон найден в месяцах(использовался когда-либо), то не удалять его, а создать новый
+            return pushSpendToTemplate(template.getSpendId(), amount, isSalary, isCash); // метод создаст новый templates и, если нужно, поместит его в templatesList
         } else { // если template не использовался до сих пор, то изменить его и сохранить (новый не создавать)
-            template.setAmount(newAmount);
-            template.setSalary(newIsSalary);
-            template.setCash(newIsCash);
+            template.setAmount(amount);
+            template.setSalary(isSalary);
+            template.setCash(isCash);
             tr.save(template);
             return template;
         }
@@ -120,39 +113,27 @@ public class TemplatesService {
     }
 
     private Templates findSameTemplates(Templates template){
-//        Optional<List<Templates>> templateList = tr.findBySpendId(template.getSpendId());
-        Optional<List<Templates>> templateList = tr.findSameSpend(template.getSpendId(), template.isSalary(), template.isCash());
+        Optional<List<Templates>> templateList = tr.findSameTemplate(template.getSpendId(), template.getAmount(), template.isSalary(), template.isCash());
         if (templateList.isPresent()){
-            List<Templates> templates = templateList.get();
+//            List<Templates> templates = templateList.get();
 //            List<Templates> resultList = templates.stream().filter( // проверить если уже есть template - положить его в список
-//                    t -> t.equals(template)
-//                            || (
-//                                t.getSpendId().equals(template.getSpendId())
-//                                && t.isSalary() == template.isSalary()
-//                                && t.isCash() == template.isCash()
-//                                && t.getAmount().equals(0) // или если есть точно такой же template с нулевой суммой
-//                            )
+//                    t ->    t.getSpendId().equals(template.getSpendId())
+//                            && t.isSalary() == template.isSalary()
+//                            && t.isCash() == template.isCash()
+//                            && (
+//                            t.getAmount().equals(template.getAmount())
+//                                    || t.getAmount().equals(0)
+//                    ) // или если есть точно такой же template с нулевой суммой
 //                ).collect(Collectors.toList());
-            List<Templates> resultList = templates.stream().filter( // проверить если уже есть template - положить его в список
-                    t ->    t.getSpendId().equals(template.getSpendId())
-                            && t.isSalary() == template.isSalary()
-                            && t.isCash() == template.isCash()
-                            && (
-                            t.getAmount().equals(template.getAmount())
-                                    || t.getAmount().equals(0)
-                    ) // или если есть точно такой же template с нулевой суммой
-                ).collect(Collectors.toList());
-
-            if (resultList.size() == 0) { // если количество найденных templates с точно такими же параметрами == 0, то сохранить новый template и вернуть его
-                return template;
-            } else if (resultList.size() == 1) { // если найден точно такой же template, то вернуть его
-//                if (resultList.get(0).getAmount().equals(0)) { // сделать что-то с полями с нулевыми amount
-//                    resultList.get(0).setAmount(amount);
-//                    tr.save(resultList.get(0));
-//                }
-                return resultList.get(0);
+//
+//            if (resultList.size() == 0) { // если количество найденных templates с точно такими же параметрами == 0, то вернуть новый template
+//                return template;
+//            }
+            if (templateList.get().size() == 1) { // если найден точно такой же template, то вернуть его
+                return templateList.get().get(0);
             } else throw new RuntimeException("В таблице templates обнаружены повтряющиеся значения, такого быть не должно, необходимо инициировать экстерминатус.");
-        } else { // если такого spend вообще нет в templates
+
+        } else { // если такого spend вообще нет в templates то вернуть обратно template для сохранения нового
             return template;
         }
     }

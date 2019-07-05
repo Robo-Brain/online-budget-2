@@ -105,29 +105,28 @@ function showTemplatesList() {
                     + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                 + '</div>'
                 + '<div class="edit-block">'
-                    + '<button v-if="editingIndex != index" @click="editTemplate(index, $event)" :id="currentTemplate.templateId" class="edit">Edit</button>'
-                    + '<button v-if="editingIndex != index" class="delete" :id="currentTemplate.templateId" @click="deleteTemplateFromTemplateList($event)">X</button>'
-                    + '<button v-if="editMode && editingIndex == index" class="edit" :id="currentTemplate.templateId" @click="saveEditedTemplate($event)">Save</button>'
+                    + '<button v-if="editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit">Edit</button>'
+                    + '<button v-if="editingIndex != index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)">X</button>'
+                    + '<button v-if="editMode && editingIndex == index" class="edit" @click="saveEditedTemplate()">Save</button>'
                     + '<button v-if="editMode && editingIndex == index" class="delete" @click="editingIndex = null">X</button>'
                 + '</div>'
             + '</div>'
         + '</div>',
         methods: {
-            deleteTemplateFromTemplateList: function (event) {
-                let openedListId = this.openedListId;
-                let templateId = event.target.id;
-
-                axios.delete('/templatesList/deleteTemplateFromTemplateList?templatesListId=' + openedListId + "&templateId=" + templateId)
+            deleteTemplateFromTemplateList: function (templateId) {
+                axios.delete('/templatesList/deleteTemplateFromTemplateList?templatesListId=' + this.openedListId + "&templateId=" + templateId)
                     .then(async response => {
                             this.$parent.openedListTemplates = response.data;
-                            await getMissingSpends(openedListId).then(res => this.$parent.missingSpendsList = res.data);
+                            await getMissingSpends(this.openedListId).then(res => {
+                                this.$parent.missingSpendsList = res.data;
+                            });
                         });
 
                 async function getMissingSpends(openedListId) {
                     return await axios.get('spends/' + openedListId);
                 }
             },
-            editTemplate: function (index, event) {
+            editTemplate: function (index, templateId) {
                 if (this.editingIndex == index){
                     this.editMode = false;
                     this.editingIndex = null;
@@ -135,10 +134,10 @@ function showTemplatesList() {
                     this.editingIndex = index;
                     this.editMode = true;
                 }
-                this.editingTemplateId = event.target.id;
+                this.editingTemplateId = templateId;
             },
             editTemplateAmount: function (event) {
-                if (event.target.value > 2) this.amount = event.target.value;
+                if (event.target.value > 0) this.amount = event.target.value;
             },
             salaryToggle: function (event) {
                 this.isSalary = event.target.className !== 'salary';
@@ -156,11 +155,10 @@ function showTemplatesList() {
                     + '&isCash=' + this.isCash
                 ).then(result => {
                     this.$parent.openedListTemplates = result.data;
-                    this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
+                    this.spendId = this.templateAmount = this.amount = this.isCash = this.isSalary = '';
                     this.editingIndex = null;
                     this.editMode = false;
                 });
-
             }
         }
     });

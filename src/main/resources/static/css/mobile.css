@@ -74,14 +74,14 @@
 
     .month-item .name {
         font-size: 1.1em;
-        width: 31%;
+        width: 30%;
         height: auto;
         line-height: 1.5em;
         padding: 0.2em 0;
     }
 
     .month-item .deposited {
-        width: 30%;
+        width: 34%;
         font-size: 1.1em;
         line-height: 1.8em;
     }
@@ -104,7 +104,7 @@
     .month-item .buttons {
         /*border: solid slateblue 1px;*/
         padding: 0 !important;
-        width: 38%;
+        width: 36%;
     }
     .month-item .buttons.edit {
         width: 45%;

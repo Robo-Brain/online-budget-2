@@ -2,8 +2,6 @@ package com.robo.DTOModel;
 
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +17,7 @@ public class AllMonthsDTO {
 
     @Getter
     @Setter
-    LocalDate date;
+    java.sql.Date date;
 
     @Getter
     @Setter

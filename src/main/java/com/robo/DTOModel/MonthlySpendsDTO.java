@@ -3,8 +3,6 @@ package com.robo.DTOModel;
 import com.robo.Entities.MonthlySpends;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +18,7 @@ public class MonthlySpendsDTO {
 
     @Getter
     @Setter
-    LocalDate date;
+    java.sql.Date date;
 
     @Getter
     @Setter

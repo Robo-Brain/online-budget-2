@@ -108,7 +108,7 @@ public class MonthlySpendsService {
         if (Objects.nonNull(dateId) && dateId > 0) {
             List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
             if (msList.get(0).getDates().getDate().getYear() != LocalDate.now().getYear()
-                || msList.get(0).getDates().getDate().getMonthValue() != LocalDate.now().getMonthValue()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
+                || msList.get(0).getDates().getDate().getMonth() != LocalDate.now().getMonthValue()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
                     if (checkMonthForCompletion(dateId)) { // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
                         createNewMonthByDateId(dateId);
                         return "";
@@ -139,7 +139,7 @@ public class MonthlySpendsService {
     public void createNewMonthByTemplatesListId(Integer templatesListId) {
         if (Objects.nonNull(templatesListId) && Objects.isNull(ds.getTodaysDate().getId())){ // проверка закончился ли текущий месяц
             Dates d = new Dates();
-            d.setDate(LocalDate.now());
+            d.setDate(java.sql.Date.valueOf(LocalDate.now()));
             d.setTemplateListId(templatesListId);
             d.setCompleted(false);
             dr.save(d);
@@ -159,8 +159,9 @@ public class MonthlySpendsService {
 
     public List<MonthlySpendsDTO> saveMonthAmount(Integer monthlySpendsId, Integer amount) {
         MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
-        if (!ms.getMonthAmount().equals(amount) && amount >= 0){
-            ms.setMonthAmount(amount);
+        Integer newAmount = Objects.isNull(amount) || amount < 0 ? 0 : amount;
+        if (!ms.getMonthAmount().equals(newAmount)){
+            ms.setMonthAmount(newAmount);
             msr.save(ms);
         }
         return getMonthsDTOByDateID(ms.getDateId());

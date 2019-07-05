@@ -212,9 +212,9 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             + '<transition name="slideIn" appear>'
                 + '<div v-if="subModal" class="modal-content notice">'
                     + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
-                    + '<p>Внимание, текущий месяц не найден!</p>'
+                    + '<p>Внимание, платежи по текущему месяцу не найдены!</p>'
                     + '<p>'
-                        + 'Создать новый месяц по активному шаблону или по предыдущему месяцу:<br />'
+                        + 'Создать их по активному шаблону или по платежам за предыдущий месяц?<br />'
                         + '<button :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">по шаблону</button>'
                         + '<button :disabled="!previousMonthHasFound" @click="createMonthByLast()">по месяцу</button>'
                     + '</p>'

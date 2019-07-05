@@ -383,15 +383,6 @@ button.salary:after {
     background: linear-gradient(149deg, rgba(59,173,214,1) 50%, rgba(59,214,145,0.91) 100%);
 }
 
-.month-item input{
-    font-size: 1em;
-    border-radius: 0.2em;
-    border: solid black 1px;
-    text-align: right;
-    padding: 0 0.1em;
-    width: 2.8em;
-}
-
 .month-item .name {
     float: left;
     font-size: 1.8em;
@@ -400,6 +391,20 @@ button.salary:after {
 
 .month-item .deposited {
     float: left;
+}
+
+.month-item .deposited input{
+    font-size: 1em;
+    border-radius: 0.2em;
+    border: solid black 1px;
+    text-align: right;
+    padding: 0 0.1em;
+    width: 2.8em;
+}
+
+.month-item .deposited.lack input{
+    border: solid #bc1a0c 1px;
+    color: #bc1a0c;
 }
 
 .month-item .buttons {
@@ -449,15 +454,18 @@ button.salary:after {
     height: 5em;
 }
 .salary-block, .prepaid-block {
-    width: 50%;
+    width: 48%;
     float: left;
     padding: 0 !important;
 }
+.prepaid-block {
+    width: 52% !important;
+  }
 .salary-total, .prepaid-total {
     float: left;
     height: 4em;
-    line-height: 2.8em;
-    font-size: 1.5em;
+    line-height: 2.9em;
+    font-size: 1.4em;
 }
 .salary-total span, .prepaid-total span{
     font-size: 1.5em;
