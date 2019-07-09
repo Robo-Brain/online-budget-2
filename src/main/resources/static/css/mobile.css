@@ -74,6 +74,7 @@
         height: 2em;
         margin: 0 1em 0 0;
         font-size: 1.5em;
+        margin-left: 0.2em;
     }
 
     .template-details.edit button.cash, .template-details.edit button.card {
@@ -129,6 +130,10 @@
         font-size: 1.3em;
     }
 
+    .month-item .buttons {
+        padding: 0 !important;
+        width: 36%;
+    }
     .month-item .buttons.edit {
         width: 45%;
         float: right;
