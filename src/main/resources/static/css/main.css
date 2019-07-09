@@ -314,6 +314,28 @@ button.salary:after {
     transition: 0.3s all linear;
     border-radius: 0.1em;
 }
+.template .edit-template-name {
+    background: url(/img/edit-black.png) no-repeat 50%;
+    background-size: 100%;
+    width: 1.8em;
+    height: 1.8em;
+    border: none;
+    vertical-align: top;
+    margin-left: 0.5em;
+}
+
+.template-name .newNameInput {
+    font-size: 1.4em;
+    box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1),
+    -2px -2px 5px 0 rgba(0,0,0,.1),
+    2px 2px 5px 0 rgba(0,0,0,.1),
+    -2px 2px 5px 0 rgba(0,0,0,.1);
+    transition: 0.3s all linear;
+    border-radius: 0.1em;
+    border: none;
+    width: 20%;
+}
+
 
 .template .isActive {
     width: 1.7em;

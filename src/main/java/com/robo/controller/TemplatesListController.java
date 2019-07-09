@@ -110,7 +110,7 @@ public class TemplatesListController {
         return ss.getMissingSpends(templatesListId);
     }
 
-    @PutMapping("/renameList")
+    @PostMapping("/renameList")
     public List<TemplatesListDTO> renameTemplatesList(@RequestParam(name = "templatesListId") Integer templatesListId, @RequestParam(name = "newName") String newName) {
         tls.renameTemplatesList(templatesListId, newName);
         return getAllTemplatesList();

@@ -89,7 +89,7 @@ function showTemplatesList() {
             }
         },
         template:
-        '<div class="template-list">'
+        '<div @click="$parent.templateNameEditMode = false" class="template-list">'
             + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<div class="name">{{ currentTemplate.spendName }}</div>'
                 + '<div class="deposited">'
@@ -110,27 +110,6 @@ function showTemplatesList() {
                     + '<button v-if="!editMode || editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit"> </button>'
                 + '</div>'
             + '</div>'
-            // + '<div class="template-list-item" v-for="(currentTemplate, index) in openedListTemplates" v-if="!!currentTemplate.spendName" :key="currentTemplate.templateId">'
-            //     + '<div class="template-details" v-if="!editMode || editingIndex != index">'
-            //         + '<span class="spend-name">{{ currentTemplate.spendName }}</span>'
-            //         + '<span class="amount"> - {{ currentTemplate.amount }}₽</span>'
-            //         + ' / <button v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-            //         + ' / <button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
-            //     + '</div>'
-            //     + '<div class="template-details edit" v-if="editMode && editingIndex == index">'
-            //         + '<input type="number" @change="editTemplateAmount($event)" @input="editTemplateAmount($event)" class="templateAmountInput" :value="currentTemplate.amount" />'
-            //         + '&nbsp;'
-            //         + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-            //         + '&nbsp;'
-            //         + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
-            //     + '</div>'
-            //     + '<div class="edit-block">'
-            //         + '<button v-if="editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit">Edit</button>'
-            //         + '<button v-if="editingIndex != index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)">X</button>'
-            //         + '<button v-if="editMode && editingIndex == index" class="edit" @click="saveEditedTemplate()">Save</button>'
-            //         + '<button v-if="editMode && editingIndex == index" class="delete" @click="editingIndex = null">X</button>'
-            //     + '</div>'
-            // + '</div>'
         + '</div>',
         methods: {
             deleteTemplateFromTemplateList: function (templateId) {
@@ -194,7 +173,8 @@ function showTemplatesList() {
                  selectedSpendToAdd: '',
                  newListName: '',
                  showCreateMonthByTemplatesListModal: false,
-                 templateListId: null
+                 templateListId: null,
+                 templateNameEditMode: false
              }
          },
         template:
@@ -202,7 +182,11 @@ function showTemplatesList() {
             +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
-                    + '<button class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button> <button v-if="template.id == openedListId">edit</button>' // по клику в метод toggle() передается название класса(соотв-ющее названию шаблона), который присваивает его переменной "openedListClass"
+
+                    + '<button v-if="!templateNameEditMode" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
+                    + '<input class="newNameInput" v-if="templateNameEditMode" @input="editTemplatesListName($event)" v-model="template.templateName" />'
+                    + '<button class="edit-template-name" @click="templateNameEditMode = !templateNameEditMode" v-if="template.id == openedListId"> </button>'
+
                     + '<single-template v-if="openedListTemplates.length > 0 && template.id == openedListId" :openedListTemplates="openedListTemplates" :openedListId="openedListId" />'
                     + '<select v-if="missingSpendsList.length > 0 && template.id == openedListId" @change="pushSpendToTemplate()" v-model="selectedSpendToAdd">'
                         + '<option v-for="spend in missingSpendsList" v-bind:value="spend.id">'
@@ -237,11 +221,13 @@ function showTemplatesList() {
                     );
 
                     axios.get('spends/' + this.openedListId).then(result =>
-                        result.data.forEach(spend => {
-                            this.missingSpendsList.push(spend);
-                        })
+                            this.missingSpendsList = result.data
                     );
                 }
+            },
+            editTemplatesListName: function(event) {
+                axios.post('templatesList/renameList?templatesListId=' + this.openedListId +'&newName=' + event.target.value)
+                    .then(result => this.localTemplatesList = result.data)
             },
             pushSpendToTemplate: function () {
                 let templatesListId = this.openedListId;
