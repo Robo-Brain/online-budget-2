@@ -285,6 +285,6 @@ function showTemplatesList() {
 
     let templatesLists = new Vue({
         el: '#templates-list', // айдишник блока, куда рендерить
-        template: '<templates-list />' // ссылка на название компонента 1 и ссылка название коллекции в data.
+        template: '<div id="templates-list"><templates-list /></div>' // ссылка на название компонента 1 и ссылка название коллекции в data.
     });
 }

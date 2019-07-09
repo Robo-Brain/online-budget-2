@@ -222,6 +222,15 @@ public class MonthlySpendsService {
         return getLastMonth();
     }
 
+    public void deleteMonth(Integer dateId){
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
+        msList.forEach(ms -> {
+            Integer templateId = ms.getTemplateId();
+            msr.delete(ms);
+            ts.deleteTemplate(templateId);
+        });
+    }
+
     private Boolean checkMonthForCompletion(Integer dateId) { // проверка месяца на завершенность с точки зрения платежей
         List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
         Long res = msList.stream().filter(ms -> ms.getMonthAmount() < ms.getTemplates().getAmount()).count();

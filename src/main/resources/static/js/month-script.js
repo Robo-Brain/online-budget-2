@@ -17,6 +17,7 @@ function showLastMonth() {
                 showNoticeModal: false,
                 showCreateTemplateModal: false,
                 showCreateMonthModal: false,
+                showDeleteMonthModal: false,
                 spendId: '',
                 missingSpendsList: [],
                 noticesMonthlySpendsId: [],
@@ -103,7 +104,7 @@ function showLastMonth() {
                 + '<div class="submenu-buttons">'
                     + '<button v-show="!editMode" title="Создать следующий месяц по текущему месяцу" class="create-month-button" @click="showCreateMonthModal = true"> </button>'
                     + '<button v-show="!editMode" title="Создать шаблон по текущему месяцу" class="create-template-button" @click="showCreateTemplateModal = true"> </button>'
-                    + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="deleteCurrentMonth()"> </button>'
+                    + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
                     + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
                 + '<noMonthModal v-if="showNoMonthModal" />'
@@ -111,6 +112,7 @@ function showLastMonth() {
                 + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'
                 + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
                 + '<noticeModal v-if="showNoticeModal" :notices="notices" />'
+                + '<deleteMonthModal v-if="showDeleteMonthModal" :dateId="dateId" />'
             + '</div>',
         watch: {
             noticesMonthlySpendsId: {

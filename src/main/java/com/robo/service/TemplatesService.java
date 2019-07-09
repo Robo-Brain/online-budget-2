@@ -90,7 +90,7 @@ public class TemplatesService {
     public void deleteTemplate(Integer templateId, Integer dateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
         List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
-        if (allMonthlySpends.size() == 0){ // если в monthly_spends пусто, значит template еще не успел попасть в monthly_spends и можно его смело удалять
+        if (allMonthlySpends.isEmpty()){ // если в monthly_spends пусто, значит template нет в monthly_spends и можно его смело удалять
             tls.searchAndDeleteTemplateFromTemplatesList(templateId);
             tr.delete(template); // раз нет в monthly_spends, то можно его мочить
         } else if (allMonthlySpends.size() == 1
@@ -109,6 +109,15 @@ public class TemplatesService {
 
                 tr.delete(template);
             } else System.out.println("date_id != переданному с фронта dateId, на нас напали!");
+        }
+    }
+
+    void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
+        Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
+        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
+        if (allMonthlySpends.isEmpty()){ // если в monthly_spends пусто, значит template нет в monthly_spends и можно его смело удалять
+            tls.searchAndDeleteTemplateFromTemplatesList(templateId);
+            tr.delete(template); // раз нет в monthly_spends, то можно его мочить
         }
     }
 

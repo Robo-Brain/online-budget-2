@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("month")
-public class MonthController {
+public class MonthlySpendsController {
 
     @Autowired
     MonthlySpendsService mss;
@@ -140,6 +140,12 @@ public class MonthController {
     @DeleteMapping("/deleteSpendFromMonth")
     public List<MonthlySpendsDTO> deleteSpendFromMonth(@RequestParam(name = "monthId") Integer monthId){
         return mss.deleteSpendFromMonth(monthId);
+    }
+
+    @DeleteMapping("/deleteMonth")
+    public List<MonthlySpendsDTO> deleteMonth(@RequestParam(name = "dateId") Integer dateId){
+        mss.deleteMonth(dateId);
+        return mss.getLastMonth();
     }
 
 }

@@ -98,7 +98,7 @@ public class TemplatesListService {
         }
     }
 
-    void searchAndDeleteTemplateFromTemplatesList(Integer templateId) { // ?????
+    void searchAndDeleteTemplateFromTemplatesList(Integer templateId) { // удаляет template из templates_list
         List<TemplatesList> templatesLists = tlr.findAll();
         templatesLists.forEach(templatesList -> {
             if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){

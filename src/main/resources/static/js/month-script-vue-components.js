@@ -12,7 +12,7 @@ Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMon
     '<div class="modal">'// v-if="this.$parent.showCreateMonthModal"
         + '<transition name="slideIn" appear>'
             + '<div v-if="subModal" class="modal-content new-month">'
-                + '<div @click="$emit(\'close\'), closeModal()" class="modal-button close">×</div>'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '<p>'
                     + '{{ bodyText }}<br />'
                     + '<button class="new-month-button no" @click="closeModal()">NO</button> <button :disabled="warning && !ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button><br /><br />'
@@ -269,7 +269,45 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             error => this.previousMonthHasFound = false
         );
     }
+});
 
+Vue.component('deleteMonthModal', {
+    props: ['dateId'],
+    data: function() {
+        return {
+            ignoreWarning: false,
+            subModal: true
+        }
+    },
+    template:
+    '<div class="modal">'
+        + '<transition name="slideIn" appear>'
+            + '<div v-if="subModal" class="modal-content">'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'
+                + '<p>'
+                    + 'Удалить текущий месяц?<br />'
+                    + '<button class="new-month-button no" @click="closeModal()">NO</button> <button :disabled="!ignoreWarning" @click="deleteMonth()" class="new-month-button yes">YES</button><br /><br />'
+                    + '<span class="new-month-warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Я осознаю, что действие необратимо</label></span>'
+                + '</p>'
+            + '</div>'
+        + '</transition>'
+    + '</div>',
+    methods: {
+        closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showDeleteMonthModal = false;
+            }, 500);
+        },
+        deleteMonth: function() {
+            axios.delete('month/deleteMonth?dateId=' + this.dateId)
+                .then(result => {
+                    this.$parent.localMonthList = result.data;
+                    this.closeModal();
+                })
+        }
+    }
 });
 
 async function getNotices() {
