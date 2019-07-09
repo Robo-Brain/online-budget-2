@@ -106,9 +106,14 @@ public class TemplatesListController {
 
 
     @GetMapping("/getMissingSpends")
-    public List<Spends> getMissingSpends(@RequestParam(name = "templatesListId") String templatesListId){ //получить один лист из templates_list по id
-        return ss.getMissingSpends(Integer.valueOf(templatesListId));
+    public List<Spends> getMissingSpends(@RequestParam(name = "templatesListId") Integer templatesListId){ //получить один лист из templates_list по id
+        return ss.getMissingSpends(templatesListId);
     }
 
-    //          TEMPLATES LIST.end
+    @PutMapping("/renameList")
+    public List<TemplatesListDTO> renameTemplatesList(@RequestParam(name = "templatesListId") Integer templatesListId, @RequestParam(name = "newName") String newName) {
+        tls.renameTemplatesList(templatesListId, newName);
+        return getAllTemplatesList();
+    }
+
 }

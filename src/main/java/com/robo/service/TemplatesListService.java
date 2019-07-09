@@ -40,18 +40,6 @@ public class TemplatesListService {
         return getAllTemplatesList();
     }
 
-    public void createTemplatesListFromMonth(Integer dateId, String name){
-        if (!tlr.findByName(name).isPresent()){
-            String templateIds = mss.getMonthlySpendsByDateId(dateId).stream().map(ms -> String.valueOf(ms.getTemplateId())).collect(Collectors.joining(",","",""));
-            if (templateIds.length() > 0) {
-                TemplatesList tl = new TemplatesList();
-                tl.setName(name);
-                tl.setTemplateId(templateIds);
-                tlr.save(tl);
-            } else throw new NotFoundException();
-        } else throw new RuntimeException("Found Template List with same name.");
-    }
-
     public List<TemplatesListDTO> getAllTemplatesList(){
         List<TemplatesList> templatesLists = tlr.findAll();
         List<TemplatesListDTO> spendsTemplatesDTOList = new ArrayList<>();
@@ -154,6 +142,25 @@ public class TemplatesListService {
 
     public TemplatesList getEnabledTemplate() {
         return tlr.findEnabled().orElseThrow(NotFoundException::new);
+    }
+
+
+    public void createTemplatesListFromMonth(Integer dateId, String name){
+        if (!tlr.findByName(name).isPresent()){
+            String templateIds = mss.getMonthlySpendsByDateId(dateId).stream().map(ms -> String.valueOf(ms.getTemplateId())).collect(Collectors.joining(",","",""));
+            if (templateIds.length() > 0) {
+                TemplatesList tl = new TemplatesList();
+                tl.setName(name);
+                tl.setTemplateId(templateIds);
+                tlr.save(tl);
+            } else throw new NotFoundException();
+        } else throw new RuntimeException("Found Template List with same name.");
+    }
+
+    public void renameTemplatesList(Integer templatesListId, String newName){
+        TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        tl.setName(newName);
+        tlr.save(tl);
     }
 
 }
