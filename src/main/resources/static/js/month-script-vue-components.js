@@ -310,6 +310,39 @@ Vue.component('deleteMonthModal', {
     }
 });
 
+Vue.component('plusAmountMonthModal', {
+    props: ['monthlySpendsId'],
+    data: function() {
+        return {
+            subModal: true,
+            plusAmount: 0
+        }
+    },
+    template:
+        '<transition name="slideToRight" appear>'
+            + '<div v-if="subModal" class="modal-plus-content">'
+                // + '<div @click="closeModal()" class="modal-button close">×</div>'
+                + '<input v-model="plusAmount" type="number" />'
+                + '<button @click="plusMonthAmount()"> + </button>'
+            + '</div>'
+        + '</transition>',
+    methods: {
+        closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showPlusAmountMonthModal = false;
+            }, 500);
+        },
+        plusMonthAmount: function () {
+            if (this.plusAmount > 0 && this.monthlySpendsId > 0){
+                axios.put('month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount)
+                    .then(result => this.$parent.localMonthList = result.data)
+            }
+        }
+    }
+});
+
 async function getNotices() {
     let arr = [];
     await axios.get('notices')

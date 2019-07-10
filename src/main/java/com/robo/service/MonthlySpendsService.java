@@ -237,5 +237,13 @@ public class MonthlySpendsService {
         return res <= 0;
     }
 
+    public List<MonthlySpendsDTO> plusMonthAmount(Integer monthlySpendsId, Integer plusAmount) {
+        MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
+        if (Objects.nonNull(plusAmount) && plusAmount > 0) {
+            ms.setMonthAmount(ms.getMonthAmount() + plusAmount);
+            msr.save(ms);
+        }
+        return getMonthsDTOByDateID(ms.getDateId());
+    }
 }
 

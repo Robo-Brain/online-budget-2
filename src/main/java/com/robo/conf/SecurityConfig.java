@@ -30,19 +30,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     "/img/**",
                     "/css/**",
                     "/error**").permitAll()
-            .anyRequest().authenticated()
+
+            .anyRequest()
+                .authenticated()
 
             .and()
-            .logout()
-            .deleteCookies("JSESSIONID")
-            .logoutSuccessUrl("/")
-            .permitAll()
+                .logout()
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/")
+                .permitAll()
 
             .and()
-            .rememberMe().key("uniqueAndSecret")
-
-            .and()
-            .csrf().disable();
+                .csrf()
+                .disable();
 //        http.authorizeRequests().antMatchers("/**").permitAll().and().csrf().disable();
 
     }

@@ -466,6 +466,29 @@ button.salary:after {
     width: 30%;
 }
 
+.name-buttons {
+    position: absolute;
+    left: -.6em;
+    top: -.7em;
+    height: 2em;
+}
+.name-buttons button{
+    border: none;
+}
+.name-buttons button.has-notice-button{
+    width: 2.3em;
+    height: 2.3em;
+    background: url(/img/notice-red.png) no-repeat 50%;
+    background-size: 100%;
+}
+.name-buttons button.plus-button{
+    width: 2.3em;
+    height: 2.3em;
+    margin-left: .5em;
+    background: url(/img/plus.png) no-repeat 50%;
+    background-size: 100%;
+}
+
 .month-item .deposited {
     float: left;
     font-size: 1.8em;
@@ -624,14 +647,13 @@ button.notice{
 .slideIn-leave-active {
     animation: slideOut .6s ease-in;
 }
-
 @keyframes slideIn {
     0% {
-        -webkit-transform: translate(100%, -50%);
+        -webkit-transform: translate(-100%, -50%);
         opacity: 0;
     }
     50% {
-        -webkit-transform: translate(50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
         opacity: 0;
     }
     80% {
@@ -639,15 +661,14 @@ button.notice{
         opacity: 1;
     }
     90% {
-        -webkit-transform: translate(-2%, -50%);
+        -webkit-transform: translate(2%, -50%);
         opacity: 1;
     }
     100% {
-        -webkit-transform: translate(0%, -50%);
+        -webkit-transform: translate(100%, -50%);
         opacity: 1;
     }
 }
-
 @keyframes slideOut {
     0% {
         -webkit-transform: translate(0%, -50%);
@@ -805,15 +826,56 @@ button.notice{
 .name-notices-block {
     position: relative;
 }
-.month-notices-show-button {
+
+.modal-plus-content {
     position: absolute;
-    width: 2.3em;
-    height: 2.3em;
-    left: -1.2em;
-    top: -1.2em;
-    border: none;
-    background: url(/img/notice-red.png) no-repeat 50%;
-    background-size: 100%;
+    top: .59em;
+    left: 1.3em;
+    background-color: red;
+    padding: 22%;
+    display: flex;
+}
+.modal-plus-content input{
+    width: 3em;
+    float: left;
+    font-size: .68em;
+    padding: 0.2em;
+    border-radius: 0.1em;
+}
+.modal-plus-content button{
+    margin-left: .3em;
+    font-size: 1em;
+    float: right;
+    padding: 0 .5em;
+    font-weight: bold;
+}
+.slideToRight-enter-active {
+    animation: slideToRight .15s ease-out;
+}
+.slideToRight-leave-active {
+    animation: slideToRight reverse;
+}
+@keyframes slideToRight {
+    0% {
+        -webkit-transform: translate(-100%, 0%);
+        opacity: 0;
+    }
+    25% {
+        -webkit-transform: translate(-75%, 0%);
+        opacity: 0.25;
+    }
+    50% {
+        -webkit-transform: translate(-50%, 0%);
+        opacity: 0.5;
+    }
+    75% {
+        -webkit-transform: translate(-25%, 0%);
+        opacity: 0.75;
+    }
+    100% {
+        -webkit-transform: translate(0%, 0%);
+        opacity: 1;
+    }
 }
 
 /*ALL MONTHS START*/

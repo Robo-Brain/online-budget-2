@@ -111,6 +111,9 @@
         line-height: 1.5em;
         padding: 0.2em 0;
     }
+    .name-buttons button.plus-button{
+        float: right;
+    }
 
     .month-item .deposited {
         width: 34%;
@@ -125,7 +128,6 @@
     .month-item .deposited input {
         margin-right: 0.2em;
         font-size: 1.4em;
-        width: 51%;
         vertical-align: middle;
     }
     .month-item .deposited.edit input {
@@ -229,6 +231,18 @@
     }
     .prepaid-block {
         width: 52% !important;
+    }
+
+    .modal-plus-content {
+        top: .55em;
+        left: 1.5em;
+        padding: 15%;
+    }
+    .modal-plus-content input {
+        font-size: 1.1em;
+    }
+    .modal-plus-content button{
+        padding: 0 .7em;
     }
 
 }

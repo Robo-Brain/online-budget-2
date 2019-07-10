@@ -18,6 +18,7 @@ function showLastMonth() {
                 showCreateTemplateModal: false,
                 showCreateMonthModal: false,
                 showDeleteMonthModal: false,
+                showPlusAmountMonthModal: false,
                 spendId: '',
                 missingSpendsList: [],
                 noticesMonthlySpendsId: [],
@@ -34,6 +35,7 @@ function showLastMonth() {
                 totalAmountPrepaidCard: 0,
                 totalAmountPrepaidCash: 0,
                 editingIndex: null,
+                plusIndex: null,
                 notices: []
             }
         },
@@ -45,8 +47,14 @@ function showLastMonth() {
                 + '</div>'
                 + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
                         + '<div class="name-notices-block">'
-                            + '<div class="name"> {{ month.spendName }}</div>'
-                            + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
+                            + '<div class="name">'
+                                + '{{ month.spendName }}'
+                                + '<div class="name-buttons">'
+                                    + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="has-notice-button"> </button>'
+                                    + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
+                                    + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" />'
+                                + '</div>'
+                            + '</div>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
@@ -221,7 +229,6 @@ function showLastMonth() {
                     });
                     this.localMonthList = result.data;
                 });
-
             },
             async getNoticesAndShowNoticeModal(monthlySpendId) {
                 await axios.get('notices/getByMonthlySpendsId/' + monthlySpendId).then(result => {
@@ -235,6 +242,11 @@ function showLastMonth() {
             },
             hasNotice: function(monthlySpendId) {
                 return this.noticesMonthlySpendsId.includes(monthlySpendId);
+            },
+            showPlusAmountMonthModalFunc : function (index, monthlySpendId) {
+                this.plusIndex = index;
+                this.monthlySpendsId = monthlySpendId;
+                this.showPlusAmountMonthModal = !this.showPlusAmountMonthModal;
             }
         },
         created: function () {

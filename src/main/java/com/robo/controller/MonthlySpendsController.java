@@ -148,4 +148,8 @@ public class MonthlySpendsController {
         return mss.getLastMonth();
     }
 
+    @PutMapping("/plusMonthAmount")
+    public List<MonthlySpendsDTO> plusMonthAmount(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId, @RequestParam(name = "plusAmount") Integer plusAmount){
+        return mss.plusMonthAmount(monthlySpendsId, plusAmount);
+    }
 }
