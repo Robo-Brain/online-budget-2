@@ -27,8 +27,4 @@ public class Spends {
         this.name = name;
     }
 
-//    @JsonIgnore
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "spends")
-//    private List<Amounts> amountTemplates;
-
 }

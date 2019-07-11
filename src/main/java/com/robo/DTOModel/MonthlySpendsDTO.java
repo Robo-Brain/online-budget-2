@@ -1,7 +1,10 @@
 package com.robo.DTOModel;
 
 import com.robo.Entities.MonthlySpends;
+import com.robo.Entities.Notices;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -56,6 +59,10 @@ public class MonthlySpendsDTO {
     @Setter
     boolean isSalary;
 
+    @Getter
+    @Setter
+    List<Notices> noticesList;
+
     public MonthlySpendsDTO (MonthlySpends ms){
         this.monthlySpendsId = ms.getId(); // monthly_spends.id
         this.dateId = ms.getDates().getId(); // dates.id
@@ -66,6 +73,7 @@ public class MonthlySpendsDTO {
         this.isCash = ms.getTemplates().isCash(); // templates.amount
         this.isSalary = ms.getTemplates().isSalary(); // templates.amount
         this.monthAmount = ms.getMonthAmount(); // monthly_spends.month_amount
+        this.noticesList = ms.getNoticesList(); // monthly_spends.month_amount
     }
 
 }

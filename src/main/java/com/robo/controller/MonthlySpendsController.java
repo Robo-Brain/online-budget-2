@@ -7,7 +7,6 @@ import com.robo.repository.SpendsRepo;
 import com.robo.service.MonthlySpendsService;
 import com.robo.service.SpendsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,27 +77,12 @@ public class MonthlySpendsController {
 
     @GetMapping("/checkBeforeCreateNewMonth")
     public ResponseEntity checkBeforeCreateNewMonth(@RequestParam(name = "dateId") Integer dateId){
-        String resp = mss.checkBeforeCreateNewMonth(dateId);
-        return getResponseEntity(resp);
+        return mss.checkBeforeCreateNewMonth(dateId);
     }
     @GetMapping("/checkLastMonthBeforeCreateNewMonth")
     public ResponseEntity checkLastMonthBeforeCreateNewMonth(){
-        String resp = mss.checkLastMonthBeforeCreateNewMonth();
-        return getResponseEntity(resp);
+        return mss.checkLastMonthBeforeCreateNewMonth();
     }
-    private ResponseEntity getResponseEntity(String resp) {
-        switch (resp) {
-            case "MONTH_OK.FULL_NOT":
-                return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
-            case "MONTH_NOT.FULL_OK":
-                return new ResponseEntity<>("MONTH_NOT.FULL_OK", HttpStatus.OK);
-            case "MONTH_NOT.FULL_NOT":
-                return new ResponseEntity<>("MONTH_NOT.FULL_NOT", HttpStatus.OK);
-            default:
-                return new ResponseEntity<>("error", HttpStatus.NOT_FOUND);
-        }
-    }
-
 
     @PutMapping("/createNewMonthByDateId")
     public List<MonthlySpendsDTO> createNewMonthByDateId(@RequestParam(name = "dateId") Integer dateId){

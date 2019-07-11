@@ -11,6 +11,7 @@ function showLastMonth() {
         data: function() {
             return {
                 localMonthList: [],
+                noticesMonthlySpendsId: [],
                 date: '',
                 showNoMonthModal: false,
                 showCreateNoticeModal: false,
@@ -21,7 +22,6 @@ function showLastMonth() {
                 showPlusAmountMonthModal: false,
                 spendId: '',
                 missingSpendsList: [],
-                noticesMonthlySpendsId: [],
                 dateId: '',
                 templateAmount: '',
                 newMonthAmount: null,
@@ -252,12 +252,17 @@ function showLastMonth() {
         created: function () {
             axios.get('month')
                 .then(async result => {// получить текущий месяц
+                    console.log(result.data);
                     if (result.data.length === 0){ //если месяц "пустой"
                         this.editMode = true; // включить режим редактирования принудительно
-                        await getLastDate() // попробовать получить dateId
+                        await axios.get('dates/lastDate') // попробовать получить dateId
                             .then(result => {
                                 this.date = result.data.date;
                                 this.dateId = result.data.id
+                            });
+                        await axios.get('spends') // попробовать получить dateId
+                            .then(result => {
+                                this.missingSpendsList = result.data;
                             });
                     }
                     let d1 = new Date(result.data[0].date).getMonth();
@@ -269,7 +274,20 @@ function showLastMonth() {
 
                     this.date = result.data[0].date;
                     this.dateId = result.data[0].dateId;
-                    this.localMonthList = result.data;
+                    result.data.forEach(month => {
+                        this.localMonthList.push(month);
+                        if (month.noticesList.length > 0){
+                            this.noticesMonthlySpendsId.push(month.monthlySpendsId)
+                        }
+                    });
+                    // this.localMonthList = result.data;
+
+                    // axios.get('notices')
+                    //     .then(result => {
+                    //         result.data.forEach(note => {
+                    //             this.noticesMonthlySpendsId.push(note.monthlySpendId);//this.noticesMonthlySpendsId
+                    //         });
+                    //     });
 
                     await getTotalAmounts(result.data)
                         .then(amountsArr => {
@@ -282,21 +300,6 @@ function showLastMonth() {
                     await getMissingSpends(this.dateId)
                         .then(res => this.missingSpendsList = res.data);
                 });
-
-            axios.get('notices')
-                .then(result => {
-                    result.data.forEach(note => {
-                        this.noticesMonthlySpendsId.push(note.monthlySpendId);//this.noticesMonthlySpendsId
-                    });
-                });
-
-            async function getAllSpends() {
-                return await axios.get('spends');
-            }
-            async function getLastDate() {
-                return await axios.get('dates/lastDate');
-            }
-
         }
     });
 
@@ -326,4 +329,5 @@ function showLastMonth() {
     async function getMissingSpends(id) {
         return await axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + id);
     }
+
 }

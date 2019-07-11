@@ -3,6 +3,7 @@ package com.robo.Entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -42,5 +43,10 @@ public class MonthlySpends {
     @Getter
     @Setter
     Integer monthAmount;
+
+    @Getter
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "monthly_spend_id")
+    private List<Notices> noticesList;
 
 }

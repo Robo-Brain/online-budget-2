@@ -5,7 +5,8 @@ Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMon
             bodyText: 'Создать новый месяц?',
             warning: false,
             ignoreWarning: false,
-            subModal: true
+            subModal: true,
+            emptyMonth: false
         }
     },
     template:
@@ -15,7 +16,11 @@ Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMon
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '<p>'
                     + '{{ bodyText }}<br />'
-                    + '<button class="new-month-button no" @click="closeModal()">NO</button> <button :disabled="warning && !ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button><br /><br />'
+                    + '<button class="new-month-button no" @click="closeModal()">NO</button> '
+                    + '<button v-if="!warning" @click="checkBeforeCreateNewMonth()" class="new-month-button yes">YES</button>'
+                    + '<button v-if="warning" :disabled="!ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button>'
+                    + '<br /><br />'
+                    + '<span class="new-month-warning" v-if="!warning"><input id="emptyMonth" v-model="emptyMonth" type="checkbox" /> <label for="emptyMonth">Создать пустой месяц</label></span>'
                     + '<span class="new-month-warning" v-if="warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
                 + '</p>'
             + '</div>'
@@ -28,37 +33,60 @@ Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMon
             setTimeout(function(){
                 self.$parent.showCreateMonthModal = false;
             }, 500);
-            this.ignoreWarning = this.warning = false;
+            this.ignoreWarning = this.warning = this.emptyMonth = false;
             this.bodyText = 'Создать новый месяц?';
         },
+        checkBeforeCreateNewMonth: function () {
+            axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.dateId)
+                .then(result => {
+                    switch (result.data) {
+                        case 'MONTH_OK.FULL_OK':
+                            if(!this.emptyMonth){
+                                this.createNewMonth();
+                            } else {
+                                this.emptyMonth = true;
+                                this.createNewMonth();
+                            }
+                            break;
+                        case 'MONTH_OK.FULL_NOT':
+                            this.bodyText = 'Платежи по текущему месяцу внесены не до конца, продолжить?';
+                            this.warning = true;
+                            break;
+                        case 'MONTH_NOT.FULL_OK':
+                            this.bodyText = 'Календарный месяц еще не завершен, продолжить?';
+                            this.warning = true;
+                            break;
+                        case 'MONTH_NOT.FULL_NOT':
+                            this.bodyText = 'Календарный месяц еще не завершен, платежи по текущему месяцу внесены не до конца, продолжить?';
+                            this.warning = true;
+                            break;
+                    }
+            });
+        },
         createNewMonth: function () {
-            if (!this.warning){
-                axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.dateId)
-                    .then(result => {
-                        switch (result.data) {
-                            case 'MONTH_OK.FULL_NOT':
-                                this.bodyText = 'Платежи по текущему месяцу внесены не до конца, продолжить?';
-                                this.warning = true;
-                                break;
-                            case 'MONTH_NOT.FULL_OK':
-                                this.bodyText = 'Календарный месяц еще не завершен, продолжить?';
-                                this.warning = true;
-                                break;
-                            case 'MONTH_NOT.FULL_NOT':
-                                this.bodyText = 'Календарный месяц еще не завершен, платежи по текущему месяцу внесены не до конца, продолжить?';
-                                this.warning = true;
-                                break;
-                        }
-                    })
-            } else if (this.ignoreWarning && this.dateId > 0){
+            if(!this.emptyMonth){
                 axios.put('month/createNewMonthByDateId?dateId=' + this.dateId)
                     .then(result => {
-                        console.log(result.data);
-                        this.$parent.monthList = result.data;
-                        this.closeModal();
-                    })
-            }
+                        this.$parent.localMonthList = result.data;
+                    });
+            } else {
+                axios.put('dates/makeNewDate')
+                    .then(async result => {
+                        this.$parent.localMonthList = result.data;
+                        this.$parent.editMode = true; // включить режим редактирования принудительно
 
+                        await axios.get('dates/lastDate') // попробовать получить dateId
+                            .then(result => {
+                                this.date = result.data.date;
+                                this.dateId = result.data.id
+                            });
+                        await axios.get('spends') // попробовать получить dateId
+                            .then(result => {
+                                this.missingSpendsList = result.data;
+                            });
+                    });
+            }
+            this.closeModal();
         }
     }
 });
@@ -177,7 +205,7 @@ Vue.component('createNoticeModal', {//<createNotice v-if="this.showNoticeModal" 
             axios.put('notices/add?monthlySpendId=' + this.monthlySpendsId + '&text=' + this.text + '&remind=' + this.remind)
                 .then(async () => {
                     this.bodyText = 'OK';
-                    this.$parent.noticesMonthlySpendsId = await getNotices();
+                    this.$parent.noticesMonthlySpendsId.push(this.monthlySpendsId);
                     let self = this;
                     setTimeout(function(){
                         self.closeModal();
@@ -315,7 +343,7 @@ Vue.component('plusAmountMonthModal', {
     data: function() {
         return {
             subModal: true,
-            plusAmount: 0
+            plusAmount: ''
         }
     },
     template:

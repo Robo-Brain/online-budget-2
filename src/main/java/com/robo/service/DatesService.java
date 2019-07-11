@@ -61,7 +61,7 @@ public class DatesService {
         return result;
     }
 
-    private java.sql.Date makeNewDate() {
+    private java.sql.Date makeNewDate() { //метод собирает дату по кусочкам исходя из текущей даты
         LocalDate date = LocalDate.now();
 //        Dates lastDate = dr.findTopByOrderByIdDesc().orElse(new Dates());
 //        if (lastDate.getDate().getMonth() )
@@ -76,7 +76,7 @@ public class DatesService {
         return java.sql.Date.valueOf(date);
     }
 
-    Dates generateDate() {
+    public Dates generateDate() { //метод создает Dates и записывает в БД
         Dates date = getTodaysDate(); //получить сегодняшнюю дату или пустую
         if (Objects.isNull(date.getId())) { // все ок, сегодняшней даты в базе нет, календарный месяц завершен
             date.setDate(java.sql.Date.valueOf(LocalDate.now().plusDays(1)));

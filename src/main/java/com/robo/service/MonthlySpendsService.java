@@ -8,6 +8,8 @@ import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -99,24 +101,24 @@ public class MonthlySpendsService {
         createNewMonthByDateId(ms.getDateId());
     }
 
-    public String checkLastMonthBeforeCreateNewMonth() {
+    public ResponseEntity checkLastMonthBeforeCreateNewMonth() {
         Integer dateId = msr.findTopByOrderByIdDesc().getDateId();
         return checkBeforeCreateNewMonth(dateId);
     }
 
-    public String checkBeforeCreateNewMonth(Integer dateId) {
+    public ResponseEntity checkBeforeCreateNewMonth(Integer dateId) {
         if (Objects.nonNull(dateId) && dateId > 0) {
             List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
             if (msList.get(0).getDates().getDate().getYear() != LocalDate.now().getYear()
                 || msList.get(0).getDates().getDate().getMonth() != LocalDate.now().getMonthValue()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
                     if (checkMonthForCompletion(dateId)) { // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
                         createNewMonthByDateId(dateId);
-                        return "";
-                    } else return "MONTH_OK.FULL_NOT";
+                        return new ResponseEntity<>("MONTH_OK.FULL_OK", HttpStatus.OK);
+                    } else return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
             } else { // дата ежемесячных платежей совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц еще не закончен с точки зрения календаря
                 if (checkMonthForCompletion(dateId))
-                    return "MONTH_NOT.FULL_OK";
-                else return "MONTH_NOT.FULL_NOT"; // текущий календарный месяц еще НЕ закончен и статьи расходов НЕ пополнены необх суммами с точки зрения monthly_spend.amount < templates.amount
+                    return new ResponseEntity<>("MONTH_NOT.FULL_OK", HttpStatus.OK);
+                else  return new ResponseEntity<>("MONTH_NOT.FULL_NOT", HttpStatus.OK); // текущий календарный месяц еще НЕ закончен и статьи расходов НЕ пополнены необх суммами с точки зрения monthly_spend.amount < templates.amount
             }
         } else throw new RuntimeException("dateId cannot be NULL or less than 0");
     }

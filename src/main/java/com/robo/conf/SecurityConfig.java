@@ -18,6 +18,31 @@ import java.time.LocalDateTime;
 @EnableWebSecurity
 @EnableOAuth2Sso
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+//
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth)
+//            throws Exception {
+//        auth.inMemoryAuthentication()
+//                .withUser("user").password("{noop}password").roles("USER")
+//                .and()
+//                .withUser("admin").password("{noop}password").roles("ADMIN");
+//    }
+//
+//    @Override
+//    @Bean
+//    public AuthenticationManager authenticationManagerBean()
+//            throws Exception {
+//        return super.authenticationManagerBean();
+//    }
+//
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.authorizeRequests()
+//                .antMatchers("/login").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin().permitAll();
+//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -71,6 +96,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             return userDetailsRepo.save(user);
         };
     }
+//
+//    @Override
+//    @Bean
+//    public AuthenticationManager authenticationManagerBean()
+//            throws Exception {
+//        return super.authenticationManagerBean();
+//    }
 
 }
 
