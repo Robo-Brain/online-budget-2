@@ -248,9 +248,8 @@
     }
 
     .modal-plus-content {
-        top: .3em;
-        /* left: 2em; */
-        /* padding: 10%; */
+        top: .2em;
+        opacity: .9;
     }
     .modal-plus-content input {
         font-size: 1em;

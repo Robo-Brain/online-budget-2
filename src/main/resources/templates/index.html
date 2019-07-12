@@ -4,15 +4,15 @@
     <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
     <meta name="viewport" content="initial-scale=0.7, maximum-scale=0.7">
 <body>
-    <!--<th:block sec:authorize="isAnonymous()">-->
-        <!--<div class="login">-->
-            <!--Required login with-->
-            <!--<a href="/login">-->
-                <!--<blue>G</blue><red>o</red><yellow>o</yellow><blue>g</blue><green>l</green><red>e</red>-->
-            <!--</a>-->
-        <!--</div>-->
-    <!--</th:block>-->
-    <!--<th:block sec:authorize="isAuthenticated()">-->
+    <th:block sec:authorize="isAnonymous()">
+        <div class="login">
+            Required login with
+            <a href="/login">
+                <blue>G</blue><red>o</red><yellow>o</yellow><blue>g</blue><green>l</green><red>e</red>
+            </a>
+        </div>
+    </th:block>
+    <th:block sec:authorize="isAuthenticated()">
         <div id="upper-menu">
             <div class="link">
                 <a id="upper-menu-templates" href="#">Templates</a>
@@ -97,6 +97,6 @@
                 .catch(error => alert(error))
         </script>
 
-    <!--</th:block>-->
+    </th:block>
 </body>
 </html>
