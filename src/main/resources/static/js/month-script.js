@@ -28,7 +28,7 @@ function showLastMonth() {
                 isCash: '',
                 isSalary: '',
                 editMode: false,
-                deleteMode: true,
+                // deleteMode: true,
                 monthlySpendsId: '',
                 totalAmountSalaryCard: 0,
                 totalAmountSalaryCash: 0,
@@ -47,18 +47,14 @@ function showLastMonth() {
                 + '</div>'
                 + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
                         + '<div class="name-notices-block">'
-                            + '<div class="name">'
-                                + '{{ month.spendName }}'
-                                + '<div class="name-buttons">'
-                                    + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="has-notice-button"> </button>'
-                                    + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
-                                    + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" />'
-                                + '</div>'
-                            + '</div>'
+                            + '<div class="name"> {{ month.spendName }}</div>'
+                            + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
                             + '/<span class="month-amount">{{ month.templateAmount }}</span>'
+                            + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
+                            + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" />'
                         + '</div>'
                         + '<div class="buttons">'
                             + '<button v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
@@ -76,8 +72,8 @@ function showLastMonth() {
                     + '<div class="buttons" v-bind:class="{ edit: editMode }">'
                         + '<button :id="month.monthlySpendsId" @click="salaryToggle($event)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
                         + '<button :id="month.monthlySpendsId" @click="cashToggle($event)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
-                        + '<button v-if="!deleteMode && editingIndex == index" class="save" @click="saveSpendInMonth()">✓</button>'
-                        + '<button v-else-if="deleteMode || editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId)">X</button>'
+                        + '<button v-if="editingIndex == index" class="save" @click="saveSpendInMonth()">✓</button>'
+                        + '<button v-else-if="editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId)">X</button>'
                     + '</div>'
                 + '</div>'
                 + '<div v-if="!editMode" class="total-amount">'
@@ -148,7 +144,7 @@ function showLastMonth() {
                     this.showSpendInput = false;
                     this.templateAmount = '';
                     this.editMode = !this.editMode;
-                    this.deleteMode = true;
+                    // this.deleteMode = true;
                 }
             },
             setAmount: function(event, index) { // установка новой суммы для spend в режиме редактирования monthly_spend
@@ -156,19 +152,19 @@ function showLastMonth() {
                 this.editingIndex = index;
                 this.templateAmount = event.target.value;
                 this.monthlySpendsId = event.target.id;
-                this.deleteMode = false;
+                // this.deleteMode = false;
             },
             salaryToggle: function (event) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
                 this.monthlySpendsId = event.target.id;
                 this.isSalary = event.target.className !== 'salary';
                 event.target.className = this.isSalary ? 'salary' : 'prepaid';
-                this.deleteMode = false;
+                // this.deleteMode = false;
             },
             cashToggle: function (event) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
                 this.monthlySpendsId = event.target.id;
                 this.isCash = event.target.className !== 'cash';
                 event.target.className = this.isCash ? 'cash' : 'card';
-                this.deleteMode = false;
+                // this.deleteMode = false;
             },
             saveSpendInMonth: function () {
                 if (this.monthlySpendsId.length > 0){
@@ -187,7 +183,7 @@ function showLastMonth() {
                             });
                             this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
                             this.editMode = false;
-                            this.deleteMode = true;
+                            // this.deleteMode = true;
                         }
                     });
                 }

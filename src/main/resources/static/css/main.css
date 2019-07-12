@@ -466,33 +466,22 @@ button.salary:after {
     width: 30%;
 }
 
-.name-buttons {
-    position: absolute;
-    left: -.6em;
-    top: -.7em;
-    height: 2em;
-}
-.name-buttons button{
-    border: none;
-}
-.name-buttons button.has-notice-button{
-    width: 2.3em;
-    height: 2.3em;
-    background: url(/img/notice-red.png) no-repeat 50%;
-    background-size: 100%;
-}
-.name-buttons button.plus-button{
-    width: 2.3em;
-    height: 2.3em;
-    margin-left: .5em;
-    background: url(/img/plus.png) no-repeat 50%;
-    background-size: 100%;
-}
-
 .month-item .deposited {
     float: left;
     font-size: 1.8em;
     width: 30%;
+    position: relative;
+}
+
+.deposited button.plus-button{
+    position: absolute;
+    top: -1em;
+    margin-left: -.5em;
+    border: none;
+    width: 2.8em;
+    height: 2.8em;
+    background: url(/img/plus.png) no-repeat 50%;
+    background-size: 100%;
 }
 
 .month-item .deposited input{
@@ -642,10 +631,10 @@ button.notice{
 }
 
 .slideIn-enter-active {
-    animation: slideIn .6s ease-out;
+    animation: slideIn .4s ease-out;
 }
 .slideIn-leave-active {
-    animation: slideOut .6s ease-in;
+    animation: slideOut .4s ease-in;
 }
 @keyframes slideIn {
     0% {
@@ -653,19 +642,19 @@ button.notice{
         opacity: 0;
     }
     50% {
-        -webkit-transform: translate(-50%, -50%);
-        opacity: 0;
+        -webkit-transform: translate(-20%, -50%);
+        opacity: .1;
     }
-    80% {
-        -webkit-transform: translate(0%, -50%);
-        opacity: 1;
+    70% {
+        -webkit-transform: translate(0, -50%);
+        opacity: .4;
     }
     90% {
         -webkit-transform: translate(2%, -50%);
-        opacity: 1;
+        opacity: .8;
     }
     100% {
-        -webkit-transform: translate(100%, -50%);
+        -webkit-transform: translate(0, -50%);
         opacity: 1;
     }
 }
@@ -731,6 +720,50 @@ button.notice{
     cursor: pointer;
     margin-right: 2.8em;
 }
+.modal-plus-content {
+    position: absolute;
+    top: 0;
+    /* left: 1.3em; */
+    /* padding: 22%; */
+    display: flex;
+}
+
+.modal-plus-content button {
+    /* margin-left: .3em; */
+    font-size: 1em;
+    float: right;
+    padding: 0 .5em;
+    font-weight: bold;
+}
+.slideToRight-enter-active {
+    animation: slideToRight .15s ease-out;
+}
+.slideToRight-leave-active {
+    animation: slideToRight reverse;
+}
+@keyframes slideToRight {
+    0% {
+        -webkit-transform: translate(-100%, 0%);
+        opacity: 0;
+    }
+    25% {
+        -webkit-transform: translate(-75%, 0%);
+        opacity: 0.25;
+    }
+    50% {
+        -webkit-transform: translate(-50%, 0%);
+        opacity: 0.5;
+    }
+    75% {
+        -webkit-transform: translate(-25%, 0%);
+        opacity: 0.75;
+    }
+    100% {
+        -webkit-transform: translate(0%, 0%);
+        opacity: 1;
+    }
+}
+
 .modal-content.notice .save-button{
     float:right;
 }
@@ -826,56 +859,15 @@ button.notice{
 .name-notices-block {
     position: relative;
 }
-
-.modal-plus-content {
+.month-notices-show-button {
     position: absolute;
-    top: .59em;
-    left: 1.3em;
-    background-color: red;
-    padding: 22%;
-    display: flex;
-}
-.modal-plus-content input{
-    width: 3em;
-    float: left;
-    font-size: .68em;
-    padding: 0.2em;
-    border-radius: 0.1em;
-}
-.modal-plus-content button{
-    margin-left: .3em;
-    font-size: 1em;
-    float: right;
-    padding: 0 .5em;
-    font-weight: bold;
-}
-.slideToRight-enter-active {
-    animation: slideToRight .15s ease-out;
-}
-.slideToRight-leave-active {
-    animation: slideToRight reverse;
-}
-@keyframes slideToRight {
-    0% {
-        -webkit-transform: translate(-100%, 0%);
-        opacity: 0;
-    }
-    25% {
-        -webkit-transform: translate(-75%, 0%);
-        opacity: 0.25;
-    }
-    50% {
-        -webkit-transform: translate(-50%, 0%);
-        opacity: 0.5;
-    }
-    75% {
-        -webkit-transform: translate(-25%, 0%);
-        opacity: 0.75;
-    }
-    100% {
-        -webkit-transform: translate(0%, 0%);
-        opacity: 1;
-    }
+    width: 2.8em;
+    height: 2.8em;
+    left: -1.2em;
+    top: -1.3em;
+    border: none;
+    background: url(/img/notice-red.png) no-repeat 50%;
+    background-size: 100%;
 }
 
 /*ALL MONTHS START*/

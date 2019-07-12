@@ -350,7 +350,7 @@ Vue.component('plusAmountMonthModal', {
         '<transition name="slideToRight" appear>'
             + '<div v-if="subModal" class="modal-plus-content">'
                 // + '<div @click="closeModal()" class="modal-button close">×</div>'
-                + '<input v-model="plusAmount" type="number" />'
+                + '<input class="plusAmountInput" v-model="plusAmount" type="number" />'
                 + '<button @click="plusMonthAmount()"> + </button>'
             + '</div>'
         + '</transition>',
@@ -365,7 +365,10 @@ Vue.component('plusAmountMonthModal', {
         plusMonthAmount: function () {
             if (this.plusAmount > 0 && this.monthlySpendsId > 0){
                 axios.put('month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount)
-                    .then(result => this.$parent.localMonthList = result.data)
+                    .then(result => {
+                        this.$parent.localMonthList = result.data;
+                        this.closeModal();
+                    })
             }
         }
     }

@@ -111,7 +111,14 @@
         line-height: 1.5em;
         padding: 0.2em 0;
     }
+    .name-buttons button.has-notice-button {
+        width: 2.8em;
+        height: 2.8em;
+    }
     .name-buttons button.plus-button{
+        width: 2.8em;
+        height: 2.8em;
+        margin-left: .8em;
         float: right;
     }
 
@@ -129,6 +136,13 @@
         margin-right: 0.2em;
         font-size: 1.4em;
         vertical-align: middle;
+    }
+    .modal-plus-content .plusAmountInput{
+        width: 3em;
+        float: left;
+        font-size: .68em;
+        padding: 0.2em;
+        border-radius: 0.1em;
     }
     .month-item .deposited.edit input {
         margin: 0 !important;
@@ -234,12 +248,12 @@
     }
 
     .modal-plus-content {
-        top: .55em;
-        left: 1.5em;
-        padding: 15%;
+        top: .3em;
+        /* left: 2em; */
+        /* padding: 10%; */
     }
     .modal-plus-content input {
-        font-size: 1.1em;
+        font-size: 1em;
     }
     .modal-plus-content button{
         padding: 0 .7em;
