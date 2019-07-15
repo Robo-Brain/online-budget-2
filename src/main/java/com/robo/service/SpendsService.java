@@ -49,16 +49,16 @@ public class SpendsService {
 //        return getDifferentialSpendsList(templatesIdEnum);
 //    }
 
-    private List<Spends> getDifferentialSpendsList(String templatesIdEnum){ // строка представляющая из себя перечисление template_id через запятую
-        List<Spends> spends = sr.findAll();
+    private List<Spends> getDifferentialSpendsList(String templatesIdEnum){ //метод возвращает разницу между spend_id которые существует ВООБЩЕ и межуд теми, что указаны в templatesList, строка на входе представляет из себя перечисление template_id через запятую
+        List<Spends> spends = sr.findAll(); // переписать метод, сравнивать листы с ID, а не с сущностями, возвращать сущности по оставшимся id
         if (templatesIdEnum.length() > 0) {
             List<Spends> templatesSpends = new ArrayList<>();
             String[] tmpIds = templatesIdEnum.split(",");
-            Arrays.asList(tmpIds).forEach(tmpId -> {
+            Arrays.asList(tmpIds).forEach(tmpId -> { // для каждого template_id ищем Template, если все ок и template найден, то
                 Templates t = tr.findOneById(Integer.valueOf(tmpId)).orElseThrow(NotFoundException::new);
-                templatesSpends.add(sr.findOneById(t.getSpendId()));
+                templatesSpends.add(sr.findOneById(t.getSpendId())); // берем spend_id из template и пихаем в лист
             });
-            spends.removeAll(templatesSpends);
+            spends.removeAll(templatesSpends); // "сравниваем" листы полученные из таблицы spends и из templates_lists
         }
         return spends;
     }

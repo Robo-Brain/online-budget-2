@@ -229,7 +229,9 @@ public class MonthlySpendsService {
         msList.forEach(ms -> {
             Integer templateId = ms.getTemplateId();
             msr.delete(ms);
-            ts.deleteTemplate(templateId);
+            if (!tls.templatesListContainsTemplateWithId(templateId)){
+                ts.deleteTemplate(templateId); // удалять templates я считаю, нужно только если его нет в templates_list
+            }
         });
     }
 

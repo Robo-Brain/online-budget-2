@@ -63,28 +63,26 @@ public class TemplatesService {
     public Templates pushSpendToTemplate(Integer spendId, Integer amount, Boolean isSalary, Boolean isCash) { // решить что-то с пушем в темплейтЛист
         Templates newTemplate = new Templates();
         newTemplate.setSpendId(spendId);
-        newTemplate.setAmount(Objects.nonNull(amount) && amount > 99 ? amount : 0);
+        newTemplate.setAmount(Objects.nonNull(amount) && amount > 0 ? amount : 0);
         newTemplate.setSalary(Objects.nonNull(isSalary) ? isSalary : true);
         newTemplate.setCash(Objects.nonNull(isCash) ? isCash : true);
-        newTemplate = findSameTemplates(newTemplate); // вернуть найденный template с такими параметрами, либо вернуть ЭТОТ ЖЕ обратно
-        if (newTemplate.getAmount().equals(0)){
-            newTemplate.setAmount(amount);
-        }
+        newTemplate = findSameTemplates(newTemplate); // вернуть найденный template с такими параметрами, либо вернуть ЭТОТ ЖЕ обратно, если не найден
         tr.save(newTemplate);
         return newTemplate;
     }
 
     public Templates editTemplate(Integer templateId, Integer amount, Boolean isSalary, Boolean isCash) {
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
-        if (!msr.findAllByTemplateId(template.getId()).isEmpty()){ // если шаблон найден в месяцах(использовался когда-либо), то не удалять его, а создать новый
-            return pushSpendToTemplate(template.getSpendId(), amount, isSalary, isCash); // метод создаст новый templates и, если нужно, поместит его в templatesList
-        } else { // если template не использовался до сих пор, то изменить его и сохранить (новый не создавать)
-            template.setAmount(amount);
-            template.setSalary(isSalary);
-            template.setCash(isCash);
-            tr.save(template);
-            return template;
-        }
+        Integer newAmount = Objects.nonNull(amount) && amount > 0 ? amount : template.getAmount();
+        Boolean newIsSalary = Objects.nonNull(isSalary) ? isSalary : template.isSalary();
+        Boolean newIsCash = Objects.nonNull(isCash) ? isCash : template.isCash();
+        template = pushSpendToTemplate(template.getSpendId(), newAmount, newIsSalary, newIsCash);
+//        System.out.println(pushSpendToTemplate(spendId, amount, isSalary, isCash));
+//        if (msr.findAllByTemplateId(template.getId()).isEmpty()){// если шаблон с таким id НЕ найден в месяцах(НЕ использовался когда-либо), то уалить его
+//            // хотел предусмотреть удаление шаблона, если его нет в месяцах, но
+//        }
+//        return pushSpendToTemplate(spendId, amount, isSalary, isCash);
+        return template;
     }
 
     public void deleteTemplate(Integer templateId, Integer dateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
@@ -112,12 +110,30 @@ public class TemplatesService {
         }
     }
 
-    void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
+//    void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
+//        Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
+//        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
+//        if (allMonthlySpends.isEmpty()){ // если в monthly_spends пусто, значит template нет в monthly_spends и можно его смело удалять
+//            tls.searchAndDeleteTemplateFromTemplatesList(templateId);
+//            tr.delete(template); // раз нет в monthly_spends, то можно его мочить
+//        }
+//    }
+
+    void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends или в шаблонах
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
-        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
-        if (allMonthlySpends.isEmpty()){ // если в monthly_spends пусто, значит template нет в monthly_spends и можно его смело удалять
-            tls.searchAndDeleteTemplateFromTemplatesList(templateId);
-            tr.delete(template); // раз нет в monthly_spends, то можно его мочить
+        Boolean templatesListsHaveThisTemplateId = false;
+        List<TemplatesList> templatesLists = tlr.findAll();
+        for (TemplatesList tl : templatesLists) {
+            if (!templatesListsHaveThisTemplateId) {
+                String[] id = tl.getTemplateId().split(","); // для каждого templates_list'a получить список template_id
+                templatesListsHaveThisTemplateId = Arrays.asList(id).contains(String.valueOf(templateId)); // если найден templates_list с таким template_id, то прервать цикл и не удалять template_id
+            }
+        }
+        if (!templatesListsHaveThisTemplateId){ // если в шаблонах не найдено template с таким id
+            List<MonthlySpends> monthlySpendsList = msr.findAllByTemplateId(templateId);
+            if (monthlySpendsList.isEmpty()){ // если нет template с таким id в monthly_spends, то этот template можно удалять
+                tr.delete(template);
+            }
         }
     }
 

@@ -17,4 +17,5 @@ public interface DatesRepo extends JpaRepository<Dates, Integer> {
 
     List<Dates> findAllByDate(LocalDate date);
 
+    List<Dates> findAllByTemplateListId(Integer templatesListId);
 }

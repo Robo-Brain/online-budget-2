@@ -34,7 +34,7 @@ function showLastMonth() {
                 totalAmountSalaryCash: 0,
                 totalAmountPrepaidCard: 0,
                 totalAmountPrepaidCash: 0,
-                editingIndex: null,
+                editingIndex: '',
                 plusIndex: null,
                 notices: []
             }
@@ -67,11 +67,11 @@ function showLastMonth() {
                         + ' {{ month.spendName }}'
                     + '</div>'
                     + '<div class="deposited" v-bind:class="{ edit: editMode }">'
-                        + '<input :id="month.monthlySpendsId" v-model="month.templateAmount" @input="setAmount($event, index)" />'
+                        + '<input v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
                     + '</div>'
                     + '<div class="buttons" v-bind:class="{ edit: editMode }">'
-                        + '<button :id="month.monthlySpendsId" @click="salaryToggle($event)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                        + '<button :id="month.monthlySpendsId" @click="cashToggle($event)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
+                        + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                        + '<button @click="cashToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
                         + '<button v-if="editingIndex == index" class="save" @click="saveSpendInMonth()">✓</button>'
                         + '<button v-else-if="editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId)">X</button>'
                     + '</div>'
@@ -147,21 +147,22 @@ function showLastMonth() {
                     // this.deleteMode = true;
                 }
             },
-            setAmount: function(event, index) { // установка новой суммы для spend в режиме редактирования monthly_spend
-                // this.editingIndex = this.editingIndex == index ? null : index;
+            setAmount: function(event, index, monthlySpendsId) { // установка новой суммы для spend в режиме редактирования monthly_spend
                 this.editingIndex = index;
                 this.templateAmount = event.target.value;
-                this.monthlySpendsId = event.target.id;
+                this.monthlySpendsId = monthlySpendsId;
                 // this.deleteMode = false;
             },
-            salaryToggle: function (event) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
-                this.monthlySpendsId = event.target.id;
+            salaryToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
+                this.monthlySpendsId = monthlySpendsId;
+                this.editingIndex = index;
                 this.isSalary = event.target.className !== 'salary';
                 event.target.className = this.isSalary ? 'salary' : 'prepaid';
                 // this.deleteMode = false;
             },
-            cashToggle: function (event) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
-                this.monthlySpendsId = event.target.id;
+            cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
+                this.monthlySpendsId = monthlySpendsId;
+                this.editingIndex = index;
                 this.isCash = event.target.className !== 'cash';
                 event.target.className = this.isCash ? 'cash' : 'card';
                 // this.deleteMode = false;
@@ -181,8 +182,8 @@ function showLastMonth() {
                                 this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
                                 this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
                             });
-                            this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
-                            this.editMode = false;
+                            this.spendId = this.templateAmount = this.isCash = this.isSalary = this.editingIndex = '';
+                            // this.editMode = false;
                             // this.deleteMode = true;
                         }
                     });
