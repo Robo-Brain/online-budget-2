@@ -148,20 +148,26 @@ function showLastMonth() {
                 }
             },
             setAmount: function(event, index, monthlySpendsId) { // установка новой суммы для spend в режиме редактирования monthly_spend
+                console.log("setAmount: monthlySpendsId: " + monthlySpendsId);
                 this.editingIndex = index;
                 this.templateAmount = event.target.value;
                 this.monthlySpendsId = monthlySpendsId;
+                console.log("setAmount: this.monthlySpendsId: " + this.monthlySpendsId);
                 // this.deleteMode = false;
             },
             salaryToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
+                console.log("salaryToggle: monthlySpendsId: " + monthlySpendsId);
                 this.monthlySpendsId = monthlySpendsId;
+                console.log("salaryToggle: this.monthlySpendsId: " + this.monthlySpendsId);
                 this.editingIndex = index;
                 this.isSalary = event.target.className !== 'salary';
                 event.target.className = this.isSalary ? 'salary' : 'prepaid';
                 // this.deleteMode = false;
             },
             cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
+                console.log("cashToggle: monthlySpendsId: " + monthlySpendsId);
                 this.monthlySpendsId = monthlySpendsId;
+                console.log("cashToggle: this.monthlySpendsId: " + this.monthlySpendsId);
                 this.editingIndex = index;
                 this.isCash = event.target.className !== 'cash';
                 event.target.className = this.isCash ? 'cash' : 'card';
@@ -252,7 +258,7 @@ function showLastMonth() {
         created: function () {
             axios.get('month')
                 .then(async result => {// получить текущий месяц
-                    console.log(result.data);
+                    // console.log(result.data);
                     if (result.data.length === 0){ //если месяц "пустой"
                         this.editMode = true; // включить режим редактирования принудительно
                         await axios.get('dates/lastDate') // попробовать получить dateId
