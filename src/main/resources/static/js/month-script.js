@@ -182,12 +182,14 @@ function showLastMonth() {
                                 this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
                                 this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
                             });
-                            Console.log(this.spendId + ' / ' + this.templateAmount + ' / ' +  this.isCash + ' / ' +  this.isSalary);
+                            console.log(this.spendId + ' / ' + this.templateAmount + ' / ' +  this.isCash + ' / ' +  this.isSalary);
                             this.spendId = this.templateAmount = this.isCash = this.isSalary = this.editingIndex = '';
                             // this.editMode = false;
                             // this.deleteMode = true;
                         }
                     });
+                } else {
+                    console.log("monthlySpendsId.length < 0 ??");
                 }
             },
             pushSpendToMonth: function () {
