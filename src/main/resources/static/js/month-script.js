@@ -34,7 +34,7 @@ function showLastMonth() {
                 totalAmountSalaryCash: 0,
                 totalAmountPrepaidCard: 0,
                 totalAmountPrepaidCash: 0,
-                editingIndex: '',
+                editingIndex: null,
                 plusIndex: null,
                 notices: []
             }
@@ -190,12 +190,8 @@ function showLastMonth() {
                                 this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
                             });
                             console.log(this.spendId + ' / ' + this.templateAmount + ' / ' +  this.isCash + ' / ' +  this.isSalary);
-                            this.spendId = this.templateAmount = this.isCash = this.isSalary = this.editingIndex = '';
-                            console.log('this.spendId: ' + this.spendId);
-                            console.log('this.templateAmount: ' + this.templateAmount);
-                            console.log('this.isCash: ' + this.isCash);
-                            console.log('this.isSalary: ' + this.isSalary);
-                            console.log('this.editingIndex: ' + this.editingIndex);
+                            this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
+                            this.editingIndex = null;
                             // this.editMode = false;
                             // this.deleteMode = true;
                         }
