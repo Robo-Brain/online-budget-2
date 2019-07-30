@@ -174,7 +174,8 @@ function showLastMonth() {
                 // this.deleteMode = false;
             },
             saveSpendInMonth: function () {
-                if (this.monthlySpendsId.length > 0){
+                console.log(this.monthlySpendsId);
+                if (this.monthlySpendsId > 0){
                     axios.put('month/editMonthSpend?monthlySpendsId=' + this.monthlySpendsId
                         + '&amount=' + this.templateAmount
                         + '&isSalary=' + this.isSalary
