@@ -266,9 +266,8 @@ function showLastMonth() {
                             });
                     }
                     let d1 = new Date(result.data[0].date).getMonth();
-                    let d2 = new Date().getMonth();
-                    if (parseInt(d1,10) !== parseInt(d2,10)){
-                        console.log('месяц НЕ совпадает');
+                    let curDate = new Date().getMonth();
+                    if (parseInt(d1,10) < parseInt(curDate,10)){
                         this.showNoMonthModal = true;
                     }
 
