@@ -66,7 +66,9 @@ public class TemplatesService {
         newTemplate.setAmount(Objects.nonNull(amount) && amount > 0 ? amount : 0);
         newTemplate.setSalary(Objects.nonNull(isSalary) ? isSalary : true);
         newTemplate.setCash(Objects.nonNull(isCash) ? isCash : true);
+        System.out.println(">> !! >> BEFORE: " + newTemplate);
         newTemplate = findSameTemplates(newTemplate); // вернуть найденный template с такими параметрами, либо вернуть ЭТОТ ЖЕ обратно, если не найден
+        System.out.println(">> !! >> AFTER: " + newTemplate);
         tr.save(newTemplate);
         return newTemplate;
     }

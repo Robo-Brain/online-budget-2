@@ -183,7 +183,7 @@ public class MonthlySpendsService {
             Integer spendId = ms.getTemplates().getSpendId();
             Integer dateId = ms.getDateId();
 
-            Integer newAmount = Objects.nonNull(amount) && amount > 99 // здесь и далее присвоить входной аргумент, если входного их нет то из существующего entity
+            Integer newAmount = Objects.nonNull(amount) && amount > 0 // здесь и далее присвоить входной аргумент, если входного их нет то из существующего entity
                     ? amount
                     : ms.getTemplates().getAmount();
 
