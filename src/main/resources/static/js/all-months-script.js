@@ -125,7 +125,7 @@ function showAllMonths() {
                 + '<div class="date-block" v-if="localDatesList.length > 0" v-for="date in localDatesList">'
                     + '<div class="date-button">'
                         + '<button v-if="date.id != dateId && dateHasNotice(date.id)" class="all-month-notices-button" > </button>'
-                        + '<button :id="date.id" class="all-monts-date-button" @click="getMonthWithDateId($event, date.date)">{{ date.date }}</button>'
+                        + '<button class="all-monts-date-button" @click="getMonthWithDateId(date.id, date.date)">{{ date.date }}</button>'
                     + '</div>'
                     + '<div :id="date.date" v-if="monthList.length > 0 && date.id == dateId">'
                         + '<div class="months">'//+ '<div class="months all-months">'
@@ -158,12 +158,12 @@ function showAllMonths() {
             }
         },
         methods: {
-            getMonthWithDateId: function (event, date) {
-                this.dateId = event.target.id;
+            getMonthWithDateId: function (dateId, date) {
+                this.dateId = dateId;
                 this.date = date;
                 if (this.dateId) {
                     this.monthList = [];
-                    axios.get('allMonths/' + this.dateId).then(result => {
+                    axios.get('month/getMonthWithDateId?dateId=' + this.dateId).then(result => {
                         this.monthList = result.data;
                     });
                 }

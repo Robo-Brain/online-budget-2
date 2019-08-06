@@ -1,6 +1,7 @@
 package com.robo.service;
 
 import com.robo.Entities.Dates;
+import com.robo.exceptions.DatesException;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.DatesRepo;
 import com.robo.repository.MonthlySpendsRepo;
@@ -23,7 +24,7 @@ public class DatesService {
     @Autowired
     NoticesService ns;
 
-    public Dates getTodaysDate() { // метод ищет месяц и год равные сегодняшним, если не находит, то создает новую дату
+    Dates getTodaysDate() { // метод ищет месяц и год равные сегодняшним, если не находит, то создает новую дату
         String todayYearAndMonth = LocalDate.now().toString().substring(0, 7);
         List<Dates> datesList = dr.findAll();
         if (datesList.size() > 0) {
@@ -33,7 +34,7 @@ public class DatesService {
             } else if (result.size() == 0) { // если месяц и год равные сегодняшним НЕ найдены - вернуть новый dates
                 return new Dates();
             } else {
-                throw new RuntimeException("TOO MANY dates! What's happening???");
+                throw new DatesException.TooManyDates(); // найдены 2 одинаковые даты
             }
         } else {
             return new Dates();
@@ -63,8 +64,6 @@ public class DatesService {
 
     private java.sql.Date makeNewDate() { //метод собирает дату по кусочкам исходя из текущей даты
         LocalDate date = LocalDate.now();
-//        Dates lastDate = dr.findTopByOrderByIdDesc().orElse(new Dates());
-//        if (lastDate.getDate().getMonth() )
         if (date.getMonthValue() == 12) {
             date = date.plusYears(1);
             date = date.withMonth(1);
@@ -76,7 +75,7 @@ public class DatesService {
         return java.sql.Date.valueOf(date);
     }
 
-    public Dates generateDate() { //метод создает Dates и записывает в БД
+    public Dates generateDate() throws DatesException.TooManyDates { //метод создает Dates и записывает в БД
         Dates date = getTodaysDate(); //получить сегодняшнюю дату или пустую
         if (Objects.isNull(date.getId())) { // все ок, сегодняшней даты в базе нет, календарный месяц завершен
             date.setDate(java.sql.Date.valueOf(LocalDate.now().plusDays(1)));
@@ -92,16 +91,5 @@ public class DatesService {
         }
         return date;
     }
-
-
-//    private Dates findOneDate(){
-//       List<Dates> datesList = dr.findAll();
-//       if (datesList.size() == 1){
-//           return datesList.get(0);
-//       } else {
-//           return null;
-//       }
-//
-//    }
 
 }

@@ -38,7 +38,7 @@
             Vue.use(VueTouch, {name: 'v-touch'});
             VueTouch.config.swipe = {
                 direction: 'horizontal'
-            }
+            };
 
             $( document ).ready(function() {
                 showLastMonth();
@@ -55,13 +55,6 @@
                 });
                 $('#upper-menu-spends').click(function () {
                     showSpendsList();
-                });
-
-                $('#upper-menu-templates').click(function () {
-                    $('#templates-list').show();
-                    $('#allMonths').hide();
-                    $('#month').hide();
-                    $('#spends').hide();
                 });
 
             })

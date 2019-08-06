@@ -126,6 +126,10 @@ function showLastMonth() {
             localMonthList: {
                 handler: function (val, oldVal) {},
                 deep: true
+            },
+            date: {
+                handler: function (val, oldVal) {},
+                deep: true
             }
         },
         methods: {
@@ -148,17 +152,13 @@ function showLastMonth() {
                 }
             },
             setAmount: function(event, index, monthlySpendsId) { // установка новой суммы для spend в режиме редактирования monthly_spend
-                console.log("setAmount: monthlySpendsId: " + monthlySpendsId);
                 this.editingIndex = index;
                 this.templateAmount = event.target.value;
                 this.monthlySpendsId = monthlySpendsId;
-                console.log("setAmount: this.monthlySpendsId: " + this.monthlySpendsId);
                 // this.deleteMode = false;
             },
             salaryToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
-                console.log("salaryToggle: monthlySpendsId: " + monthlySpendsId);
                 this.monthlySpendsId = monthlySpendsId;
-                console.log("salaryToggle: this.monthlySpendsId: " + this.monthlySpendsId);
                 this.editingIndex = index;
                 this.isSalary = event.target.className !== 'salary';
                 event.target.className = this.isSalary ? 'salary' : 'prepaid';
@@ -268,15 +268,21 @@ function showLastMonth() {
                                 this.date = result.data.date;
                                 this.dateId = result.data.id
                             });
-                        await axios.get('spends') // попробовать получить dateId
+                        await axios.get('spends')
                             .then(result => {
                                 this.missingSpendsList = result.data;
                             });
                     }
-                    let d1 = new Date(result.data[0].date).getMonth();
-                    let curDate = new Date().getMonth();
-                    if (parseInt(d1,10) < parseInt(curDate,10)){
-                        this.showNoMonthModal = true;
+                    let lastDBDate = new Date(result.data[0].date);
+                    let curDate = new Date();
+                    if (parseInt(lastDBDate.getMonth(),10)
+                        <
+                        parseInt(curDate.getMonth(),10)){
+                            this.showNoMonthModal = true;
+                    } else if(parseInt(lastDBDate.getFullYear(),10)
+                        <
+                        parseInt(curDate.getFullYear(),10)) {
+                            this.showNoMonthModal = true;
                     }
 
                     this.date = result.data[0].date;

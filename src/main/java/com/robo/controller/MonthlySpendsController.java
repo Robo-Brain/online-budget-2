@@ -40,7 +40,7 @@ public class MonthlySpendsController {
 
     @GetMapping
     public List<MonthlySpendsDTO> getLastMonth() {
-        return mss.getLastMonth();
+            return mss.getLastMonth();
     }
 
     @GetMapping("/all")

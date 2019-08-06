@@ -5,6 +5,7 @@ import com.robo.Entities.MonthlySpends;
 import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
+import com.robo.exceptions.TemplatesException;
 import com.robo.repository.DatesRepo;
 import com.robo.repository.MonthlySpendsRepo;
 import com.robo.repository.TemplatesListRepo;
@@ -79,11 +80,6 @@ public class TemplatesService {
         Boolean newIsSalary = Objects.nonNull(isSalary) ? isSalary : template.isSalary();
         Boolean newIsCash = Objects.nonNull(isCash) ? isCash : template.isCash();
         template = pushSpendToTemplate(template.getSpendId(), newAmount, newIsSalary, newIsCash);
-//        System.out.println(pushSpendToTemplate(spendId, amount, isSalary, isCash));
-//        if (msr.findAllByTemplateId(template.getId()).isEmpty()){// если шаблон с таким id НЕ найден в месяцах(НЕ использовался когда-либо), то уалить его
-//            // хотел предусмотреть удаление шаблона, если его нет в месяцах, но
-//        }
-//        return pushSpendToTemplate(spendId, amount, isSalary, isCash);
         return template;
     }
 
@@ -108,18 +104,9 @@ public class TemplatesService {
                                 tls.deleteTemplateFromTemplateList(listId.getTemplateListId(), templateId)); // если с dateId все ОК, найти какой templatesList к нему "прикреплен" и удалить из него template
 
                 tr.delete(template);
-            } else System.out.println("date_id != переданному с фронта dateId, на нас напали!");
+            } else throw new RuntimeException("date_id != переданному с фронта dateId, на нас напали!");
         }
     }
-
-//    void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends
-//        Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
-//        List<MonthlySpends> allMonthlySpends = msr.findAllByTemplateId(templateId);
-//        if (allMonthlySpends.isEmpty()){ // если в monthly_spends пусто, значит template нет в monthly_spends и можно его смело удалять
-//            tls.searchAndDeleteTemplateFromTemplatesList(templateId);
-//            tr.delete(template); // раз нет в monthly_spends, то можно его мочить
-//        }
-//    }
 
     void deleteTemplate(Integer templateId) { //удалить template отовсюду при условии, что его нет в monthly_spends или в шаблонах
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
@@ -142,24 +129,9 @@ public class TemplatesService {
     private Templates findSameTemplates(Templates template){
         Optional<List<Templates>> templateList = tr.findSameTemplate(template.getSpendId(), template.getAmount(), template.isSalary(), template.isCash());
         if (templateList.isPresent()){
-//            List<Templates> templates = templateList.get();
-//            List<Templates> resultList = templates.stream().filter( // проверить если уже есть template - положить его в список
-//                    t ->    t.getSpendId().equals(template.getSpendId())
-//                            && t.isSalary() == template.isSalary()
-//                            && t.isCash() == template.isCash()
-//                            && (
-//                            t.getAmount().equals(template.getAmount())
-//                                    || t.getAmount().equals(0)
-//                    ) // или если есть точно такой же template с нулевой суммой
-//                ).collect(Collectors.toList());
-//
-//            if (resultList.size() == 0) { // если количество найденных templates с точно такими же параметрами == 0, то вернуть новый template
-//                return template;
-//            }
             if (templateList.get().size() == 1) { // если найден точно такой же template, то вернуть его
                 return templateList.get().get(0);
-            } else throw new RuntimeException("В таблице templates обнаружены повтряющиеся значения, такого быть не должно, необходимо инициировать экстерминатус.");
-
+            } else throw new TemplatesException.TemplateDuplicates();
         } else { // если такого spend вообще нет в templates то вернуть обратно template для сохранения нового
             return template;
         }

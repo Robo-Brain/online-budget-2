@@ -5,6 +5,7 @@ import com.robo.Entities.Dates;
 import com.robo.Entities.MonthlySpends;
 import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
+import com.robo.exceptions.DatesException;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,12 +63,12 @@ public class MonthlySpendsService {
         if (Objects.nonNull(date.getId())){ // проверить, вернулся заполненный Dates или пустой
             return getMonthsDTOByDateID(date.getId()); // вернуть найденную дату, если она найдена
         } else {
-            throw new NotFoundException();
+            throw new DatesException.NoDates();
         }
     }
 
-    public List<MonthlySpendsDTO> getMonthsDTOByDateID(Integer dateID) {
-        List<MonthlySpends> allMonthlySpends = getMonthlySpendsByDateId(dateID);
+    public List<MonthlySpendsDTO> getMonthsDTOByDateID(Integer dateId) {
+        List<MonthlySpends> allMonthlySpends = getMonthlySpendsByDateId(dateId);
         if (Objects.nonNull(allMonthlySpends) && allMonthlySpends.size() > 0){
             List<MonthlySpendsDTO> resultList = new ArrayList<>();
             allMonthlySpends.forEach(monthlySpends -> {
@@ -75,8 +76,8 @@ public class MonthlySpendsService {
                 resultList.add(msDTO);
             });
             return resultList;
-        } else { // если с таким dateId ничего не найдено, вернуть пустой список, для добавления пользователем вручную
-            return new ArrayList<>();
+        } else { // если с таким dateId ничего не найдено, кинуть кастомный эксепшн, на морде будет форма для ручного добавления spends
+            throw new DatesException.DateWOSpends();
         }
     }
 
@@ -125,9 +126,11 @@ public class MonthlySpendsService {
 
     public void createNewMonthByDateId(Integer dateId) {
         List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
-        Dates date = ds.generateDate();
-        System.out.println("Dates date = ds.generateDate() = " + date);
         if (!msList.isEmpty()) {
+            Dates date = ds.generateDate();
+            date.setCompleted(false);
+            System.out.println(date);
+            dr.save(date);
             msList.forEach(ms -> {
                 MonthlySpends monthlySpends = new MonthlySpends();
                 monthlySpends.setDateId(date.getId());
@@ -135,23 +138,22 @@ public class MonthlySpendsService {
                 monthlySpends.setMonthAmount(0);
                 msr.save(monthlySpends);
             });
-        }else throw new RuntimeException("Something wrong, cause can't find monthly_spends for date_id: " + dateId);
+        }else throw new DatesException.DateWOSpends();
     }
 
     public void createNewMonthByTemplatesListId(Integer templatesListId) {
         if (Objects.nonNull(templatesListId) && Objects.isNull(ds.getTodaysDate().getId())){ // проверка закончился ли текущий месяц
-            Dates d = new Dates();
-            d.setDate(java.sql.Date.valueOf(LocalDate.now()));
-            d.setTemplateListId(templatesListId);
-            d.setCompleted(false);
-            dr.save(d);
+            Dates date = ds.generateDate();
+            date.setTemplateListId(templatesListId);
+            date.setCompleted(false);
+            dr.save(date);
 
             TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
             String[] tmpIds = tl.getTemplateId().split(",");
             Arrays.stream(tmpIds).forEach(tmpId -> {
                 Templates template = tr.findOneById(Integer.valueOf(tmpId)).orElseThrow(NotFoundException::new);
                 MonthlySpends ms = new MonthlySpends();
-                ms.setDateId(d.getId());
+                ms.setDateId(date.getId());
                 ms.setTemplateId(template.getId());
                 ms.setMonthAmount(0);
                 msr.save(ms);
@@ -230,7 +232,7 @@ public class MonthlySpendsService {
             Integer templateId = ms.getTemplateId();
             msr.delete(ms);
             if (!tls.templatesListContainsTemplateWithId(templateId)){
-                ts.deleteTemplate(templateId); // удалять templates я считаю, нужно только если его нет в templates_list
+                ts.deleteTemplate(templateId);
             }
         });
     }

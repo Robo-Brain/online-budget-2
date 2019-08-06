@@ -475,11 +475,11 @@ button.salary:after {
 
 .deposited button.plus-button{
     position: absolute;
-    top: -1em;
+    top: -.8em;
     margin-left: -.5em;
     border: none;
-    width: 2.8em;
-    height: 2.8em;
+    width: 2.5em;
+    height: 2.5em;
     background: url(/img/plus.png) no-repeat 50%;
     background-size: 100%;
 }

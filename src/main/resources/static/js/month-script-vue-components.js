@@ -222,7 +222,9 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             enabledTemplatesHasFound: false,
             previousMonthHasFound: false,
             hideTimeoutIsOver: false,
-            subModal: true
+            subModal: true,
+            bodyText: 'Создать их по активному шаблону или по платежам за предыдущий месяц?',
+            warning: false
         }
     },
     mounted() {
@@ -242,9 +244,10 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                     + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
                     + '<p>Внимание, платежи по текущему месяцу не найдены!</p>'
                     + '<p>'
-                        + 'Создать их по активному шаблону или по платежам за предыдущий месяц?<br />'
-                        + '<button :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">по шаблону</button>'
-                        + '<button :disabled="!previousMonthHasFound" @click="createMonthByLast()">по месяцу</button>'
+                        + '<span v-if="bodyText.length > 1">{{ bodyText }}<br /></span>'
+                        + '<span class="new-month-warning" v-if="warning"><input id="warning" @click="warningToggle()" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
+                        + '<button v-if="!warning" :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">по шаблону</button>'
+                        + '<button v-if="!warning" :disabled="!previousMonthHasFound" @click="createMonthByLast()">по месяцу</button>'
                     + '</p>'
                 + '</div>'
             + '</transition>'
@@ -260,19 +263,25 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             d.setMinutes(d.getMinutes()+1);
             localStorage.date = d; // записать время+1мин в localStorage
         },
+        warningToggle: function () {
+            this.warning = false;
+            this.bodyText = '';
+        },
         createMonthByEnabled: function () {
             if (this.enabledTemplatesHasFound){
-                axios.get('month/createFromEnabled').then(result =>
-                    this.$parent.localMonthList = result.data
-                );
+                axios.get('month/createFromEnabled').then(result => {
+                    this.$parent.localMonthList = result.data;
+                    this.$parent.date = result.data[0].date;
+                });
                 this.$parent.showNoMonthModal = false;
             }
         },
         createMonthByLast: function () {
             if (this.previousMonthHasFound) {
-                axios.get('month/createFromLastMonth').then(result =>
-                    this.$parent.localMonthList = result.data
-                );
+                axios.get('month/createFromLastMonth').then(result => {
+                    this.$parent.localMonthList = result.data;
+                    this.$parent.date = result.data[0].date;
+                });
                 this.$parent.showNoMonthModal = false;
             }
         }
@@ -285,7 +294,7 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                 }
             }
         ).catch(
-            error => this.enabledTemplatesHasFound = false
+            () => this.enabledTemplatesHasFound = false
         );
         axios.get('month/all').then( // если найдены предыдущие месяцы, то
             response => {
@@ -294,8 +303,17 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                 }
             }
         ).catch(
-            error => this.previousMonthHasFound = false
+            () => this.previousMonthHasFound = false
         );
+        axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.$parent.dateId)
+            .then(result => {
+                switch (result.data) {
+                    case 'MONTH_OK.FULL_NOT':
+                        this.bodyText = 'Платежи по текущему месяцу внесены не до конца';
+                        this.warning = true;
+                        break;
+                }
+            });
     }
 });
 

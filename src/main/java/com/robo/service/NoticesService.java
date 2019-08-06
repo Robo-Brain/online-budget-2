@@ -27,11 +27,10 @@ public class NoticesService {
     MonthlySpendsService mss;
 
     public void addNotice(Integer monthlySpendId, String text, Boolean remind) {
-        System.out.println(text);
         if (text.length() > 2) {
-            Integer msID = msr.findOneById(monthlySpendId).isPresent() ? monthlySpendId : null; // проверить есть ли в monthly_spends поле с таким ID, если нет, то заnullить его
+            Integer msId = msr.findOneById(monthlySpendId).isPresent() ? monthlySpendId : null; // проверить есть ли в monthly_spends поле с таким ID, если нет, то заnullить его
             Notices notice = new Notices();
-            notice.setMonthlySpendId(msID);
+            notice.setMonthlySpendId(msId);
             notice.setText(text);
             notice.setRemind(remind);
             notice.setCreationDate(LocalDate.now());
