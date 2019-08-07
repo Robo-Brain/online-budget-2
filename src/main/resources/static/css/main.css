@@ -473,6 +473,14 @@ button.salary:after {
     position: relative;
 }
 
+.fillAmount {
+    position: absolute;
+    right: 95%;
+    color: red;
+    font-weight: bold;
+    letter-spacing: -.2em;
+}
+
 .deposited button.plus-button{
     position: absolute;
     top: -.8em;
@@ -480,7 +488,7 @@ button.salary:after {
     border: none;
     width: 2.5em;
     height: 2.5em;
-    background: url(/img/plus.png) no-repeat 50%;
+    background: url("/img/plus.png") no-repeat 50%;
     background-size: 100%;
 }
 
@@ -859,14 +867,19 @@ button.notice{
 .name-notices-block {
     position: relative;
 }
+
 .month-notices-show-button {
     position: absolute;
-    width: 2.8em;
-    height: 2.8em;
-    left: -1.2em;
-    top: -1.3em;
+    /*width: 2.8em;*/
+    width: 2.5em;
+    /*height: 2.8em;*/
+    height: 2.5em;
+    /*left: -1.2em;*/
+    left: 96%;
+    /*top: -1.3em;*/
+    top: -1.2em;
     border: none;
-    background: url(/img/notice-red.png) no-repeat 50%;
+    background: url("/img/notice-red.png") no-repeat 50%;
     background-size: 100%;
 }
 

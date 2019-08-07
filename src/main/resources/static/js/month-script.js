@@ -36,6 +36,7 @@ function showLastMonth() {
                 totalAmountPrepaidCash: 0,
                 editingIndex: null,
                 plusIndex: null,
+                fillIndex: null,
                 notices: []
             }
         },
@@ -47,10 +48,11 @@ function showLastMonth() {
                 + '</div>'
                 + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
                         + '<div class="name-notices-block">'
-                            + '<div class="name"> {{ month.spendName }}</div>'
+                            + '<div @click="fillIndex = index" class="name"> {{ month.spendName }} </div>'
                             + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
+                            + '<span class="fillAmount" v-if="fillIndex == index" :monthlySpendsId="monthlySpendsId">>></span>'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
                             + '/<span class="month-amount">{{ month.templateAmount }}</span>'
                             + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
@@ -135,12 +137,18 @@ function showLastMonth() {
         methods: {
             setMonthAmount: function(monthlySpendId) {
                 this.monthlySpendsId = monthlySpendId;
-                this.newMonthAmount = event.target.value;
-                axios.put('month/saveMonthAmount?monthlySpendsId='
-                    + this.monthlySpendsId
-                    + "&amount="
-                    + this.newMonthAmount)
-                    .then(result => this.localMonthList = result.data)
+                this.newMonthAmount = event.target.value; // не понимаю как это работает, но работает
+                let tmpVal = event.target.value;
+                let self = this;
+                setTimeout(function(){
+                    if(tmpVal === self.newMonthAmount) {
+                        axios.put('month/saveMonthAmount?monthlySpendsId='
+                            + self.monthlySpendsId
+                            + "&amount="
+                            + self.newMonthAmount)
+                            .then(result => self.localMonthList = result.data); console.log('updated ' + self.newMonthAmount)
+                    }
+                }, 800);
             },
             editModeToggle: function() { // режим редактирования monthly_spend On/Off
                 if (this.localMonthList.length > 0){

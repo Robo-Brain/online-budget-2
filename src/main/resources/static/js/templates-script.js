@@ -107,7 +107,7 @@ function showTemplatesList() {
                     + '</div>'
                     + '<div class="sub-edit-block">'
                         + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()">Save</button>'
-                        + '<button v-if="editMode && editingIndex == index" class="delete" @click="editingIndex = null">X</button>'
+                        + '<button v-if="editMode && editingIndex == index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)">X</button>'
                         + '<button v-if="!editMode || editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit"> </button>'
                     + '</div>'
                 + '</v-touch>'
@@ -126,6 +126,7 @@ function showTemplatesList() {
                 async function getMissingSpends(openedListId) {
                     return await axios.get('spends/' + openedListId);
                 }
+                this.editingIndex = null;
             },
             editTemplate: function (index, templateId) {
                 if (this.editingIndex == index){

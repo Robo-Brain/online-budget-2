@@ -67,21 +67,16 @@ public class TemplatesListService {
     public void pushSpendToTemplateList(Integer templatesListId, Integer spendId) {
         TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
         Templates template = ts.pushSpendToTemplate(spendId, 0, true, true);
-        pushTemplateToTemplatesList(templatesList, template.getId());
-    }
 
-    TemplatesList pushTemplateToTemplatesList(TemplatesList tl, Integer templateId) {
-        if (Objects.nonNull(tl.getTemplateId())
-                && Objects.nonNull(templateId)
-                && templateId > 0){
-            if (tl.getTemplateId().length() > 0){
-                tl.setTemplateId(tl.getTemplateId() + "," + templateId); // значит там есть айдишники, нужно взять их и добавить к ним запятую + новый айди
+        if (Objects.nonNull(template.getId())
+                && template.getId() > 0){
+            if (Objects.nonNull(templatesList.getTemplateId()) && templatesList.getTemplateId().length() > 0){
+                templatesList.setTemplateId(templatesList.getTemplateId() + "," + template.getId()); // значит там есть айдишники, нужно взять их и добавить к ним запятую + новый айди
             } else {
-                tl.setTemplateId(String.valueOf(templateId)); // если нет айдишников, то не надо ставить запятую.
+                templatesList.setTemplateId(String.valueOf(template.getId())); // если нет айдишников, то не надо ставить запятую.
             }
-            tlr.save(tl);
+            tlr.save(templatesList);
         }
-        return tl;
     }
 
     TemplatesList replaceTemplateInTemplatesList(TemplatesList tl, Integer oldTemplateId, Integer newTemplateId) {
