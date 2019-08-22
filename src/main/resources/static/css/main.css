@@ -981,3 +981,23 @@ button.notice{
     border: none;
     margin-bottom: 0.3em;
 }
+
+#exceptions-button {
+    background: url(/img/warning.png) no-repeat 50%;
+    background-size: 100%;
+    width: 4em;
+    height: 4em;
+    position: fixed;
+    right: 3%;
+    top: 4%;
+    z-index: 1;
+}
+
+.amount-history {
+    margin-bottom: 1em;
+}
+
+.amount-history .item span{
+    font-size: 0.8em;
+    margin: 0 0 0 .7em;
+}

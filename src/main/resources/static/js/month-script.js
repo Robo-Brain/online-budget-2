@@ -20,6 +20,7 @@ function showLastMonth() {
                 showCreateMonthModal: false,
                 showDeleteMonthModal: false,
                 showPlusAmountMonthModal: false,
+                showAmountHistoryModal: false,
                 spendId: '',
                 missingSpendsList: [],
                 dateId: '',
@@ -36,7 +37,6 @@ function showLastMonth() {
                 totalAmountPrepaidCash: 0,
                 editingIndex: null,
                 plusIndex: null,
-                fillIndex: null,
                 notices: []
             }
         },
@@ -48,11 +48,10 @@ function showLastMonth() {
                 + '</div>'
                 + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
                         + '<div class="name-notices-block">'
-                            + '<div @click="fillIndex = index" class="name"> {{ month.spendName }} </div>'
+                            + '<div @click="showAmountHistory(month.monthlySpendsId)" class="name"> {{ month.spendName }} </div>'
                             + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
-                            + '<span class="fillAmount" v-if="fillIndex == index" :monthlySpendsId="monthlySpendsId">>></span>'
                             + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
                             + '/<span class="month-amount">{{ month.templateAmount }}</span>'
                             + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
@@ -113,12 +112,13 @@ function showLastMonth() {
                     + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
                     + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
-                + '<noMonthModal v-if="showNoMonthModal" />'
+                // + '<noMonthModal v-if="showNoMonthModal" />'
                 + '<createMonthModal v-if="showCreateMonthModal" :dateId="dateId" />'
                 + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'
                 + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
                 + '<noticeModal v-if="showNoticeModal" :notices="notices" />'
                 + '<deleteMonthModal v-if="showDeleteMonthModal" :dateId="dateId" />'
+                + '<amountHistoryModal v-if="showAmountHistoryModal" :monthlySpendsId="monthlySpendsId" />'
             + '</div>',
         watch: {
             noticesMonthlySpendsId: {
@@ -135,6 +135,10 @@ function showLastMonth() {
             }
         },
         methods: {
+            showAmountHistory: function(monthlySpendsId) {
+                this.monthlySpendsId = monthlySpendsId;
+                this.showAmountHistoryModal = true;
+            },
             setMonthAmount: function(monthlySpendId) {
                 this.monthlySpendsId = monthlySpendId;
                 this.newMonthAmount = event.target.value; // не понимаю как это работает, но работает

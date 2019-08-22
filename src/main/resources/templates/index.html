@@ -13,6 +13,9 @@
         </div>
     </th:block>
     <th:block sec:authorize="isAuthenticated()">
+        <div v-if="exceptionsArr.length > 0" id="exceptions"></div>
+        <div v-if="warningsArr.length > 0" id="warnings"></div>
+
         <div id="upper-menu">
             <div class="link">
                 <a id="upper-menu-templates" href="#">Templates</a>
@@ -21,6 +24,7 @@
                 <a id="upper-menu-spends" href="#">Spends</a>
             </div>
         </div>
+
 
         <div id="month"></div>
         <div id="allMonths"></div>
@@ -32,6 +36,7 @@
         <script type="text/javascript" src="/js/all-months-script.js"></script>
         <script type="text/javascript" src="/js/templates-script.js"></script>
         <script type="text/javascript" src="/js/spends-script.js"></script>
+        <script type="text/javascript" src="/js/warnings-script.js"></script>
 
         <script th:inline="javascript">
 
@@ -40,7 +45,25 @@
                 direction: 'horizontal'
             };
 
+            let exc = new Vue({ //exc.e.push({test1 : 'test one'})
+                el: '#exceptions',
+                data: {
+                    exceptionsArr: []
+                },
+                computed: {
+                    e: {
+                        get: function () {
+                            return this.exceptionsArr
+                        },
+                        set: function (newValue) {
+                            this.exceptionsArr.push(newValue);
+                        }
+                    }
+                }
+            });
+
             $( document ).ready(function() {
+                // warningsCheck();
                 showLastMonth();
 
                 $('#upper-menu-templates').click(function () {

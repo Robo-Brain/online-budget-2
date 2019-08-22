@@ -1,18 +1,20 @@
 package com.robo.service;
 
+import com.robo.DTOModel.NoticesDTO;
 import com.robo.Entities.MonthlySpends;
 import com.robo.Entities.Notices;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.MonthlySpendsRepo;
 import com.robo.repository.NoticesRepo;
+import com.robo.repository.SpendsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class NoticesService {
@@ -24,6 +26,9 @@ public class NoticesService {
     NoticesRepo nr;
 
     @Autowired
+    SpendsRepo sr;
+
+    @Autowired
     MonthlySpendsService mss;
 
     public void addNotice(Integer monthlySpendId, String text, Boolean remind) {
@@ -33,7 +38,7 @@ public class NoticesService {
             notice.setMonthlySpendId(msId);
             notice.setText(text);
             notice.setRemind(remind);
-            notice.setCreationDate(LocalDate.now());
+            notice.setCreationDate(Date.valueOf(LocalDate.now()));
             nr.save(notice);
         }
     }
@@ -78,22 +83,39 @@ public class NoticesService {
         return result;
     }
 
-    public List<Map<String, String>> getAllReminds() {
+    public List<NoticesDTO> getAllReminds() {
         List<Notices> noticesList = nr.findAllByRemind(true);
-        List<Map<String, String>> result = new ArrayList<>();
+        List<NoticesDTO> result = new ArrayList<>();
         if (!noticesList.isEmpty()){
-            noticesList.forEach(remind -> {
-                Map<String, String> tmpMap = new HashMap<>();
-                MonthlySpends ms = msr.findOneById(remind.getMonthlySpendId()).orElseThrow(NotFoundException::new);
-                tmpMap.put("id", remind.getId().toString());
-                tmpMap.put("text", remind.getText());
-                tmpMap.put("spendName", ms.getTemplates().getSpends().getName());
-                tmpMap.put("date", ms.getDates().getDate().toString());
-                tmpMap.put("creationDate", remind.getCreationDate().toString());
-                result.add(tmpMap);
+            noticesList.forEach(notice -> {
+                MonthlySpends ms = msr.findOneById(notice.getMonthlySpendId()).orElseThrow(NotFoundException::new);
+
+                NoticesDTO noticesDTO = new NoticesDTO();
+                noticesDTO.setNoticeId(notice.getId());
+                noticesDTO.setText(notice.getText());
+                noticesDTO.setSpendName(ms.getTemplates().getSpends().getName());
+                noticesDTO.setCreationDate(notice.getCreationDate());
+                noticesDTO.setDate(ms.getDates().getDate());
+                result.add(noticesDTO);
             });
         }
         return result;
     }
 
+    public List<NoticesDTO> getMissingNotes() {
+        List<Notices> allNotices = nr.findAll();
+        List<Notices> noticesList = allNotices.stream().filter(notice -> !msr.findOneById(notice.getMonthlySpendId()).isPresent()).collect(Collectors.toList());
+
+        List<NoticesDTO> result = new ArrayList<>();
+        noticesList.forEach(notice -> {
+            NoticesDTO noticesDTO = new NoticesDTO();
+            noticesDTO.setNoticeId(notice.getId());
+            noticesDTO.setText(notice.getText());
+            noticesDTO.setSpendName(sr.findOneById(notice.getSpendId()).getName());
+            noticesDTO.setCreationDate(notice.getCreationDate());
+
+            result.add(noticesDTO);
+        });
+        return result;
+    }
 }

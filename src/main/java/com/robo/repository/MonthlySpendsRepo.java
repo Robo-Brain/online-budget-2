@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MonthlySpendsRepo extends JpaRepository<MonthlySpends, Integer> {
+
     Optional<List<MonthlySpends>> findAllByDateId(Integer dateId);
+
     Optional<List<MonthlySpends>> findAllByDateIdAndTemplateId(Integer dateId, Integer templateId);
 
     Optional<MonthlySpends> findOneById(Integer dateId);

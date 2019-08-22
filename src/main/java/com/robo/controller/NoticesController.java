@@ -1,5 +1,6 @@
 package com.robo.controller;
 
+import com.robo.DTOModel.NoticesDTO;
 import com.robo.Entities.Notices;
 import com.robo.repository.NoticesRepo;
 import com.robo.service.NoticesService;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("notices")
@@ -25,7 +25,7 @@ public class NoticesController {
     }
 
     @GetMapping("/reminds")
-    public List<Map<String, String>> getAllReminds() {
+    public List<NoticesDTO> getAllReminds() {
         return ns.getAllReminds();
     }
 
@@ -57,6 +57,11 @@ public class NoticesController {
     @PostMapping("/muteNotice/{noticeId}")
     public List<Notices> muteNotice(@PathVariable Integer noticeId) {
         return ns.muteNotice(noticeId);
+    }
+
+    @GetMapping("/getMissingNotes")
+    public List<NoticesDTO> getMissingNotes() {
+        return ns.getMissingNotes();
     }
 
 }

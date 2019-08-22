@@ -1,3 +1,71 @@
+Vue.component('amountHistoryModal', {
+    props: ['monthlySpendsId'],
+    data: function() {
+        return {
+            subModal: true,
+            amountHistoryArr: []
+        }
+    },
+    template:
+    '<div class="modal">'
+        + '<transition name="slideIn" appear>'
+            + '<div v-if="subModal" class="modal-content">'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'
+                    + '<div class="amount-history" v-if="amountHistoryArr.length > 0" v-for="amountHistory in amountHistoryArr">'
+                        + '{{amountHistory[0].date}}'
+                        + '<div class="item" v-for="item in amountHistory">'
+                            + '<div v-if="item.edits.length > 1" v-for="edits in item.edits">'
+                                + '<span>{{ edits.time }} - {{ edits.amount }}р.</span>'
+                            + '</div>'
+                            + '<div v-if="item.edits.length < 2 || !item.edits.length">'
+                                + '<span>{{ item.edits.time }} - {{ item.edits.amount }}р.</span>'
+                            + '</div>'
+                        + '</div>'
+                    + '</div>'
+            + '</div>'
+        + '</transition>'
+    + '</div>',
+    methods: {
+        closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showAmountHistoryModal = false;
+            }, 500);
+        }
+    },
+    created: function () {
+        let self = this;
+        axios.get('monthAmountHistory/' + this.monthlySpendsId)
+            .then(result => {
+                if (result.data.length < 1) {this.closeModal()}
+                    result.data.forEach(function (x) {
+                        let tmpArr = [];
+                        if (Object.keys(x.map).length > 1){
+                            let arr = [];
+                            Object.keys(x.map).forEach(function (y) {
+                                let hours = '' + new Date(y).getHours();
+                                let minutes = '' + new Date(y).getMinutes();
+                                hours = hours.length === 1 ? '0' + hours: hours;
+                                minutes = minutes.length === 1 ? '0' + minutes: minutes;
+                                let time = hours + ':' + minutes;
+                                arr.push({time: time, amount: x.map[y]});
+                            });
+                            tmpArr.push({date: x.date, edits : arr});
+                        } else {
+                            let hours = '' + new Date(Object.keys(x.map)).getHours();
+                            let minutes = '' + new Date(Object.keys(x.map)).getMinutes();
+                            hours = hours.length === 1 ? '0' + hours: hours;
+                            minutes = minutes.length === 1 ? '0' + minutes: minutes;
+                            let time = hours + ':' + minutes;
+                            tmpArr.push({date: x.date, edits: {time: time, amount: Object.values(x.map).toString()}});
+                        }
+                        self.amountHistoryArr.push(tmpArr);
+                    });
+            });
+    }
+});
+
 Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMonthModal" :dateId="dateId" />
         props: ['dateId'],
         data: function() {
@@ -314,6 +382,7 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                         break;
                 }
             });
+
     }
 });
 

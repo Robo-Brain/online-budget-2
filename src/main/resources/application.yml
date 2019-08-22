@@ -16,10 +16,12 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-      connection:
-        characterEncoding=utf-8
-        CharSet=utf-8
-        useUnicode=true
+        jdbc:
+          time_zone=UTC+5
+        connection:
+          characterEncoding=utf-8
+          CharSet=utf-8
+          useUnicode=true
   thymeleaf:
     cache: false
   http:

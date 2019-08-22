@@ -3,7 +3,6 @@ package com.robo.Entities;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @Data
@@ -37,6 +36,10 @@ public class Notices {
     @Column(name = "creationDate", nullable = false)
     @Getter
     @Setter
-    LocalDate creationDate;
+    java.sql.Date creationDate;
 
+    @Column(name = "spend_id")
+    @Getter
+    @Setter
+    Integer spendId;
 }
