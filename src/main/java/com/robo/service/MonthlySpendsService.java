@@ -1,7 +1,10 @@
 package com.robo.service;
 
 import com.robo.DTOModel.MonthlySpendsDTO;
-import com.robo.Entities.*;
+import com.robo.Entities.Dates;
+import com.robo.Entities.MonthlySpends;
+import com.robo.Entities.Templates;
+import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.DatesException;
 import com.robo.exceptions.NotFoundException;
 import com.robo.repository.*;
@@ -10,11 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class MonthlySpendsService {
@@ -33,6 +36,9 @@ public class MonthlySpendsService {
 
     @Autowired
     MonthAmountHistoryRepo mahr;
+
+    @Autowired
+    MonthAmountHistoryService mahs;
 
     @Autowired
     TemplatesListService tls;
@@ -167,18 +173,7 @@ public class MonthlySpendsService {
         if (!ms.getMonthAmount().equals(newAmount)){
             ms.setMonthAmount(newAmount);
             msr.save(ms);
-
-            MonthAmountHistory mah = new MonthAmountHistory();
-            mah.setDate(Date.valueOf(LocalDate.now()));
-
-            Calendar cal = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-            mah.setTime(Time.valueOf(sdf.format(cal.getTime())));
-
-            mah.setMonthlySpendsId(monthlySpendsId);
-            mah.setAmount(newAmount);
-            System.out.println(mah);
-            mahr.save(mah);
+            mahs.addNewHistoryElement(monthlySpendsId, newAmount);
         }
         return getMonthsDTOByDateID(ms.getDateId());
     }

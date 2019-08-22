@@ -6,7 +6,12 @@ import com.robo.repository.MonthAmountHistoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -39,4 +44,20 @@ public class MonthAmountHistoryService {
         return mahDTOList;
     }
 
+    public void addNewHistoryElement(Integer monthlySpendsId, Integer newAmount) {
+        MonthAmountHistory mah = new MonthAmountHistory();
+
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
+        java.util.Date time = cal.getTime();//fkin heroku have no timezone UTC+5
+        time.setHours(time.getHours() + 5);
+
+        mah.setDate(Date.valueOf(LocalDate.now()));
+        mah.setTime(Time.valueOf(sdf.format(time.getTime())));
+        mah.setMonthlySpendsId(monthlySpendsId);
+        mah.setAmount(newAmount);
+
+        mahr.save(mah);
+    }
 }
