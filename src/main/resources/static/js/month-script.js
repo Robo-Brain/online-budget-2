@@ -29,12 +29,11 @@ function showLastMonth() {
                 isCash: '',
                 isSalary: '',
                 editMode: false,
-                // deleteMode: true,
                 monthlySpendsId: '',
-                totalAmountSalaryCard: 0,
-                totalAmountSalaryCash: 0,
-                totalAmountPrepaidCard: 0,
-                totalAmountPrepaidCash: 0,
+                totals: {
+                    totalAmountSalaryCard: 0, totalAmountSalaryCash: 0, totalAmountPrepaidCard: 0, totalAmountPrepaidCash: 0,
+                    depositSalaryCard: 0, depositSalaryCash: 0, depositPrepaidCard: 0, depositPrepaidCash: 0
+                },
                 editingIndex: null,
                 plusIndex: null,
                 notices: []
@@ -80,24 +79,30 @@ function showLastMonth() {
                 + '<div v-if="!editMode" class="total-amount">'
                     + '<div class="salary-block">'
                         + '<div class="salary-total">'
-                            + 'ЗП: {{ totalAmountSalaryCash + totalAmountSalaryCard }}<span>{</span>'
+                            + 'ЗП: '
+                                + '{{ totals.totalAmountSalaryCash + totals.totalAmountSalaryCard - totals.depositSalaryCard - totals.depositSalaryCash }} '
+                                + '({{ totals.totalAmountSalaryCash + totals.totalAmountSalaryCard }})'
+                                + '<span>{</span>'
                         + '</div>'
                         + '<div class="cash-total">'
-                            + '<button class="cash"> </button> {{ totalAmountSalaryCash }}'
+                            + '<button class="cash"> </button> {{ totals.totalAmountSalaryCash - totals.depositSalaryCash }} ({{ totals.totalAmountSalaryCash }})'
                         + '</div>'
                         + '<div class="card-total">'
-                            + '<button class="card"> </button> {{ totalAmountSalaryCard }}'
+                            + '<button class="card"> </button> {{ totals.totalAmountSalaryCard - totals.depositSalaryCard }} ({{ totals.totalAmountSalaryCard }})'
                         + '</div>'
                     + '</div>'
                     + '<div class="prepaid-block">'
                         + '<div class="prepaid-total">'
-                            + 'Аванс: {{ totalAmountPrepaidCash + totalAmountPrepaidCard }}<span>{</span>'
+                            + 'Аванс: '
+                                + '{{ totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard - totals.depositPrepaidCard - totals.depositPrepaidCash }} '
+                                + '({{ totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard }})'
+                                + '<span>{</span>'
                         + '</div>'
                         + '<div class="cash-total">'
-                            + '<button class="cash"> </button> {{ totalAmountPrepaidCash }}'
+                            + '<button class="cash"> </button> {{ totals.totalAmountPrepaidCash - totals.depositPrepaidCash }} ({{ totals.totalAmountPrepaidCash }})'
                         + '</div>'
                         + '<div class="card-total">'
-                            + '<button class="card"> </button> {{ totalAmountPrepaidCard }}'
+                            + '<button class="card"> </button> {{ totals.totalAmountPrepaidCard - totals.depositPrepaidCard }} ({{ totals.totalAmountPrepaidCard }})'
                         + '</div>'
                     + '</div>'
                 + '</div>'
@@ -112,7 +117,7 @@ function showLastMonth() {
                     + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
                     + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
-                // + '<noMonthModal v-if="showNoMonthModal" />'
+                + '<noMonthModal v-if="showNoMonthModal" />'
                 + '<createMonthModal v-if="showCreateMonthModal" :dateId="dateId" />'
                 + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'
                 + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
@@ -126,10 +131,40 @@ function showLastMonth() {
                 deep: true
             },
             localMonthList: {
-                handler: function (val, oldVal) {},
+                handler: function (val, oldVal) {
+                    this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
+                    this.totals.depositSalaryCard = this.totals.depositSalaryCash = this.totals.depositPrepaidCard = this.totals.depositPrepaidCash = null;
+                    for (const item of this.localMonthList){
+                        this.totals.totalAmountSalaryCash = item.salary && item.cash ? this.totals.totalAmountSalaryCash + item.templateAmount : this.totals.totalAmountSalaryCash;
+                        this.totals.totalAmountSalaryCard = item.salary && !item.cash ? this.totals.totalAmountSalaryCard + item.templateAmount : this.totals.totalAmountSalaryCard;
+                        this.totals.totalAmountPrepaidCash = !item.salary && item.cash ? this.totals.totalAmountPrepaidCash + item.templateAmount : this.totals.totalAmountPrepaidCash;
+                        this.totals.totalAmountPrepaidCard = !item.salary && !item.cash ? this.totals.totalAmountPrepaidCard + item.templateAmount : this.totals.totalAmountPrepaidCard;
+
+                        this.totals.depositSalaryCash = item.salary && item.cash ? this.totals.depositSalaryCash + item.monthAmount : this.totals.depositSalaryCash;
+                        this.totals.depositSalaryCard = item.salary && !item.cash ? this.totals.depositSalaryCard + item.monthAmount : this.totals.depositSalaryCard;
+                        this.totals.depositPrepaidCash = !item.salary && item.cash ? this.totals.depositPrepaidCash + item.monthAmount : this.totals.depositPrepaidCash;
+                        this.totals.depositPrepaidCard = !item.salary && !item.cash ? this.totals.depositPrepaidCard + item.monthAmount : this.totals.depositPrepaidCard;
+                    }
+                },
                 deep: true
             },
             date: {
+                handler: function (val, oldVal) {},
+                deep: true
+            },
+            totalAmountSalaryCash: {
+                handler: function (val, oldVal) {},
+                deep: true
+            },
+            totalAmountSalaryCard: {
+                handler: function (val, oldVal) {},
+                deep: true
+            },
+            totalAmountPrepaidCash: {
+                handler: function (val, oldVal) {},
+                deep: true
+            },
+            totalAmountPrepaidCard: {
                 handler: function (val, oldVal) {},
                 deep: true
             }
@@ -160,30 +195,24 @@ function showLastMonth() {
                     this.showSpendInput = false;
                     this.templateAmount = '';
                     this.editMode = !this.editMode;
-                    // this.deleteMode = true;
                 }
             },
             setAmount: function(event, index, monthlySpendsId) { // установка новой суммы для spend в режиме редактирования monthly_spend
                 this.editingIndex = index;
                 this.templateAmount = event.target.value;
                 this.monthlySpendsId = monthlySpendsId;
-                // this.deleteMode = false;
             },
             salaryToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
                 this.isSalary = event.target.className !== 'salary';
                 event.target.className = this.isSalary ? 'salary' : 'prepaid';
-                // this.deleteMode = false;
             },
             cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
-                console.log("cashToggle: monthlySpendsId: " + monthlySpendsId);
                 this.monthlySpendsId = monthlySpendsId;
-                console.log("cashToggle: this.monthlySpendsId: " + this.monthlySpendsId);
                 this.editingIndex = index;
                 this.isCash = event.target.className !== 'cash';
                 event.target.className = this.isCash ? 'cash' : 'card';
-                // this.deleteMode = false;
             },
             saveSpendInMonth: function () {
                 console.log(this.monthlySpendsId);
@@ -195,17 +224,8 @@ function showLastMonth() {
                     ).then(async result => {
                         if(result.data.length > 0) {
                             this.localMonthList = result.data;
-                            await getTotalAmounts(result.data).then(amountsArr => {
-                                this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
-                                this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
-                                this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
-                                this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
-                            });
-                            console.log(this.spendId + ' / ' + this.templateAmount + ' / ' +  this.isCash + ' / ' +  this.isSalary);
                             this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
                             this.editingIndex = null;
-                            // this.editMode = false;
-                            // this.deleteMode = true;
                         }
                     });
                 } else {
@@ -224,13 +244,6 @@ function showLastMonth() {
                                     this.missingSpendsList = res.data;
                                 });
 
-                                await getTotalAmounts(result.data).then(amountsArr => {
-                                    this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
-                                    this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
-                                    this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
-                                    this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
-                                });
-
                                 this.spendId = this.templateAmount = this.isCash = this.isSalary = '';
                                 this.showSpendInput = false;
                             }
@@ -240,12 +253,6 @@ function showLastMonth() {
                 axios.delete('month/deleteSpendFromMonth?monthId=' + monthlySpendsId).then(async result => {
                     await getMissingSpends(result.data[0].dateId).then(res => {
                         this.missingSpendsList = res.data;
-                    });
-                    await getTotalAmounts(result.data).then(amountsArr => {
-                        this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
-                        this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
-                        this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
-                        this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
                     });
                     this.localMonthList = result.data;
                 });
@@ -305,23 +312,20 @@ function showLastMonth() {
                             this.noticesMonthlySpendsId.push(month.monthlySpendsId)
                         }
                     });
-                    // this.localMonthList = result.data;
 
-                    // axios.get('notices')
-                    //     .then(result => {
-                    //         result.data.forEach(note => {
-                    //             this.noticesMonthlySpendsId.push(note.monthlySpendId);//this.noticesMonthlySpendsId
-                    //         });
-                    //     });
+                    this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
+                    this.totals.depositSalaryCard = this.totals.depositSalaryCash = this.totals.depositPrepaidCard = this.totals.depositPrepaidCash = null;
+                    for (const item of this.localMonthList){
+                        this.totals.totalAmountSalaryCash = item.salary && item.cash ? this.totals.totalAmountSalaryCash + item.templateAmount : this.totals.totalAmountSalaryCash;
+                        this.totals.totalAmountSalaryCard = item.salary && !item.cash ? this.totals.totalAmountSalaryCard + item.templateAmount : this.totals.totalAmountSalaryCard;
+                        this.totals.totalAmountPrepaidCash = !item.salary && item.cash ? this.totals.totalAmountPrepaidCash + item.templateAmount : this.totals.totalAmountPrepaidCash;
+                        this.totals.totalAmountPrepaidCard = !item.salary && !item.cash ? this.totals.totalAmountPrepaidCard + item.templateAmount : this.totals.totalAmountPrepaidCard;
 
-                    await getTotalAmounts(result.data)
-                        .then(amountsArr => {
-                            this.totalAmountSalaryCash = amountsArr.amountSalaryCash;
-                            this.totalAmountSalaryCard = amountsArr.amountSalaryCard;
-                            this.totalAmountPrepaidCash = amountsArr.amountPrepaidCash;
-                            this.totalAmountPrepaidCard = amountsArr.amountPrepaidCard;
-                    });
-
+                        this.totals.depositSalaryCash = item.salary && item.cash ? this.totals.depositSalaryCash + item.monthAmount : this.totals.depositSalaryCash;
+                        this.totals.depositSalaryCard = item.salary && !item.cash ? this.totals.depositSalaryCard + item.monthAmount : this.totals.depositSalaryCard;
+                        this.totals.depositPrepaidCash = !item.salary && item.cash ? this.totals.depositPrepaidCash + item.monthAmount : this.totals.depositPrepaidCash;
+                        this.totals.depositPrepaidCard = !item.salary && !item.cash ? this.totals.depositPrepaidCard + item.monthAmount : this.totals.depositPrepaidCard;
+                    }
                     await getMissingSpends(this.dateId)
                         .then(res => this.missingSpendsList = res.data);
                 });
@@ -332,24 +336,6 @@ function showLastMonth() {
         el: '#month',
         template: '<div id="month"><month-list /></div>'
     });
-
-    async function getTotalAmounts(data) {
-        let amountSalary = amountPrepaid = amountSalaryCash = amountSalaryCard = amountPrepaidCash = amountPrepaidCard = 0;
-
-        for await(const item of data){
-            amountSalaryCash = item.salary && item.cash ? amountSalaryCash + item.templateAmount : amountSalaryCash;
-            amountSalaryCard = item.salary && !item.cash ? amountSalaryCard + item.templateAmount : amountSalaryCard;
-            amountPrepaidCash = !item.salary && item.cash ? amountPrepaidCash + item.templateAmount : amountPrepaidCash;
-            amountPrepaidCard = !item.salary && !item.cash ? amountPrepaidCard + item.templateAmount : amountPrepaidCard;
-        }
-
-        return await {
-            amountSalaryCash: amountSalaryCash,
-            amountSalaryCard: amountSalaryCard,
-            amountPrepaidCash: amountPrepaidCash,
-            amountPrepaidCard: amountPrepaidCard
-        }
-    }
 
     async function getMissingSpends(id) {
         return await axios.get('month/getMonthlyMissingSpends?monthlyDateId=' + id);

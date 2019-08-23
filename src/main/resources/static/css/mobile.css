@@ -234,17 +234,15 @@
     }
 
     .total-amount {
-        height: 5em;
-        width: 100%;
-        margin-bottom: 1em;
+        width: 90%;
     }
     .salary-block, .prepaid-block {
-        width: 48%;
-        float: left;
+        width: 100%;
         padding: 0 !important;
     }
     .prepaid-block {
-        width: 52% !important;
+        width: 100% !important;
+        margin-bottom: 1em;
     }
 
     .modal-plus-content {

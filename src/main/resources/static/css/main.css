@@ -553,7 +553,7 @@ button.salary:after {
 
 .total-amount {
     height: 5em;
-    width: 65%;
+    width: 80%;
     margin: 0 auto;
 }
 .salary-block, .prepaid-block {
