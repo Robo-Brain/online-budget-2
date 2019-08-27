@@ -33,7 +33,14 @@ Vue.component('amountHistoryModal', {
     },
     created: function () {
         axios.get('monthAmountHistory/' + this.monthlySpendsId)
-            .then(result => this.amountHistoryArr = result.data);
+            .then(result => {
+                if (!result.data || result.data.length < 1){
+                    this.subModal = false;
+                    this.$parent.showAmountHistoryModal = false;
+                } else {
+                    this.amountHistoryArr = result.data;
+                }
+            });
     }
 });
 

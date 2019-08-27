@@ -52,7 +52,7 @@ public class MonthAmountHistoryService {
 
     public Map<Date, List<MonthAmountHistory>> getAmountHistoryByMonthlySpendsId(Integer monthlySpendsId){
         List<MonthAmountHistory> mahList = findAllByMonthlySpendsIdAndPlusOneDay(monthlySpendsId);
-        Map<Date, List<MonthAmountHistory>> result = new HashMap<>();
+        Map<Date, List<MonthAmountHistory>> result = new LinkedHashMap<>();
         mahList.forEach(mah -> result.put(mah.getDate(), new ArrayList<>()));
         mahList.forEach(mah -> result.get(mah.getDate()).add(mah));
         return result;
@@ -69,7 +69,7 @@ public class MonthAmountHistoryService {
 
         if (historyListForMonthlySpendsId.isEmpty()
                 || historyListForMonthlySpendsId.stream()
-                    .noneMatch(history -> history.getAmount() > newAmount)){ // если нет истории для этого monthlySpendsId, то сохранить "не глядя" или если старая сумма НЕ МЕНЬШЕ новой
+                .noneMatch(history -> history.getAmount() >= newAmount)){ // если нет истории для этого monthlySpendsId, то сохранить "не глядя" или если старая сумма НЕ МЕНЬШЕ новой
             MonthAmountHistory mah = new MonthAmountHistory();
             mah.setDate(Date.valueOf(LocalDate.now()));
             mah.setTime(Time.valueOf(sdf.format(time.getTime())));

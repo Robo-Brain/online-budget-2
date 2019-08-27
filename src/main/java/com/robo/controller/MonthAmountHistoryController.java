@@ -18,7 +18,11 @@ public class MonthAmountHistoryController {
 
     @GetMapping("/{monthlySpendId}")
     public Map<Date, List<MonthAmountHistory>> getAmountHistoryByMonthlySpendsId(@PathVariable Integer monthlySpendId) {
-        return mahs.getAmountHistoryByMonthlySpendsId(monthlySpendId);
+        Map<Date, List<MonthAmountHistory>> result = mahs.getAmountHistoryByMonthlySpendsId(monthlySpendId);
+        if (result.size() < 1) {
+            return null;
+        }
+        return result;
     }
 
     @PostMapping
