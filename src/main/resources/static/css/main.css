@@ -1001,3 +1001,17 @@ button.notice{
     font-size: 0.8em;
     margin: 0 0 0 .7em;
 }
+
+.amount-history .item input{
+    outline: none;
+    width: 50%;
+    border-radius: 0.2em;
+    border: solid #2aad72 1px;
+    background-color: transparent;
+    padding: 0.1em;
+}
+
+.amount-history .item input:hover, .amount-history .item input:active{
+    border: solid transparent 1px;
+    background-color: #fff;
+}

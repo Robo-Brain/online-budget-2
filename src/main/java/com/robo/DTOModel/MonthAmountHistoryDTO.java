@@ -3,7 +3,6 @@ package com.robo.DTOModel;
 import lombok.*;
 
 import java.sql.Time;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -16,6 +15,14 @@ public class MonthAmountHistoryDTO {
 
     @Getter
     @Setter
-    Map<Time, Integer> map;
+    Time time;
+
+    @Getter
+    @Setter
+    Integer amount;
+
+    @Getter
+    @Setter
+    String comment;
 
 }

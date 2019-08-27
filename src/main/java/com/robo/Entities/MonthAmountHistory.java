@@ -2,6 +2,7 @@ package com.robo.Entities;
 
 import lombok.*;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 
@@ -40,4 +41,10 @@ public class MonthAmountHistory {
     @Setter
     @NonNull
     Integer amount;
+
+    @Column(name = "comment")
+    @Getter
+    @Setter
+    @Nullable
+    String comment;
 }
