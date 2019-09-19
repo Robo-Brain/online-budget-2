@@ -248,10 +248,11 @@
     .modal-plus-content {
         /*top: .3em;*/
         /* opacity: .9; */
-        left: -38%;
+        left: -3.5em;
     }
     .modal-plus-content input {
-        font-size: 1em;
+        font-size: 1em !important;
+        width: 5em !important;
     }
     .modal-plus-content button{
         /*padding: 0 .7em;*/
