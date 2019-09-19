@@ -246,15 +246,16 @@
     }
 
     .modal-plus-content {
-        top: .3em;
+        /*top: .3em;*/
         /* opacity: .9; */
-        left: -29.8%;
+        left: -38%;
     }
     .modal-plus-content input {
         font-size: 1em;
     }
     .modal-plus-content button{
-        padding: 0 .7em;
+        /*padding: 0 .7em;*/
+        padding: .45em 1em;
         opacity: 1;
     }
 

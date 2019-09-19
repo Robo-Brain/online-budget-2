@@ -746,7 +746,7 @@ button.notice{
     font-weight: bold;
     border: solid #ffffff 1px;
     border-radius: .1em;
-    margin: 0 .1em;
+    margin: 0 .2em 0 0;
     opacity: .8;
     background-color: transparent;
     box-shadow: 0 0 0 128px rgba(0, 0, 0, 0.25) inset;
