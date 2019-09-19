@@ -306,8 +306,8 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                 self.$parent.showNoMonthModal = false;
             }, 500);
             let d = new Date();
-            d.setMinutes(d.getMinutes()+1);
-            localStorage.date = d; // записать время+1мин в localStorage
+            d.setMinutes(d.getMinutes()+5);
+            localStorage.date = d; // записать время+5мин в localStorage
         },
         warningToggle: function () {
             this.warning = false;
@@ -404,7 +404,7 @@ Vue.component('deleteMonthModal', {
 });
 
 Vue.component('plusAmountMonthModal', {
-    props: ['monthlySpendsId'],
+    props: ['monthlySpendsId', 'templateAmount'],
     data: function() {
         return {
             subModal: true,
@@ -415,6 +415,7 @@ Vue.component('plusAmountMonthModal', {
         '<transition name="slideToRight" appear>'
             + '<div v-if="subModal" class="modal-plus-content">'
                 // + '<div @click="closeModal()" class="modal-button close">×</div>'
+                + '<button @click="fillMonthAmount()"> ✓ </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" type="number" />'
                 + '<button @click="plusMonthAmount()"> + </button>'
             + '</div>'
@@ -434,6 +435,17 @@ Vue.component('plusAmountMonthModal', {
                         this.$parent.localMonthList = result.data;
                         this.closeModal();
                     })
+            }
+        },
+        fillMonthAmount: function () {
+            if (this.templateAmount > 0 && this.monthlySpendsId > 0){
+                axios.put('month/saveMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&amount=' + this.templateAmount)
+                    .then(result => {
+                        this.$parent.localMonthList = result.data;
+                        this.closeModal();
+                    })
+            } else if(this.templateAmount === 0) {
+                this.closeModal();
             }
         }
     }

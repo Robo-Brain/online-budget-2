@@ -731,6 +731,7 @@ button.notice{
 .modal-plus-content {
     position: absolute;
     top: 0;
+    left: -20.5%;
     /* left: 1.3em; */
     /* padding: 22%; */
     display: flex;
@@ -739,9 +740,16 @@ button.notice{
 .modal-plus-content button {
     /* margin-left: .3em; */
     font-size: 1em;
+    color: #fff;
     float: right;
     padding: 0 .5em;
     font-weight: bold;
+    border: solid #ffffff 1px;
+    border-radius: .1em;
+    margin: 0 .1em;
+    opacity: .8;
+    background-color: transparent;
+    box-shadow: 0 0 0 128px rgba(0, 0, 0, 0.25) inset;
 }
 .slideToRight-enter-active {
     animation: slideToRight .15s ease-out;

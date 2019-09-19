@@ -246,14 +246,16 @@
     }
 
     .modal-plus-content {
-        top: .2em;
-        opacity: .9;
+        top: .3em;
+        /* opacity: .9; */
+        left: -29.8%;
     }
     .modal-plus-content input {
         font-size: 1em;
     }
     .modal-plus-content button{
         padding: 0 .7em;
+        opacity: 1;
     }
 
 }

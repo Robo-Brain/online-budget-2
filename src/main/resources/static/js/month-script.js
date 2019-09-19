@@ -51,10 +51,10 @@ function showLastMonth() {
                             + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
-                            + '<input @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
+                            + '<input type="number" @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
                             + '/<span class="month-amount">{{ month.templateAmount }}</span>'
                             + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
-                            + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" />'
+                            + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" :templateAmount="month.templateAmount" />'
                         + '</div>'
                         + '<div class="buttons">'
                             + '<button v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
@@ -67,7 +67,7 @@ function showLastMonth() {
                         + ' {{ month.spendName }}'
                     + '</div>'
                     + '<div class="deposited" v-bind:class="{ edit: editMode }">'
-                        + '<input v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
+                        + '<input type="number" v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
                     + '</div>'
                     + '<div class="buttons" v-bind:class="{ edit: editMode }">'
                         + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
@@ -187,7 +187,7 @@ function showLastMonth() {
                             + self.newMonthAmount)
                             .then(result => self.localMonthList = result.data); console.log('updated ' + self.newMonthAmount)
                     }
-                }, 800);
+                }, 1500);
             },
             editModeToggle: function() { // режим редактирования monthly_spend On/Off
                 if (this.localMonthList.length > 0){
@@ -215,7 +215,6 @@ function showLastMonth() {
                 event.target.className = this.isCash ? 'cash' : 'card';
             },
             saveSpendInMonth: function () {
-                console.log(this.monthlySpendsId);
                 if (this.monthlySpendsId > 0){
                     axios.put('month/editMonthSpend?monthlySpendsId=' + this.monthlySpendsId
                         + '&amount=' + this.templateAmount

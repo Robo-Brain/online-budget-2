@@ -2,6 +2,7 @@ package com.robo.service;
 
 import com.robo.DTOModel.TemplatesDTO;
 import com.robo.DTOModel.TemplatesListDTO;
+import com.robo.Entities.Dates;
 import com.robo.Entities.Templates;
 import com.robo.Entities.TemplatesList;
 import com.robo.exceptions.NotFoundException;
@@ -79,7 +80,7 @@ public class TemplatesListService {
         }
     }
 
-    TemplatesList replaceTemplateInTemplatesList(TemplatesList tl, Integer oldTemplateId, Integer newTemplateId) {
+    private TemplatesList replaceTemplateInTemplatesList(TemplatesList tl, Integer oldTemplateId, Integer newTemplateId) {
         List<String> ids = Arrays.asList(tl.getTemplateId().split(","));
         Collections.replaceAll(ids, String.valueOf(oldTemplateId), String.valueOf(newTemplateId));
         tl.setTemplateId(ids.stream().collect(Collectors.joining(",","","")));
@@ -140,10 +141,14 @@ public class TemplatesListService {
         TemplatesList tl = tlr.findOneById(id).orElseThrow(NotFoundException::new);
         Integer templatesListId = tl.getId();
         tlr.delete(tl);
-        dr.findAllByTemplateListId(templatesListId).forEach(date -> {
+
+        List<Dates> datesList = dr.findAllByTemplateListId(templatesListId);
+        datesList.forEach(date -> {
             date.setTemplateListId(null);
             dr.save(date);
         });
+
+        Arrays.asList(tl.getTemplateId().split(",")).forEach(templateId -> ts.deleteTemplate(Integer.valueOf(templateId))); // удалить template, если его нет в месяцах
     }
 
     public TemplatesList getEnabledTemplate() {
@@ -169,7 +174,7 @@ public class TemplatesListService {
         tlr.save(tl);
     }
 
-    public Boolean templatesListContainsTemplateWithId(Integer templateId) {
+    Boolean templatesListContainsTemplateWithId(Integer templateId) {
         return tlr.findAll()
                 .stream()
                 .map(tl ->
