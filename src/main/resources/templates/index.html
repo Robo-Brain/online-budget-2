@@ -64,19 +64,31 @@
 
             $( document ).ready(function() {
                 // warningsCheck();
-                showLastMonth();
+                if (localStorage.page === 'TL'){
+                    showTemplatesList();
+                } else if (localStorage.page === 'AM') {
+                    showAllMonths();
+                } else if (localStorage.page === 'SL') {
+                    showSpendsList();
+                } else {
+                    showLastMonth();
+                }
 
                 $('#upper-menu-templates').click(function () {
+                    localStorage.page = 'TL';
                     showTemplatesList();
                 });
 
                 $('#upper-menu-month').click(function () {
+                    localStorage.page = 'LM';
                     showLastMonth();
                 });
                 $('#upper-menu-allMonths').click(function () {
+                    localStorage.page = 'AM';
                     showAllMonths();
                 });
                 $('#upper-menu-spends').click(function () {
+                    localStorage.page = 'SL';
                     showSpendsList();
                 });
 

@@ -117,15 +117,11 @@ public class TemplatesListService {
     }
 
     public List<TemplatesDTO> editTemplateInList(Integer templatesListId, Integer templateId, Integer amount, Boolean isSalary, Boolean isCash){
-        System.out.println(templatesListId + " " + templateId + " " + amount + " " + isSalary + " " + isCash);
         TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
         template = ts.editTemplate(template.getId(), amount, isSalary, isCash);
-        System.out.println("++++\n" + template);
         if (!template.getId().equals(templateId)){
             templatesList = replaceTemplateInTemplatesList(templatesList, templateId, template.getId());
-        } else {
-            System.out.println("equals id");
         }
         //найти и удалить старый templateId
         return ts.getTemplatesDTOByTemplatesListId(templatesList.getId());
