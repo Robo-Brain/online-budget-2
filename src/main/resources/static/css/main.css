@@ -116,19 +116,28 @@ button:focus {
     width: 14%;
     float: right;
 }
-.sub-edit-block  .save {
-    float: none;
-    width: 100%;
-    height: 50%;
-    border-radius: 0 0.2em 0.2em 0;
-    background-color: green;
+.sub-edit-block .save {
+    /*float: none;*/
+    /*border-radius: 0 0.2em 0.2em 0;*/
+    /*background-color: green;*/
+    border: none;
+    width: 3.5em;
+    height: 3.5em;
+    background: url(/img/save2.png) no-repeat 50%;
+    background-size: 100% 100%;
+    margin-right: .2em
 }
 .sub-edit-block .delete {
-    float: none;
-    width: 100%;
-    height: 50%;
-    border-radius: 0 0.2em 0.2em 0;
-    background-color: red;
+    /*float: none;*/
+    /*width: 100%;*/
+    /*height: 50%;*/
+    /*border-radius: 0 0.2em 0.2em 0;*/
+    /*background-color: red;*/
+    border: none;
+    width: 3em;
+    height: 3em;
+    background: url(/img/delete3.png) no-repeat 50%;
+    background-size: 100% 100%;
 }
 .sub-edit-block button.edit {
     background: url(/img/edit-black.png) no-repeat 50%;
@@ -147,7 +156,7 @@ button:focus {
 }
 
 .template-list {
-    padding: 1em;
+    padding: .6em 0;
 }
 .template-list-item {
     height: 1.5em;
@@ -177,7 +186,7 @@ button:focus {
 }
 
 .template-name {
-    width: 90%;
+    width: 95%;
     display: inline-block;
     vertical-align: text-bottom;
 }
@@ -196,7 +205,7 @@ button:focus {
     /*-2px -2px 5px 0 rgba(0,0,0,.1),*/
     /*2px 2px 5px 0 rgba(0,0,0,.1),*/
     /*-2px 2px 5px 0 rgba(0,0,0,.1);*/
-    width: 10%;
+    width: 5%;
     margin: 0.1em 0 0.1em 0;
     font-size: 1.5em;
 }
@@ -207,28 +216,35 @@ button:focus {
 }
 
 .edit-block button {
-    border-radius: 0 0.3em 0.3em 0;
-    background-color: red;
-    transition: all 1s ease 0s;
-    width: 45%;
     border: 0;
     vertical-align: top;
     font-size: 1em;
+    height:1.2em;
+    width:1.2em;
 }
 
-.edit-block button.fill, .edit-block button.edit {
-    border-radius: 0.3em 0 0 0.3em; !important;
+.edit-block button.copy {
+    background: url("/img/copy.png") no-repeat 50%;
+    background-size: 100% 100%;
+    margin-right: 5%;
+}
+.edit-block button.delete {
+    background: url("/img/delete2.png") no-repeat 50%;
+    background-size: 100% 100%;
+}
+.edit-block button.edit {
+    border-radius: 0.3em 0 0 0.3em !important;
     /*background-color: #3AD391 !important;*/
     background: rgb(59,214,145) !important;
     margin-right: 1%;
 }
 
-.template .save {
-    float: right;
-    border-radius: 0 0.2em 0.2em 0;
-    background-color: green;
-    transition: all 1s ease 0s;
-}
+/*.template .save {*/
+    /*!*float: right;*!*/
+    /*border-radius: 0 0.2em 0.2em 0;*/
+    /*background-color: green;*/
+    /*transition: all 1s ease 0s;*/
+/*}*/
 
 button.cash {
     width: 3em;
@@ -810,6 +826,11 @@ button.notice{
 .modal-content.notice label{
     font-size: 1.4em;
     vertical-align: middle;
+}
+
+.modal-content .buttonBlock{
+    width: 50%;
+    float: left;
 }
 
 .notice-text{

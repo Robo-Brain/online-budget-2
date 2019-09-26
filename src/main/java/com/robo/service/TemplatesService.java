@@ -77,6 +77,7 @@ public class TemplatesService {
         Integer newAmount = Objects.nonNull(amount) && amount > 0 ? amount : template.getAmount();
         Boolean newIsSalary = Objects.nonNull(isSalary) ? isSalary : template.isSalary();
         Boolean newIsCash = Objects.nonNull(isCash) ? isCash : template.isCash();
+        System.out.println("----\n" + newAmount + " " + newIsSalary + " " + newIsCash);
         template = pushSpendToTemplate(template.getSpendId(), newAmount, newIsSalary, newIsCash);
         return template;
     }

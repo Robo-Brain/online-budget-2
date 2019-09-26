@@ -62,9 +62,9 @@ public class MonthlySpendsController {
         }
     }
 
-    @GetMapping("/createFromEnabled")
-    public List<MonthlySpendsDTO> createMonthFromEnabledTemplatesList(){
-        mss.createMonthByEnabledTemplatesList();
+    @PostMapping("/createFromTemplateListId")
+    public List<MonthlySpendsDTO> createMonthFromTemplateListId(@RequestParam(name = "templateListId") Integer templateListId){
+        mss.createNewMonthByTemplatesListId(templateListId);
         return getLastMonth();
     }
 
@@ -73,7 +73,6 @@ public class MonthlySpendsController {
         mss.createMonthFromLastMonth();
         return getLastMonth();
     }
-
 
     @GetMapping("/checkBeforeCreateNewMonth")
     public ResponseEntity checkBeforeCreateNewMonth(@RequestParam(name = "dateId") Integer dateId){

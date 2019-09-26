@@ -7,74 +7,6 @@ function showTemplatesList() {
     $('#spends').hide();
     $('#allMonths').hide();
 
-    Vue.component('createMonthByTemplatesListModal', {
-        props: ['templatesListId'],
-        data: function() {
-            return {
-                bodyText: 'Создать новый месяц по этому шаблону?',
-                warning: false,
-                ignoreWarning: false,
-                subModal: true
-            }
-        },
-        template:
-        '<div class="modal">'// v-if="this.$parent.showCreateMonthModal"
-            + '<transition name="slideIn" appear>'
-                + '<div v-if="subModal" class="modal-content new-month">'
-                    + '<div @click="$emit(\'close\'), closeModal()" class="modal-button close">×</div>'
-                    + '<p>'
-                        + '{{ bodyText }}<br />'
-                        + '<button class="new-month-button no" @click="closeModal()">NO</button> <button :disabled="warning && !ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button><br /><br />'
-                        + '<span class="new-month-warning" v-if="warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
-                    + '</p>'
-                + '</div>'
-            + '</transition>'
-        + '</div>',
-        methods: {
-            closeModal: function () {
-                this.subModal = false;
-                let self = this;
-                setTimeout(function(){
-                    self.$parent.showCreateMonthByTemplatesListModal = false;
-                }, 500);
-                this.ignoreWarning = this.warning = false;
-                this.bodyText = 'Создать новый месяц?';
-            },
-            createNewMonth: function () {
-                if (!this.warning){
-                    axios.get('month/checkLastMonthBeforeCreateNewMonth')
-                        .then(result => {
-                            switch (result.data) {
-                                case 'MONTH_OK.FULL_NOT':
-                                    this.bodyText = 'Платежи по текущему месяцу внесены не до конца, продолжить?';
-                                    this.warning = true;
-                                    break;
-                                case 'MONTH_NOT.FULL_OK':
-                                    this.bodyText = 'Календарный месяц еще не завершен, продолжить?';
-                                    this.warning = true;
-                                    break;
-                                case 'MONTH_NOT.FULL_NOT':
-                                    this.bodyText = 'Календарный месяц еще не завершен, платежи по текущему месяцу внесены не до конца, продолжить?';
-                                    this.warning = true;
-                                    break;
-                            }
-                        })
-                } else if (this.ignoreWarning && this.templatesListId > 0){
-                    axios.put('month/createNewMonthByTemplatesListId?templateListId=' + this.templatesListId)
-                        .then(result => {
-                            this.bodyText = 'OK';
-                            let self = this;
-                            setTimeout(function(){
-                                self.closeModal();
-                            }, 1000);
-                            this.bodyText = 'OK';
-                        })
-                }
-
-            }
-        }
-    });
-
     Vue.component('single-template',{
         props: ['openedListTemplates', 'openedListId'],
         data: function() {
@@ -106,8 +38,8 @@ function showTemplatesList() {
                         + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
                     + '<div class="sub-edit-block">'
-                        + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()">Save</button>'
-                        + '<button v-if="editMode && editingIndex == index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)">X</button>'
+                        + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()"> </button>'
+                        + '<button v-if="editMode && editingIndex == index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)"> </button>'
                         + '<button v-if="!editMode || editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit"> </button>'
                     + '</div>'
                 + '</v-touch>'
@@ -175,7 +107,6 @@ function showTemplatesList() {
                  missingSpendsList: [],
                  selectedSpendToAdd: '',
                  newListName: '',
-                 showCreateMonthByTemplatesListModal: false,
                  templateListId: null,
                  templateNameEditMode: false
              }
@@ -185,9 +116,8 @@ function showTemplatesList() {
             +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
-
-                    + '<button v-if="!templateNameEditMode" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
-                    + '<input class="newNameInput" v-if="templateNameEditMode" @input="editTemplatesListName($event)" v-model="template.templateName" />'
+                    + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" @input="editTemplatesListName($event)" v-model="template.templateName" />'
+                    + '<button v-else-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
                     + '<button class="edit-template-name" @click="templateNameEditMode = !templateNameEditMode" v-if="template.id == openedListId"> </button>'
 
                     + '<single-template v-if="openedListTemplates.length > 0 && template.id == openedListId" :openedListTemplates="openedListTemplates" :openedListId="openedListId" />'
@@ -198,8 +128,8 @@ function showTemplatesList() {
                     + '</select>'
                 + '</div>'
                 + '<div class="edit-block" v-if="template.id != openedListId">'
-                    + '<button @click="createMonthFromThisTemplate(template.id)" class="fill"> => </button>'
-                    + '<button @click="deleteTemplateList(template.id)" class="delete"> X </button>'
+                    + '<button @click="copyMonthFromThisTemplate(template.id)" class="copy"> </button>'
+                    + '<button @click="deleteTemplateList(template.id)" class="delete"> </button>'
                 + '</div>'
             + '</div>'
             + '<div v-if="localTemplatesList.length == 0"><h4>Has no templates yet.</h4></div>'
@@ -207,7 +137,6 @@ function showTemplatesList() {
                 + '<input @input="handleInputListName($event.target.value)" @change="handleInputListName($event.target.value)" type="text">'
                 + '<button @click="pushNewList()" id="pushList" type="button">Add</button>'
             + '</div>'
-            + '<createMonthByTemplatesListModal v-if="showCreateMonthByTemplatesListModal" :templatesListId="templateListId" />'
         + '</div>',
         methods: {
             activateTemplate: function (templateListId) {
@@ -271,12 +200,13 @@ function showTemplatesList() {
                     // this.templatesList = newTemplatesList;
                 }
             },
-            deleteTemplateList: function(templateListId) {
-                axios.post('/templatesList/delete=' + templateListId).then(result => this.localTemplatesList = result.data)
+            copyMonthFromThisTemplate: function(templateListId) {
+                axios.post('templatesList/createTemplatesListFromAnotherTemplatesList?templatesListId=' + templateListId).then(result => {
+                    this.localTemplatesList = result.data;
+                });
             },
-            createMonthFromThisTemplate: function (templateListId) {
-                this.templateListId = templateListId;
-                this.showCreateMonthByTemplatesListModal = true;
+            deleteTemplateList: function(templateListId) {
+                axios.delete('/templatesList/delete=' + templateListId).then(result => this.localTemplatesList = result.data)
             }
         },
         created: function () {

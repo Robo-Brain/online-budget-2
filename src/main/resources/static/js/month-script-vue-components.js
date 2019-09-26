@@ -270,7 +270,9 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             hideTimeoutIsOver: false,
             subModal: true,
             bodyText: 'Создать их по активному шаблону или по платежам за предыдущий месяц?',
-            warning: false
+            warning: false,
+            templatesList: [],
+            selectedTemplateId: null
         }
     },
     mounted() {
@@ -282,6 +284,14 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
         } else {
             this.hideTimeoutIsOver = true;
         }
+        axios.get('templatesList').then(result => {
+            result.data.forEach(elem => {
+                this.templatesList.push(elem);
+                if (elem.templateEnabled) {
+                    this.selectedTemplateId = elem.id;
+                }
+            });
+        })
     },
     template:
         '<div v-if="(enabledTemplatesHasFound || previousMonthHasFound) && hideTimeoutIsOver" class="modal">' //  && this.date <= actualDate
@@ -289,12 +299,19 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
                 + '<div v-if="subModal" class="modal-content notice">'
                     + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
                     + '<p>Внимание, платежи по текущему месяцу не найдены!</p>'
-                    + '<p>'
-                        + '<span v-if="bodyText.length > 1">{{ bodyText }}<br /></span>'
-                        + '<span class="new-month-warning" v-if="warning"><input id="warning" @click="warningToggle()" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
-                        + '<button v-if="!warning" :disabled="!enabledTemplatesHasFound" @click="createMonthByEnabled()">по шаблону</button>'
-                        + '<button v-if="!warning" :disabled="!previousMonthHasFound" @click="createMonthByLast()">по месяцу</button>'
-                    + '</p>'
+                    + '<span v-if="bodyText.length > 1">{{ bodyText }}<br /></span>'
+                    + '<span class="new-month-warning" v-if="warning"><input id="warning" @click="warningToggle()" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
+                    + '<div class="buttonBlock">'
+                        + '<button v-if="!warning" :disabled="!previousMonthHasFound" @click="createMonthByLast()">по последнему месяцу</button>'
+                    + '</div>'
+                    + '<div class="buttonBlock">'
+                        + '<select v-if="!warning" @change="pushSpendToMonth()" >'
+                            + '<option v-for="template in templatesList" v-bind:value="template.id" :selected="template.templateEnabled === true" >'
+                            + '{{ template.templateName }}'
+                            + '</option>'
+                        + '</select>'
+                        + '&nbsp;<button v-if="!warning" :disabled="!enabledTemplatesHasFound" @click="createMonthBySelected()">по шаблону</button>'
+                    + '</div>'
                 + '</div>'
             + '</transition>'
         + '</div>',
@@ -313,13 +330,15 @@ Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == 
             this.warning = false;
             this.bodyText = '';
         },
-        createMonthByEnabled: function () {
-            if (this.enabledTemplatesHasFound){
-                axios.get('month/createFromEnabled').then(result => {
+        createMonthBySelected: function () {
+            if (this.selectedTemplateId > 0){
+                axios.post('month/createFromTemplateListId?templateListId=' + this.selectedTemplateId).then(result => {
                     this.$parent.localMonthList = result.data;
                     this.$parent.date = result.data[0].date;
                 });
                 this.$parent.showNoMonthModal = false;
+            } else {
+                console.log('selectedTemplateId not found or 0 less')
             }
         },
         createMonthByLast: function () {

@@ -1,7 +1,7 @@
 @media only screen and (min-width : 320px) and (max-width : 600px) {
 
     .template-name {
-        width: 70%;
+        width: 80%;
     }
 
     .template-name .newNameInput {
@@ -13,11 +13,7 @@
     }
 
     .template .edit-block {
-        width: 30%;
-    }
-
-    .template-list {
-        padding: 1em 0 0 0;
+        width: 20%;
     }
 
     .template-list-item {
@@ -31,7 +27,7 @@
         margin-right: .2em;
     }
     .month-item.templates-list .buttons{
-        width: 26%;
+        width: 28%;
         font-size: .7em;
         position: relative;
     }
@@ -44,7 +40,10 @@
         font-size: 1em;
         width: 90%;
     }
-
+    .sub-edit-block {
+        width: auto !important;
+        float: right;
+    }
     .template-list-item .edit-block{
         width: 20%;
         float: right;
@@ -90,8 +89,25 @@
     }
 
     .sub-edit-block button.edit {
-        width: 40%;
+        position: absolute;
+        top: -.8em;
+        right: -.5em;
+        border: none;
+        width: 3em;
         height: 3em;
+        background-size: 100% 100%;
+        /*width: 40%;*/
+        /*height: 3em;*/
+    }
+    .sub-edit-block .save {
+        position: absolute !important;
+        top: -.9em !important;
+        right: -.7em !important;
+    }
+    .sub-edit-block .delete {
+        position: absolute !important;
+        bottom: -.6em !important;
+        right: -.4em !important;
     }
     /*  MONTH start  */
 
@@ -102,7 +118,7 @@
         border-radius: 0.1em;
         min-height: 2.3em;
         line-height: 1em;
-        /*padding: 0.5em 0.1em 0 0.1em !important;*/
+        position: relative;
     }
 
     .month-item .name {
@@ -125,7 +141,7 @@
     .month-item .deposited {
         width: 34%;
         font-size: 1em;
-        line-height: 2em;
+        line-height: 1.8em;
     }
     .month-item .deposited.edit {
         width: 22%;

@@ -53,7 +53,7 @@ public class TemplatesListController {
         return getAllTemplatesList();
     }
 
-    @PostMapping("delete={id}")
+    @DeleteMapping("delete={id}")
     public List<TemplatesListDTO> deleteTemplatesList(@PathVariable Integer id){
         tls.deleteTemplatesList(id);
         return getAllTemplatesList();
@@ -76,6 +76,12 @@ public class TemplatesListController {
             @RequestParam(name = "dateId") Integer dateId,
             @RequestParam(name = "name") String name){
         tls.createTemplatesListFromMonth(dateId, name);
+    }
+
+    @PostMapping("createTemplatesListFromAnotherTemplatesList")
+    public List<TemplatesListDTO> createTemplatesListFromTemplatesList(@RequestParam(name = "templatesListId") Integer templatesListId){
+        tls.createTemplatesListFromTemplatesList(templatesListId);
+        return getAllTemplatesList();
     }
 
     @PutMapping("/editTemplateInList")

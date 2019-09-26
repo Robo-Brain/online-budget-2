@@ -13,6 +13,7 @@ import com.robo.repository.TemplatesRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,10 +117,16 @@ public class TemplatesListService {
     }
 
     public List<TemplatesDTO> editTemplateInList(Integer templatesListId, Integer templateId, Integer amount, Boolean isSalary, Boolean isCash){
+        System.out.println(templatesListId + " " + templateId + " " + amount + " " + isSalary + " " + isCash);
         TemplatesList templatesList = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
         Templates template = tr.findOneById(templateId).orElseThrow(NotFoundException::new);
         template = ts.editTemplate(template.getId(), amount, isSalary, isCash);
-        templatesList = replaceTemplateInTemplatesList(templatesList, templateId, template.getId());
+        System.out.println("++++\n" + template);
+        if (!template.getId().equals(templateId)){
+            templatesList = replaceTemplateInTemplatesList(templatesList, templateId, template.getId());
+        } else {
+            System.out.println("equals id");
+        }
         //найти и удалить старый templateId
         return ts.getTemplatesDTOByTemplatesListId(templatesList.getId());
     }
@@ -155,7 +162,6 @@ public class TemplatesListService {
         return tlr.findEnabled().orElseThrow(NotFoundException::new);
     }
 
-
     public void createTemplatesListFromMonth(Integer dateId, String name){
         if (!tlr.findByName(name).isPresent()){
             String templateIds = mss.getMonthlySpendsByDateId(dateId).stream().map(ms -> String.valueOf(ms.getTemplateId())).collect(Collectors.joining(",","",""));
@@ -166,6 +172,18 @@ public class TemplatesListService {
                 tlr.save(tl);
             } else throw new NotFoundException();
         } else throw new RuntimeException("Found Template List with same name.");
+    }
+
+    public void createTemplatesListFromTemplatesList(Integer templatesListId){
+        TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+        TemplatesList newTemplatesList = new TemplatesList();
+
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH:mm:ss");
+
+        newTemplatesList.setName(tl.getName() + " " + sdf.format(cal.getTime()));
+        newTemplatesList.setTemplateId(tl.getTemplateId());
+        tlr.save(newTemplatesList);
     }
 
     public void renameTemplatesList(Integer templatesListId, String newName){
