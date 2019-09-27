@@ -255,22 +255,23 @@ button:focus {
 /*}*/
 
 button.cash {
-    width: 4em;
-    height: 2.8em;
+    width: 3.8em;
+    height: 2.5em;
     border: 0;
     background: url(/img/cash.png) no-repeat 50%;
     background-size: 100% 100%;
-    margin: 0 1.5em;
+    margin: 0 0 0 1em;
     vertical-align: sub;
 }
 
 button.card{
-    width: 3em;
-    height: 2em;
+    width: 3.8em;
+    height: 2.5em;
     border: 0;
     background: url("/img/card.png") no-repeat 50%;
     background-size: 100%;
-    margin: 0 1em;
+    margin: 0 0 0 1em;
+    vertical-align: sub;
 }
 
 button.salary, button.prepaid {
