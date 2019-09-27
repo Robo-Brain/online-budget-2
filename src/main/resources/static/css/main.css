@@ -80,8 +80,8 @@ button:focus {
 .link{
     display: flex;
     justify-content: space-between;
-    font-size: 1.5em;
-    margin-bottom: 1em;
+    font-size: 1.4em;
+    margin-bottom: 1.5em;
 }
 
 /*  TEMPLATES start  */
@@ -138,6 +138,14 @@ button:focus {
     height: 3em;
     background: url(/img/delete3.png) no-repeat 50%;
     background-size: 100% 100%;
+}
+.sub-edit-block .notice {
+    border: none;
+    width: 3.5em;
+    height: 3.5em;
+    background: url(/img/notice.png) no-repeat 50%;
+    background-size: 100% 100%;
+    margin-right: .2em
 }
 .sub-edit-block button.edit {
     background: url(/img/edit-black.png) no-repeat 50%;
@@ -461,7 +469,7 @@ button.salary:after {
 .month-item{
     width: 65%;
     height: 2.5em;
-    font-size: 1.3em;
+    font-size: 1.5em;
     box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1), -2px -2px 5px 0 rgba(0,0,0,.1), 2px 2px 5px 0 rgba(0,0,0,.1), -2px 2px 5px 0 rgba(0,0,0,.1);
     transition: 0.2s all linear;
     border-radius: 0.2em;
@@ -479,7 +487,7 @@ button.salary:after {
 .month-item .name {
     float: left;
     font-size: 1.8em;
-    width: 30%;
+    width: 35%;
 }
 
 .month-item .deposited {
@@ -524,7 +532,7 @@ button.salary:after {
 }
 
 .month-item .buttons {
-    float: right;
+    /*float: right;*/
     display: table;
     font-size: 1em;
 }

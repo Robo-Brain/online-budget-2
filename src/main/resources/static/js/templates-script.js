@@ -158,8 +158,15 @@ function showTemplatesList() {
                 }
             },
             editTemplatesListName: function(event) {
-                axios.post('templatesList/renameList?templatesListId=' + this.openedListId +'&newName=' + event.target.value)
-                    .then(result => this.localTemplatesList = result.data)
+                this.newListName = event.target.value; //функция принимает новое имя и сразу же записывает его в глобальную переменную
+                let tmpVal = event.target.value;//функция принимает новое имя и сразу же записывает его в локальную переменную
+                let self = this;
+                setTimeout(function(){
+                    if(tmpVal === self.newListName) { //если глобальная переменная == локальной, тогда записывать
+                        axios.post('templatesList/renameList?templatesListId=' + this.openedListId +'&newName=' + event.target.value)
+                            .then(result => this.localTemplatesList = result.data)
+                    }
+                }, 1500);
             },
             pushSpendToTemplate: function () {
                 let templatesListId = this.openedListId;
