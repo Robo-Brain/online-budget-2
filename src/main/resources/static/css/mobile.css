@@ -144,7 +144,8 @@
     }
 
     .month-item .deposited {
-        width: 34%;
+        /*width: 34%;*/
+        width: auto !important;
         font-size: 1em;
         line-height: 1.8em;
     }
@@ -189,8 +190,8 @@
     }
 
     .month-amount {
-        margin-left: 0.1em;
-        font-size: 0.9em;
+        font-size: 0.8em;
+        opacity: .7;
     }
 
     .buttons.edit button.salary, .buttons.edit button.prepaid {
