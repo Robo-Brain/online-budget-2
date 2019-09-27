@@ -180,12 +180,11 @@
         padding-left: 2% !important;
     }
     .month-item button.salary, .month-item button.prepaid {
-        /*width: 33%;*/
-        font-size: 1.1em;
-        height: 2em;
-        margin: 0 .2em 0 0.5em;
+        /*width: 33%; */
+        font-size: 1.3em;
+        height: 2.8em;
         padding: 0 !important;
-        /*vertical-align: bottom;*/
+        /* vertical-align: bottom; */
     }
 
     .month-amount {

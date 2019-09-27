@@ -255,12 +255,13 @@ button:focus {
 /*}*/
 
 button.cash {
-    width: 3em;
-    height: 2em;
+    width: 4em;
+    height: 2.8em;
     border: 0;
-    background: url("/img/cash.png") no-repeat 50%;
-    background-size: 100%;
-    margin: 0 1em;
+    background: url(/img/cash.png) no-repeat 50%;
+    background-size: 100% 100%;
+    margin: 0 1.5em;
+    vertical-align: sub;
 }
 
 button.card{
