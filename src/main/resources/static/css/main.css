@@ -166,6 +166,23 @@ button:focus {
 .template-list {
     padding: .6em 0;
 }
+
+.template-total-window {
+    position: fixed;
+    right: 1%;
+    top: 1%;
+    font-size: .7em;
+    background-color: #fff;
+    z-index: 2;
+    opacity: .8;
+    border-radius: .1em;
+}
+
+.template-total-window p {
+    margin: 0;
+    padding: .2em;
+}
+
 .template-list-item {
     height: 1.5em;
     padding: 0.2em 0.3em 0.1em 0.3em;
@@ -376,7 +393,7 @@ button.salary:after {
     border: solid black 1px;
     text-align: right;
     padding: 0 0.1em;
-    margin: 0 1%;
+    margin: 2% 1%;
     width: 98%;
     height: 1.6em;
 }
@@ -470,14 +487,18 @@ button.salary:after {
 
 .month-item{
     width: 65%;
-    height: 2.5em;
+    display: table;
+    height: 100%;
+    min-height: 2.5em;
+    line-height: 1em;
+    position: relative;
     font-size: 1.5em;
     box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1), -2px -2px 5px 0 rgba(0,0,0,.1), 2px 2px 5px 0 rgba(0,0,0,.1), -2px 2px 5px 0 rgba(0,0,0,.1);
     transition: 0.2s all linear;
     border-radius: 0.2em;
     background: rgb(59,214,145);
     background: linear-gradient(149deg, rgba(59,214,145,0.91) 0%, rgba(59,173,214,1) 50%);
-    margin: 0.9em auto;
+    margin: .5em auto;
     padding: 0.2em;
 }
 
@@ -492,11 +513,17 @@ button.salary:after {
     width: 35%;
 }
 
+.month-item .deposited .month-amount{
+    font-size: .4em;
+    opacity: .7;
+}
+
 .month-item .deposited {
     float: left;
     font-size: 1.8em;
     width: 33%;
     position: relative;
+    text-align: center;
 }
 
 .fillAmount {
@@ -509,8 +536,8 @@ button.salary:after {
 
 .deposited button.plus-button{
     position: absolute;
-    top: 35%;
-    left: 35%;
+    top: 33%;
+    right: 85%;
     border: none;
     width: 2.5em;
     height: 2.5em;
@@ -757,7 +784,7 @@ button.notice{
 .modal-plus-content {
     position: absolute;
     top: 0;
-    left: -20.5%;
+    left: -19.5%;
     /* left: 1.3em; */
     /* padding: 22%; */
     display: flex;
@@ -766,17 +793,26 @@ button.notice{
 .modal-plus-content button {
     /* margin-left: .3em; */
     font-size: 1em;
-    color: #fff;
     float: right;
     padding: 0 .5em;
     font-weight: bold;
-    border: solid #ffffff 1px;
+    border: solid #000 1px;
     border-radius: .1em;
     margin: 0 .2em 0 0;
     opacity: .8;
     background-color: transparent;
     box-shadow: 0 0 0 128px rgba(0, 0, 0, 0.25) inset;
 }
+
+.modal-plus-content .fill {
+    background: url("/img/fill.png") no-repeat 50%;
+    background-size: contain;
+    min-width: 1.6em;
+}
+.modal-plus-content .plus {
+    margin-left: .2em;
+}
+
 .slideToRight-enter-active {
     animation: slideToRight .15s ease-out;
 }
@@ -1034,23 +1070,60 @@ button.notice{
 
 .amount-history {
     margin-bottom: 1em;
+    font-size: 1.3em;
 }
 
-.amount-history .item span{
-    font-size: 0.8em;
-    margin: 0 0 0 .7em;
+.amount-history .history-item{
+    font-size: .8em;
+    margin: 0.2em .7em;
+    position: relative;
 }
 
-.amount-history .item input{
+.history-item .delete-warning-text{
+    font-size: .5em;
+    color: red;
+    position: absolute;
+    bottom: 2.5em;
+    margin: 0.5em 0;
+}
+
+.amount-history .history-item input{
     outline: none;
-    width: 50%;
+    width: 48%;
     border-radius: 0.2em;
     border: solid #2aad72 1px;
     background-color: transparent;
     padding: 0.1em;
+    font-size: 1em;
 }
 
-.amount-history .item input:hover, .amount-history .item input:active{
+.amount-history .history-item input.deleting{
+    margin-top: 0.5em;
+    border: solid red 1px;
+}
+.amount-history .history-item input.deleting:hover,
+.amount-history .item input.deleting:active{
+    border: solid red 1px;
+}
+
+.amount-history .history-item input:hover,
+.amount-history .item input:active{
     border: solid transparent 1px;
     background-color: #fff;
+    transition-duration: .5s;
+}
+
+.history-item button.delete{
+    border: none;
+    background: transparent url(/img/delete2.png) no-repeat 50%;
+    background-size: cover;
+    min-width: 1.4em;
+    min-height: 1.6em;
+    margin-left: .5em;
+    vertical-align: middle;
+    opacity: .4;
+}
+.history-item button.delete:hover,
+.history-item button.delete:active{
+    opacity: 1;
 }

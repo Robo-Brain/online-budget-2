@@ -3,7 +3,9 @@ Vue.component('amountHistoryModal', {
     data: function() {
         return {
             subModal: true,
-            amountHistoryArr: []
+            amountHistoryArr: [],
+            unexpectedDelete: true,
+            historyElementId: null
         }
     },
     template:
@@ -12,16 +14,27 @@ Vue.component('amountHistoryModal', {
             + '<div v-if="subModal" class="modal-content">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                      + '<div class="amount-history" v-for="amountHistory in amountHistoryArr">'
-                        + '{{amountHistory[0].date}}<div class="item" v-for="item in amountHistory">'
-                            + '<span>{{ item.time }} - {{ item.amount }}р.</span> <input @input="setComment(item.id)" :value="item.comment" />'
+                        + '{{amountHistory[0].date}}<div class="history-item" v-for="item in amountHistory">'
+                            + '<span>{{ item.time }} - {{ item.amount }}р.</span> '
+                            + '<span v-if="!unexpectedDelete && item.id == historyElementId " class="delete-warning-text">Будет удалено при повторном нажатии:<br/></span>'
+                            + '<input v-bind:class="{ deleting: !unexpectedDelete && item.id == historyElementId }" @input="setComment(item.id)" :value="item.comment" />'
+                            + '<button @click="deleteHistoryElement(item.id)" class="delete"> </button>'
                         + '</div>'
                      + '</div>'
             + '</div>'
         + '</transition>'
     + '</div>',
+    watch: {
+        amountHistoryArr: {
+            handler: function (val, oldVal) {},
+            deep: true
+        }
+    },
     methods: {
         closeModal: function () {
             this.subModal = false;
+            this.historyElementId = null;
+            this.unexpectedDelete = true;
             let self = this;
             setTimeout(function(){
                 self.$parent.showAmountHistoryModal = false;
@@ -29,6 +42,21 @@ Vue.component('amountHistoryModal', {
         },
         setComment: function (itemId) {
             axios.post('monthAmountHistory?historyAmountId=' + itemId + '&comment=' + event.target.value);
+        },
+        deleteHistoryElement: function (itemId) {
+            if (this.unexpectedDelete){
+                this.historyElementId = itemId;
+                this.unexpectedDelete = false;
+            } else if(!this.unexpectedDelete && this.historyElementId === itemId) {
+                axios.delete('monthAmountHistory?historyAmountId=' + itemId).then(result => {
+                    this.amountHistoryArr = result.data;
+                });
+                this.unexpectedDelete = true;
+                this.historyElementId = null;
+            } else if(this.historyElementId !== itemId) {
+                this.unexpectedDelete = true;
+                this.historyElementId = null;
+            }
         }
     },
     created: function () {
@@ -434,9 +462,9 @@ Vue.component('plusAmountMonthModal', {
         '<transition name="slideToRight" appear>'
             + '<div v-if="subModal" class="modal-plus-content">'
                 // + '<div @click="closeModal()" class="modal-button close">×</div>'
-                + '<button @click="fillMonthAmount()"> ✓ </button>'
+                + '<button class="fill" @click="fillMonthAmount()">  </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" type="number" />'
-                + '<button @click="plusMonthAmount()"> + </button>'
+                + '<button class="plus" @click="plusMonthAmount()"> + </button>'
             + '</div>'
         + '</transition>',
     methods: {

@@ -31,4 +31,9 @@ public class MonthAmountHistoryController {
         mahs.setCommentToAmountHistoryElement(historyAmountId, comment);
     }
 
+    @DeleteMapping
+    public Map<Date, List<MonthAmountHistory>> deleteHistoryElement(@RequestParam(name = "historyAmountId") Integer historyAmountId) {
+        return mahs.deleteHistoryElement(historyAmountId);
+    }
+
 }

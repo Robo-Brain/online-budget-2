@@ -84,4 +84,11 @@ public class MonthAmountHistoryService {
         mah.setComment(comment);
         mahr.save(mah);
     }
+
+    public Map<Date, List<MonthAmountHistory>> deleteHistoryElement(Integer historyAmountId) {
+        MonthAmountHistory mah = mahr.findById(historyAmountId).orElseThrow(NotFoundException::new);
+        Integer monthlySpendId = mah.getMonthlySpendsId();
+        mahr.delete(mah);
+        return getAmountHistoryByMonthlySpendsId(monthlySpendId);
+    }
 }

@@ -18,10 +18,33 @@ function showTemplatesList() {
                 isSalary: '',
                 isCash: '',
                 editingIndex: null,
+                totals: {
+                    totalAmountSalaryCard: 0, totalAmountSalaryCash: 0, totalAmountPrepaidCard: 0, totalAmountPrepaidCash: 0
+                },
+            }
+        },
+        watch: {
+            openedListTemplates: {
+                handler: function (val, oldVal) {
+                    this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
+                    for (const item of this.openedListTemplates){
+                        this.totals.totalAmountSalaryCash = item.salary && item.cash ? this.totals.totalAmountSalaryCash + item.amount : this.totals.totalAmountSalaryCash;
+                        this.totals.totalAmountSalaryCard = item.salary && !item.cash ? this.totals.totalAmountSalaryCard + item.amount : this.totals.totalAmountSalaryCard;
+                        this.totals.totalAmountPrepaidCash = !item.salary && item.cash ? this.totals.totalAmountPrepaidCash + item.amount : this.totals.totalAmountPrepaidCash;
+                        this.totals.totalAmountPrepaidCard = !item.salary && !item.cash ? this.totals.totalAmountPrepaidCard + item.amount : this.totals.totalAmountPrepaidCard;
+                    }
+                },
+                deep: true
             }
         },
         template:
         '<div @click="$parent.templateNameEditMode = false" class="template-list">'
+            + '<div class="template-total-window">'
+                + '<p v-if="this.totals.totalAmountSalaryCash > 0">ЗП нал: {{totals.totalAmountSalaryCash}} </p>'
+                + '<p v-if="this.totals.totalAmountSalaryCard > 0">ЗП крт: {{totals.totalAmountSalaryCard}} </p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCash > 0">Авнс нал: {{totals.totalAmountPrepaidCash}} </p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCard > 0">Авнс крт: {{totals.totalAmountPrepaidCard}} </p>'
+            + '</div>'
             + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<v-touch v-on:swipe="editTemplate(index, currentTemplate.templateId)">'
                     + '<div class="name">{{ currentTemplate.spendName }}</div>'
@@ -94,6 +117,15 @@ function showTemplatesList() {
                     this.editMode = false;
                 });
             }
+        },
+        created: function () {
+            this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
+            for (const item of this.openedListTemplates){
+                this.totals.totalAmountSalaryCash = item.salary && item.cash ? this.totals.totalAmountSalaryCash + item.amount : this.totals.totalAmountSalaryCash;
+                this.totals.totalAmountSalaryCard = item.salary && !item.cash ? this.totals.totalAmountSalaryCard + item.amount : this.totals.totalAmountSalaryCard;
+                this.totals.totalAmountPrepaidCash = !item.salary && item.cash ? this.totals.totalAmountPrepaidCash + item.amount : this.totals.totalAmountPrepaidCash;
+                this.totals.totalAmountPrepaidCard = !item.salary && !item.cash ? this.totals.totalAmountPrepaidCard + item.amount : this.totals.totalAmountPrepaidCard;
+            }
         }
     });
 
@@ -163,7 +195,7 @@ function showTemplatesList() {
                 let self = this;
                 setTimeout(function(){
                     if(tmpVal === self.newListName) { //если глобальная переменная == локальной, тогда записывать
-                        axios.post('templatesList/renameList?templatesListId=' + this.openedListId +'&newName=' + event.target.value)
+                        axios.post('templatesList/renameList?templatesListId=' + self.openedListId +'&newName=' + event.target.value)
                             .then(result => this.localTemplatesList = result.data)
                     }
                 }, 1500);

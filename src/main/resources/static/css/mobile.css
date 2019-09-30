@@ -117,13 +117,7 @@
     /*  MONTH start  */
 
     .month-item {
-        display: table;
         width: 96%;
-        height: 100%;
-        border-radius: 0.1em;
-        min-height: 2.3em;
-        line-height: 1em;
-        position: relative;
     }
 
     .month-item .name {
@@ -148,6 +142,7 @@
         width: auto !important;
         font-size: 1em;
         line-height: 1.8em;
+        margin-right: 2%;
     }
     .month-item .deposited.edit {
         width: 21%;
@@ -189,8 +184,7 @@
     }
 
     .month-amount {
-        font-size: 0.8em;
-        opacity: .7;
+        font-size: 0.8em !important;
     }
 
     .buttons.edit button.salary, .buttons.edit button.prepaid {
@@ -246,4 +240,7 @@
         opacity: 1;
     }
 
+    .modal-plus-content .fill {
+        min-width: 2.5em !important;
+    }
 }
