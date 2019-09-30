@@ -148,7 +148,7 @@ function showTemplatesList() {
             +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
-                    + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" @input="editTemplatesListName($event)" v-model="template.templateName" />'
+                    + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" />'
                     + '<button v-else-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
                     + '<button class="edit-template-name" @click="templateNameEditMode = !templateNameEditMode" v-if="template.id == openedListId"> </button>'
 
@@ -166,11 +166,14 @@ function showTemplatesList() {
             + '</div>'
             + '<div v-if="localTemplatesList.length == 0"><h4>Has no templates yet.</h4></div>'
             + '<div class="new-template-list">'
-                + '<input @input="handleInputListName($event.target.value)" @change="handleInputListName($event.target.value)" type="text">'
-                + '<button @click="pushNewList()" id="pushList" type="button">Add</button>'
+                + '<input @input="handleInputListName($event)" v-on:keyup="handleInputListName($event)"  @change="handleInputListName($event)" type="text">'
+                + '<button @click="pushNewList()" id="pushList" type="button">Создать</button>'
             + '</div>'
         + '</div>',
         methods: {
+            send: function (event) {
+                if (event.keyCode === 13) this.templateNameEditMode = false;
+            },
             activateTemplate: function (templateListId) {
                 axios.post('/templatesList/activate=' + templateListId).then( result => this.localTemplatesList = result.data)
             },
@@ -226,8 +229,12 @@ function showTemplatesList() {
 
                 }
             },
-            handleInputListName: function(value) {
-                this.newListName = value;
+            handleInputListName: function(event) {
+                if (event.keyCode === 13){
+                    this.pushNewList()
+                } else {
+                    this.newListName = event.target.value;
+                }
             },
             pushNewList: function () {
                 if (this.newListName.length > 1){

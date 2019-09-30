@@ -51,7 +51,7 @@ function showLastMonth() {
                             + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                         + '</div>'
                         + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
-                            + '<input type="number" @input="setMonthAmount(month.monthlySpendsId)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
+                            + '<input type="number" ref="amount" v-on:keyup="setMonthAmount($event, month.monthlySpendsId, index)" @input="setMonthAmount($event, month.monthlySpendsId, index)" :value="month.monthAmount > 0 ? month.monthAmount : \'\'" />'
                             + '<button @click="showPlusAmountMonthModalFunc(index, month.monthlySpendsId)" class="plus-button"> </button>'
                             + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" :templateAmount="month.templateAmount" />'
                             + '<br/><span class="month-amount">{{ month.templateAmount }}</span>'
@@ -178,9 +178,9 @@ function showLastMonth() {
                 this.monthlySpendsId = monthlySpendsId;
                 this.showAmountHistoryModal = true;
             },
-            setMonthAmount: function(monthlySpendId) {
+            setMonthAmount: function(event, monthlySpendId, ind) {
                 this.monthlySpendsId = monthlySpendId;
-                this.newMonthAmount = event.target.value; // не понимаю как это работает, но работает
+                this.newMonthAmount = event.target.value;
                 let tmpVal = event.target.value;
                 let self = this;
                 setTimeout(function(){
@@ -192,6 +192,14 @@ function showLastMonth() {
                             .then(result => self.localMonthList = result.data); console.log('updated ' + self.newMonthAmount)
                     }
                 }, 1500);
+                if (event.keyCode === 13){
+                    this.$nextTick(() => {
+                        let index = ind + 1;
+                        let input = this.$refs.amount[index];
+                        console.log('input: ' + input);
+                        this.$refs.amount[index].focus();
+                    });
+                }
             },
             editModeToggle: function() { // режим редактирования monthly_spend On/Off
                 if (this.localMonthList.length > 0){

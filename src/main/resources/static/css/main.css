@@ -404,7 +404,7 @@ button.salary:after {
 }
 
 .new-template-list input {
-    width: 80%;
+    width: 72%;
     border-radius: 0.2em;
     border: solid black 1px;
     padding: 0.1em 0.2em;
@@ -412,11 +412,12 @@ button.salary:after {
     margin: 2% 0 0 0;
 }
 .new-template-list button {
-    width: 16%;
+    width: 24%;
     border: solid black 1px;
     border-radius: 0.1em;
     font-size: 1.8em;
     margin: 2.1% 0 0 1%;
+    padding: .1em;
 }
 .new-template-list button:hover {
     background-color: #c4c4c4;
