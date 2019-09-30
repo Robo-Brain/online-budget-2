@@ -189,14 +189,12 @@ function showLastMonth() {
                             + self.monthlySpendsId
                             + "&amount="
                             + self.newMonthAmount)
-                            .then(result => self.localMonthList = result.data); console.log('updated ' + self.newMonthAmount)
+                            .then(result => self.localMonthList = result.data);
                     }
                 }, 1500);
                 if (event.keyCode === 13){
                     this.$nextTick(() => {
                         let index = ind + 1;
-                        let input = this.$refs.amount[index];
-                        console.log('input: ' + input);
                         this.$refs.amount[index].focus();
                     });
                 }

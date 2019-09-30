@@ -148,9 +148,9 @@ function showTemplatesList() {
             +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
-                    + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" />'
-                    + '<button v-else-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
-                    + '<button class="edit-template-name" @click="templateNameEditMode = !templateNameEditMode" v-if="template.id == openedListId"> </button>'
+                    + '<button v-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
+                    + '<input class="newNameInput" ref="name" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" />'
+                    + '<button class="edit-template-name" @click="templateNameEditModeToggle()" v-if="template.id == openedListId"> </button>'
 
                     + '<single-template v-if="openedListTemplates.length > 0 && template.id == openedListId" :openedListTemplates="openedListTemplates" :openedListId="openedListId" />'
                     + '<select v-if="missingSpendsList.length > 0 && template.id == openedListId" @change="pushSpendToTemplate()" v-model="selectedSpendToAdd">'
@@ -171,6 +171,13 @@ function showTemplatesList() {
             + '</div>'
         + '</div>',
         methods: {
+            templateNameEditModeToggle: function () {
+                var self = this;
+                Vue.nextTick(function () {
+                    self.$refs.name.focus();
+                });
+                this.templateNameEditMode = !this.templateNameEditMode
+            },
             send: function (event) {
                 if (event.keyCode === 13) this.templateNameEditMode = false;
             },
@@ -178,7 +185,7 @@ function showTemplatesList() {
                 axios.post('/templatesList/activate=' + templateListId).then( result => this.localTemplatesList = result.data)
             },
             openOneMonth: function(templateListId){
-                this.openedListId = templateListId == this.openedListId ? null : templateListId;
+                this.openedListId = templateListId === this.openedListId ? null : templateListId;
                 if (this.openedListId != null){ //нажата кнопка открыть/закрыть-> проверка, если открыт какой-то пункт меню, то запросить разностный массив для него, иначе нажата кнопка закрыть и делать ничего не надо
                     this.openedListTemplates = [];
                     this.missingSpendsList = [];
