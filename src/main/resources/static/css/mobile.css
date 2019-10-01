@@ -168,14 +168,14 @@
 
     .month-item .buttons {
         padding: 0 !important;
-        /*width: 40%;*/
+        width: 40%;
     }
     .month-item .buttons.edit {
         float: none !important;
         padding-left: 2% !important;
     }
     .month-item button.salary, .month-item button.prepaid {
-        /*width: 33%; */
+        width: 48%;
         font-size: 1.3em;
         height: 2.8em;
         margin: 0 .2em 0 .3em;

@@ -107,9 +107,8 @@ button:focus {
 }
 .month-item.templates-list button.card,
 .month-item.templates-list button.cash {
-    width: 30%;
+    width: 2em;
     font-size: 1em;
-    height: 2em;
     margin: 0 2%;
 }
 .sub-edit-block {
@@ -281,7 +280,7 @@ button.cash {
     height: 2.5em;
     border: 0;
     background: url(/img/cash.png) no-repeat 50%;
-    background-size: 100% 100%;
+    background-size: 100%;
     margin: 0 0 0 1em;
     vertical-align: sub;
 }
@@ -564,6 +563,22 @@ button.salary:after {
     border: solid #bc1a0c 1px;
     color: #bc1a0c;
     margin-right: 0.2em;
+}
+
+
+.month-item .radio-buttons {
+    display: inline-block;
+    padding: 0 !important;
+    width: 30%;
+    font-size: .8em;
+}
+.month-item .radio-buttons input {
+    margin-bottom: .8em;
+}
+
+.month-item .salary-prepaid-form {
+    float: left;
+    width: 60%;
 }
 
 .month-item .buttons {

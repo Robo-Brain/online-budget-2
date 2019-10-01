@@ -71,15 +71,32 @@ function showLastMonth() {
                     + '<div class="deposited" v-bind:class="{ edit: editMode }">'
                         + '<input type="number" v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
                     + '</div>'
-                    + '<div class="buttons" v-bind:class="{ edit: editMode }">'
-                        + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                        + '<button @click="cashToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
+                    + '<div class="radio-buttons">'
+                        + '<form class="salary-prepaid-form">'
+                            + '<input name="salary-prepaid" type="radio" id="salary" :checked="month.salary" @click="salaryToggle($event, index, month.monthlySpendsId)" value="salary" />'
+                            + '<label for="salary">ЗП</label>'
+                            + '<br />'
+                            + '<input name="salary-prepaid" type="radio" id="prepaid" :checked="!month.salary" @click="salaryToggle($event, index, month.monthlySpendsId)" value="prepaid" />'
+                            + '<label for="prepaid">Аванс</label>'
+                        + '</form>'
+                        + '<form class="cash-card-form">'
+                            + '<input name="cash-card" type="radio" id="cash" :checked="month.cash" @click="cashToggle($event, index, month.monthlySpendsId)" value="cash" />'
+                            + '<label for="cash">Нал</label>'
+                            + '<br />'
+                            + '<input name="cash-card" type="radio" id="card" :checked="!month.cash" @click="cashToggle($event, index, month.monthlySpendsId)" value="card" />'
+                            + '<label for="card">БН</label>'
+                        + '</form>'
                     + '</div>'
+                    // + '<div class="buttons" v-bind:class="{ edit: editMode }">'
+                    //     + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                    //     + '<button @click="cashToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
+                    // + '</div>'
                     + '<div class="sub-edit-block">'
                         + '<button v-if="editingIndex == index" class="save" @click="saveSpendInMonth()"> </button>'
                         + '<button v-else-if="editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId)"> </button>'
                     + '</div>'
                 + '</div>'
+
                 + '<div v-if="!editMode" class="total-amount">'
                     + '<div class="salary-block">'
                         + '<div class="salary-total">'
@@ -215,14 +232,16 @@ function showLastMonth() {
             salaryToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
-                this.isSalary = event.target.className !== 'salary';
-                event.target.className = this.isSalary ? 'salary' : 'prepaid';
+                this.isSalary = event.target.value === 'salary';
+                // this.isSalary = event.target.className !== 'salary';
+                // event.target.className = this.isSalary ? 'salary' : 'prepaid';
             },
             cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
-                this.isCash = event.target.className !== 'cash';
-                event.target.className = this.isCash ? 'cash' : 'card';
+                this.isCash = event.target.value === 'cash';
+                // this.isCash = event.target.className !== 'cash';
+                // event.target.className = this.isCash ? 'cash' : 'card';
             },
             saveSpendInMonth: function () {
                 if (this.monthlySpendsId > 0){
