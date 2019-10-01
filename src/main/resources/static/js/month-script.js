@@ -71,7 +71,7 @@ function showLastMonth() {
                     + '<div class="deposited" v-bind:class="{ edit: editMode }">'
                         + '<input type="number" v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
                     + '</div>'
-                    + '<div class="radio-buttons">'
+                    + '<div class="salary-cash-select">'
                         + '<select class="salary-prepaid-form" @change="salaryToggle($event, index, month.monthlySpendsId)">'
                             + '<option value="salary" :selected="month.salary">ЗП</option>'
                             + '<option value="prepaid" :selected="!month.salary">Аванс</option>'
