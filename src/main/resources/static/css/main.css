@@ -170,7 +170,7 @@ button:focus {
     position: fixed;
     right: 1%;
     top: 1%;
-    font-size: .7em;
+    font-size: 1em;
     background-color: #fff;
     z-index: 2;
     opacity: .9;
