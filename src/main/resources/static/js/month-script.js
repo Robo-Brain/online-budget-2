@@ -72,20 +72,15 @@ function showLastMonth() {
                         + '<input type="number" v-model="month.templateAmount" @input="setAmount($event, index, month.monthlySpendsId)" />'
                     + '</div>'
                     + '<div class="radio-buttons">'
-                        + '<form class="salary-prepaid-form">'
-                            + '<input name="salary-prepaid" type="radio" id="salary" :checked="month.salary" @click="salaryToggle($event, index, month.monthlySpendsId)" value="salary" />'
-                            + '<label for="salary">ЗП</label>'
-                            + '<br />'
-                            + '<input name="salary-prepaid" type="radio" id="prepaid" :checked="!month.salary" @click="salaryToggle($event, index, month.monthlySpendsId)" value="prepaid" />'
-                            + '<label for="prepaid">Аванс</label>'
-                        + '</form>'
-                        + '<form class="cash-card-form">'
-                            + '<input name="cash-card" type="radio" id="cash" :checked="month.cash" @click="cashToggle($event, index, month.monthlySpendsId)" value="cash" />'
-                            + '<label for="cash">Нал</label>'
-                            + '<br />'
-                            + '<input name="cash-card" type="radio" id="card" :checked="!month.cash" @click="cashToggle($event, index, month.monthlySpendsId)" value="card" />'
-                            + '<label for="card">БН</label>'
-                        + '</form>'
+                        + '<select class="salary-prepaid-form" @change="salaryToggle($event, index, month.monthlySpendsId)">'
+                            + '<option value="salary" :selected="month.salary">ЗП</option>'
+                            + '<option value="prepaid" :selected="!month.salary">Аванс</option>'
+                        + '</select>'
+                        + '<br />'
+                        + '<select class="cash-card-form" @change="cashToggle($event, index, month.monthlySpendsId)">'
+                            + '<option value="cash" :selected="month.cash">Нал</option>'
+                            + '<option value="card" :selected="!month.cash">Безнал</option>'
+                        + '</select>'
                     + '</div>'
                     // + '<div class="buttons" v-bind:class="{ edit: editMode }">'
                     //     + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
@@ -233,6 +228,7 @@ function showLastMonth() {
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
                 this.isSalary = event.target.value === 'salary';
+                console.log('ЗП: ' + this.isSalary)
                 // this.isSalary = event.target.className !== 'salary';
                 // event.target.className = this.isSalary ? 'salary' : 'prepaid';
             },
@@ -240,6 +236,7 @@ function showLastMonth() {
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
                 this.isCash = event.target.value === 'cash';
+                console.log('Нал: ' + this.isCash)
                 // this.isCash = event.target.className !== 'cash';
                 // event.target.className = this.isCash ? 'cash' : 'card';
             },

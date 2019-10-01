@@ -121,7 +121,7 @@
     }
 
     .month-item .name {
-        font-size: 1.1em;
+        font-size: 1.2em;
         height: auto;
         line-height: 1.5em;
         padding: 0.2em 0;
@@ -142,7 +142,7 @@
         width: auto !important;
         font-size: 1em;
         line-height: 1.8em;
-        margin-right: 2%;
+        margin-right: 4%;
     }
     .month-item .deposited.edit {
         width: 21%;

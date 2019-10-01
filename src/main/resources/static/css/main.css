@@ -515,7 +515,7 @@ button.salary:after {
 .month-item .name {
     float: left;
     font-size: 1.8em;
-    width: 33%;
+    width: 38%;
 }
 
 .month-item .deposited .month-amount{
@@ -556,7 +556,7 @@ button.salary:after {
     border: solid black 1px;
     text-align: right;
     padding: 0 0.1em;
-    width: 2.8em;
+    width: 3em;
 }
 
 .month-item .deposited.lack input{
@@ -565,20 +565,17 @@ button.salary:after {
     margin-right: 0.2em;
 }
 
-
 .month-item .radio-buttons {
-    display: inline-block;
     padding: 0 !important;
-    width: 35%;
-    font-size: 1em;
-}
-.month-item .radio-buttons input {
-    margin-bottom: 1em;
-}
-
-.month-item .salary-prepaid-form {
+    width: 25%;
     float: left;
-    width: 60%;
+}
+.month-item .radio-buttons select{
+    width: 100%;
+    font-size: .8em;
+}
+.month-item .radio-buttons .salary-prepaid-form{
+    margin-bottom: .2em;
 }
 
 .month-item .buttons {
