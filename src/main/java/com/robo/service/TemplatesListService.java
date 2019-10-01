@@ -144,8 +144,9 @@ public class TemplatesListService {
         TemplatesList tl = tlr.findOneById(id).orElseThrow(NotFoundException::new);
         Integer templatesListId = tl.getId();
 
-        Arrays.asList(tl.getTemplateId().split(",")).forEach(templateId -> ts.deleteTemplate(Integer.valueOf(templateId))); // удалить template, если его нет в месяцах
-
+        if (Objects.nonNull(tl.getTemplateId()) && !tl.getTemplateId().isEmpty()){
+            Arrays.asList(tl.getTemplateId().split(",")).forEach(templateId -> ts.deleteTemplate(Integer.valueOf(templateId))); // удалить template, если его нет в месяцах
+        }
         tlr.delete(tl);
 
         List<Dates> datesList = dr.findAllByTemplateListId(templatesListId);

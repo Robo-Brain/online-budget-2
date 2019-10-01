@@ -14,18 +14,27 @@ function showSpendsList() {
                 newSpendName: ''
             }
         },
+        directives: {
+            focus: {
+                inserted: function (el) {
+                    el.focus()
+                }
+            }
+        },
         template:
         '<ul class="spends">'
             + '<li v-for="spend in localSpends" >'
                 + '<i>{{ spend.id }}</i> <span v-bind:value="spend.id">{{ spend.name }}</span>'
             + '</li>'
-            + '<li class="new">Name: <input v-model="newSpendName" type="text"></li><button @click="pushSpend()" id="pushSpend" type="button">Send</button>'
+            + '<li class="new">Name: <input ref="amount" v-on:keyup="handleSpendName($event)" v-model="newSpendName" type="text" v-focus /></li><button @click="pushSpend()" id="pushSpend" type="button">Send</button>'
         + '</ul>',
         methods: {
+            handleSpendName: function (event) {
+                if (event.keyCode === 13) this.pushSpend();
+            },
             pushSpend: function () {
                 if (this.newSpendName.length > 1){
-                    let name = this.newSpendName;
-                    axios.put('spends/' + name).then(result => {
+                    axios.put('spends/' + this.newSpendName).then(result => {
                         this.localSpends = result.data;
                         this.newSpendName = '';
                     });

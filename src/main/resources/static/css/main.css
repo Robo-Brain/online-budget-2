@@ -174,8 +174,13 @@ button:focus {
     font-size: .7em;
     background-color: #fff;
     z-index: 2;
-    opacity: .8;
+    opacity: .9;
     border-radius: .1em;
+}
+.template-total-window.minimized {
+    right: .1%;
+    top: .1%;
+    opacity: .7;
 }
 
 .template-total-window p {
@@ -360,11 +365,11 @@ button.salary:after {
 .template .edit-template-name {
     background: url(/img/edit-black.png) no-repeat 50%;
     background-size: 100%;
-    width: 1.8em;
-    height: 1.8em;
+    width: 2.2em;
+    height: 2.2em;
     border: none;
-    vertical-align: top;
-    margin-left: 0.5em;
+    vertical-align: inherit;
+    margin-left: 1em;
 }
 
 .template-name .newNameInput {

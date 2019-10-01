@@ -203,13 +203,20 @@ Vue.component('createTemplateModal', {// <modalCreateTemplate v-if="this.showCre
             subModal: true
         }
     },
+    directives: {
+        focus: {
+            inserted: function (el) {
+                el.focus()
+            }
+        }
+    },
     template:
     '<div class="modal">'
     + '<transition name="slideIn" appear>'
         + '<div v-if="subModal" class="modal-content new-template">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '{{ bodyText }}'
-                + '<p><input v-model="name" autofocus/> <button class="save-button" @click="saveTemplateList()"> </button></p>'
+                + '<p><input v-model="name" v-on:keyup="handleTemplateName($event)" v-focus /> <button class="save-button" @click="saveTemplateList()"> </button></p>'
             + '</div>'
         + '</transition>'
     + '</div>',
@@ -222,6 +229,9 @@ Vue.component('createTemplateModal', {// <modalCreateTemplate v-if="this.showCre
             }, 500);
             this.name = '';
             this.bodyText = 'Имя шаблона:';
+        },
+        handleTemplateName: function(event) {
+            if (event.keyCode === 13) this.saveTemplateList();
         },
         saveTemplateList: function () {
             if (this.dateId > 0 && this.name.length > 1){
@@ -250,6 +260,13 @@ Vue.component('createNoticeModal', {//<createNotice v-if="this.showNoticeModal" 
             subModal: true
         }
     },
+    directives: {
+        focus: {
+            inserted: function (el) {
+                el.focus()
+            }
+        }
+    },
     template:
     '<div class="modal">'
         + '<transition name="slideIn" appear>'
@@ -257,7 +274,7 @@ Vue.component('createNoticeModal', {//<createNotice v-if="this.showNoticeModal" 
                 + '<div v-if="true" @click="closeModal()" class="modal-button close">×</div>'//<input style="width: 0; height: 0; border: none; margin: 0; padding: 0" @keydown.esc="$parent.showNoMonthModal = false" autofocus/>
                 + '<p>'
                     + '{{ bodyText }}<br />'
-                    + '<textarea v-model="text" @keydown.esc="$parent.showNoMonthModal = false" autofocus></textarea>'
+                    + '<textarea v-model="text" v-focus></textarea>'
                     + '<input id="is-remind" v-model="remind" type="checkbox"> <label for="is-remind">Remind</label> <button class="save-button" @click="saveNotice()"> </button>'
                 + '</p>'
             + '</div>'
@@ -458,12 +475,19 @@ Vue.component('plusAmountMonthModal', {
             plusAmount: ''
         }
     },
+    directives: {
+        focus: {
+            inserted: function (el) {
+                el.focus()
+            }
+        }
+    },
     template:
         '<transition name="slideToRight" appear>'
             + '<div v-if="subModal" class="modal-plus-content">'
                 // + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '<button class="fill" @click="fillMonthAmount()">  </button>'
-                + '<input class="plusAmountInput" v-model="plusAmount" type="number" />'
+                + '<input class="plusAmountInput" v-model="plusAmount" v-on:keyup="handleMonthAmount($event)" type="number" v-focus />'
                 + '<button class="plus" @click="plusMonthAmount()"> + </button>'
             + '</div>'
         + '</transition>',
@@ -474,6 +498,9 @@ Vue.component('plusAmountMonthModal', {
             setTimeout(function(){
                 self.$parent.showPlusAmountMonthModal = false;
             }, 500);
+        },
+        handleMonthAmount: function(event) {
+            if (event.keyCode === 13) this.plusMonthAmount();
         },
         plusMonthAmount: function () {
             if (this.plusAmount > 0 && this.monthlySpendsId > 0){

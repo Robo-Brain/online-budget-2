@@ -18,6 +18,7 @@ function showTemplatesList() {
                 isSalary: '',
                 isCash: '',
                 editingIndex: null,
+                minimizedSum: false,
                 totals: {
                     totalAmountSalaryCard: 0, totalAmountSalaryCash: 0, totalAmountPrepaidCard: 0, totalAmountPrepaidCash: 0
                 },
@@ -39,11 +40,12 @@ function showTemplatesList() {
         },
         template:
         '<div @click="$parent.templateNameEditMode = false" class="template-list">'
-            + '<div class="template-total-window">'
-                + '<p v-if="this.totals.totalAmountSalaryCash > 0">ЗП нал: {{totals.totalAmountSalaryCash}} </p>'
-                + '<p v-if="this.totals.totalAmountSalaryCard > 0">ЗП крт: {{totals.totalAmountSalaryCard}} </p>'
-                + '<p v-if="this.totals.totalAmountPrepaidCash > 0">Авнс нал: {{totals.totalAmountPrepaidCash}} </p>'
-                + '<p v-if="this.totals.totalAmountPrepaidCard > 0">Авнс крт: {{totals.totalAmountPrepaidCard}} </p>'
+            + '<div @click="minimizedSum = !minimizedSum" v-bind:class="{ minimized: minimizedSum }" class="template-total-window">'
+                + '<p v-if="this.totals.totalAmountSalaryCash > 0 && !minimizedSum">ЗП нал: {{totals.totalAmountSalaryCash}} </p>'
+                + '<p v-if="this.totals.totalAmountSalaryCard > 0 && !minimizedSum">ЗП крт: {{totals.totalAmountSalaryCard}} </p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCash > 0 && !minimizedSum">Авнс нал: {{totals.totalAmountPrepaidCash}} </p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCard > 0 && !minimizedSum">Авнс крт: {{totals.totalAmountPrepaidCard}} </p>'
+                + '<p>Итого: {{totals.totalAmountSalaryCash + totals.totalAmountSalaryCard + totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard}} </p>'
             + '</div>'
             + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<v-touch v-on:swipe="editTemplate(index, currentTemplate.templateId)">'
@@ -143,14 +145,21 @@ function showTemplatesList() {
                  templateNameEditMode: false
              }
          },
+         directives: {
+             focus: {
+                 inserted: function (el) {
+                     el.focus()
+                 }
+             }
+         },
         template:
         '<div class="templatesList">' //родительский шаблон, который вмещает в себя дочерний 'template'
             +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
                     + '<button v-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
-                    + '<input class="newNameInput" ref="name" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" />'
-                    + '<button class="edit-template-name" @click="templateNameEditModeToggle()" v-if="template.id == openedListId"> </button>'
+                    + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" v-focus/>'
+                    + '<button class="edit-template-name" @click="templateNameEditMode = !templateNameEditMode" v-if="template.id == openedListId"> </button>'
 
                     + '<single-template v-if="openedListTemplates.length > 0 && template.id == openedListId" :openedListTemplates="openedListTemplates" :openedListId="openedListId" />'
                     + '<select v-if="missingSpendsList.length > 0 && template.id == openedListId" @change="pushSpendToTemplate()" v-model="selectedSpendToAdd">'
@@ -166,18 +175,11 @@ function showTemplatesList() {
             + '</div>'
             + '<div v-if="localTemplatesList.length == 0"><h4>Has no templates yet.</h4></div>'
             + '<div class="new-template-list">'
-                + '<input @input="handleInputListName($event)" v-on:keyup="handleInputListName($event)"  @change="handleInputListName($event)" type="text">'
+                + '<input @input="handleInputListName($event)" v-on:keyup="handleInputListName($event)" type="text">'
                 + '<button @click="pushNewList()" id="pushList" type="button">Создать</button>'
             + '</div>'
         + '</div>',
         methods: {
-            templateNameEditModeToggle: function () {
-                var self = this;
-                Vue.nextTick(function () {
-                    self.$refs.name.focus();
-                });
-                this.templateNameEditMode = !this.templateNameEditMode
-            },
             send: function (event) {
                 if (event.keyCode === 13) this.templateNameEditMode = false;
             },
@@ -237,6 +239,7 @@ function showTemplatesList() {
                 }
             },
             handleInputListName: function(event) {
+                console.log(event.keyCode);
                 if (event.keyCode === 13){
                     this.pushNewList()
                 } else {
