@@ -59,8 +59,17 @@ function showTemplatesList() {
                         + '<button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
                     + '<div v-if="editMode && editingIndex == index" class="buttons editing">'
-                        + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                        + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
+                        + '<select class="salary-prepaid-form" @change="salaryToggle($event)">'
+                            + '<option value="salary" :selected="currentTemplate.salary">ЗП</option>'
+                            + '<option value="prepaid" :selected="!currentTemplate.salary">Аванс</option>'
+                        + '</select>'
+                        + '<br />'
+                        + '<select class="cash-card-form" @change="cashToggle($event)">'
+                            + '<option value="cash" :selected="currentTemplate.cash">Нал</option>'
+                            + '<option value="card" :selected="!currentTemplate.cash">Безнал</option>'
+                        + '</select>'
+                        // + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                        // + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
                     + '<div class="sub-edit-block">'
                         + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()"> </button>'
@@ -99,12 +108,12 @@ function showTemplatesList() {
                 if (event.target.value > 0) this.amount = event.target.value;
             },
             salaryToggle: function (event) {
-                this.isSalary = event.target.className !== 'salary';
-                event.target.className = this.isSalary ? 'salary' : 'prepaid';
+                this.isSalary = event.target.value === 'salary';
+                console.log('this.isSalary: ' + this.isSalary)
             },
             cashToggle: function (event) {
-                this.isCash = event.target.className !== 'cash';
-                event.target.className = this.isCash ? 'cash' : 'card';
+                this.isCash = event.target.value === 'cash';
+                console.log('this.isCash: ' + this.isCash)
             },
             saveEditedTemplate: function () {
                 axios.put('templatesList/editTemplateInList?templatesListId=' + this.openedListId

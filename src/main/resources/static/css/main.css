@@ -140,8 +140,8 @@ button:focus {
 }
 .sub-edit-block .notice {
     border: none;
-    width: 3.5em;
-    height: 3.5em;
+    width: 3em;
+    height: 3em;
     background: url(/img/notice.png) no-repeat 50%;
     background-size: 100% 100%;
     margin-right: .2em

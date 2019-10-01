@@ -23,7 +23,7 @@
 
     .month-item.templates-list .name{
         font-size: .9em;
-        width: 45%;
+        /*width: 45%;*/
         margin-right: .2em;
     }
     .month-item.templates-list .buttons{
@@ -38,7 +38,7 @@
     }
     .month-item.templates-list .deposited input {
         font-size: 1em;
-        width: 90%;
+        /*width: 90%;*/
     }
     .sub-edit-block {
         width: auto !important;
@@ -112,7 +112,7 @@
     .sub-edit-block .notice {
         position: absolute !important;
         top: -1.2em !important;
-        right: -.8em !important;
+        right: -1em !important;
     }
     /*  MONTH start  */
 
