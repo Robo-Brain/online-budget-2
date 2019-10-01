@@ -515,7 +515,7 @@ button.salary:after {
 .month-item .name {
     float: left;
     font-size: 1.8em;
-    width: 35%;
+    width: 33%;
 }
 
 .month-item .deposited .month-amount{
@@ -569,11 +569,11 @@ button.salary:after {
 .month-item .radio-buttons {
     display: inline-block;
     padding: 0 !important;
-    width: 30%;
-    font-size: .8em;
+    width: 35%;
+    font-size: 1em;
 }
 .month-item .radio-buttons input {
-    margin-bottom: .8em;
+    margin-bottom: 1em;
 }
 
 .month-item .salary-prepaid-form {
