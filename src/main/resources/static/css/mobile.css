@@ -23,11 +23,11 @@
 
     .month-item.templates-list .name{
         font-size: .9em;
-        /*width: 45%;*/
+        width: 40%;
         margin-right: .2em;
     }
     .month-item.templates-list .buttons{
-        width: 28%;
+        width: 35%;
         font-size: .7em;
         position: relative;
     }
@@ -138,11 +138,9 @@
     }
 
     .month-item .deposited {
-        /*width: 34%;*/
-        width: auto !important;
+        width: 20% !important;
         font-size: 1em;
         line-height: 1.8em;
-        margin-right: 3%;
     }
     .month-item .deposited.edit {
         width: 21%;
