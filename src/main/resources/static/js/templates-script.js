@@ -165,8 +165,8 @@ function showTemplatesList() {
          },
         template:
         '<div class="templatesList">' //родительский шаблон, который вмещает в себя дочерний 'template'
-            +'<div v-if="localTemplatesList.length > 0" v-for="(template, index, key) in localTemplatesList" class="template" :class="{ active: template.templateEnabled, deleting: index == deletingIndex }" >'
-                + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
+            +'<div v-if="localTemplatesList.length > 0" v-for="(template, index, key) in localTemplatesList" class="template" :class="{ active: template.templateEnabled, deleting: index == deletingIndex && deleting }" >'
+                + '<div @click="deleting = false" class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
                     + '<button v-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
                     + '<input class="newNameInput" v-if="templateNameEditMode && template.id == openedListId" v-on:keyup="send($event)" @input="editTemplatesListName($event)" v-model="template.templateName" v-focus/>'
@@ -180,7 +180,7 @@ function showTemplatesList() {
                     + '</select>'
                 + '</div>'
                 + '<div class="edit-block" v-if="template.id != openedListId">'
-                    + '<span v-if="deleting && deletingIndex == index" class="templates-list-delete-warning">Будет удалено при повторном нажатии!</span>'
+                    + '<span @click="deleting = false" v-if="deleting && deletingIndex == index" class="templates-list-delete-warning">Будет удалено при повторном нажатии!</span>'
                     + '<button @click="copyMonthFromThisTemplate(template.id)" class="copy"> </button>'
                     + '<button @click="deleteTemplateList(template.id, index)" class="delete"> </button>'
                 + '</div>'
