@@ -39,7 +39,7 @@ function showTemplatesList() {
             }
         },
         template:
-        '<div @click="$parent.templateNameEditMode = false" class="template-list">'
+        '<div @click="$parent.templateNameEditMode = false" class="months">'
             + '<div @click="minimizedSum = !minimizedSum" v-bind:class="{ minimized: minimizedSum }" class="template-total-window">'
                 + '<p v-if="this.totals.totalAmountSalaryCash > 0 && !minimizedSum">ЗП нал: {{totals.totalAmountSalaryCash}} </p>'
                 + '<p v-if="this.totals.totalAmountSalaryCard > 0 && !minimizedSum">ЗП крт: {{totals.totalAmountSalaryCard}} </p>'
@@ -49,33 +49,60 @@ function showTemplatesList() {
             + '</div>'
             + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<v-touch v-on:swipe="editTemplate(index, currentTemplate.templateId)">'
-                    + '<div class="name">{{ currentTemplate.spendName }}</div>'
+                    + '<div class="name-notices-block">'
+                        + '<div class="name"> {{ currentTemplate.spendName }} </div>'
+                    + '</div>'
                     + '<div class="deposited">'
                         + '<span v-if="!editMode || editingIndex != index" class="month-amount">{{ currentTemplate.amount }}</span>'
-                        + '<input v-if="editMode && editingIndex == index" type="number" @change="editTemplateAmount($event)" @input="editTemplateAmount($event)" class="templateAmountInput" :value="currentTemplate.amount" />'
+                        + '<input v-if="editMode && editingIndex == index" type="number" @change="editTemplateAmount($event)" @input="editTemplateAmount($event)" :value="currentTemplate.amount" />'
                     + '</div>'
                     + '<div v-if="!editMode || editingIndex != index" class="buttons">'
                         + '<button v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
                         + '<button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
-                    + '<div v-if="editMode && editingIndex == index" class="buttons editing">'
-                        + '<select class="salary-prepaid-form" @change="salaryToggle($event)">'
+                    + '<div v-if="editMode && editingIndex == index" class="salary-cash-select">'
+                        + '<select class="salary-prepaid-form">'
                             + '<option value="salary" :selected="currentTemplate.salary">ЗП</option>'
                             + '<option value="prepaid" :selected="!currentTemplate.salary">Аванс</option>'
                         + '</select>'
                         + '<br />'
-                        + '<select class="cash-card-form" @change="cashToggle($event)">'
+                        + '<select class="cash-card-form" @change="cashToggle($event, index, month.monthlySpendsId)">'
                             + '<option value="cash" :selected="currentTemplate.cash">Нал</option>'
                             + '<option value="card" :selected="!currentTemplate.cash">Безнал</option>'
                         + '</select>'
-                        // + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                        // + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
                     + '<div class="sub-edit-block">'
                         + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()"> </button>'
                         + '<button v-if="editMode && editingIndex == index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)"> </button>'
                         + '<button v-if="!editMode || editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit"> </button>'
                     + '</div>'
+                    // + '<div class="name">{{ currentTemplate.spendName }}</div>'
+                    // + '<div class="deposited">'
+                    //     + '<span v-if="!editMode || editingIndex != index" class="month-amount">{{ currentTemplate.amount }}</span>'
+                    //     + '<input v-if="editMode && editingIndex == index" type="number" @change="editTemplateAmount($event)" @input="editTemplateAmount($event)" class="templateAmountInput" :value="currentTemplate.amount" />'
+                    // + '</div>'
+                    // + '<div v-if="!editMode || editingIndex != index" class="buttons">'
+                    //     + '<button v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                    //     + '<button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
+                    // + '</div>'
+                    // + '<div v-if="editMode && editingIndex == index" class="buttons editing">'
+                    //     + '<select class="salary-prepaid-form" @change="salaryToggle($event)">'
+                    //         + '<option value="salary" :selected="currentTemplate.salary">ЗП</option>'
+                    //         + '<option value="prepaid" :selected="!currentTemplate.salary">Аванс</option>'
+                    //     + '</select>'
+                    //     + '<br />'
+                    //     + '<select class="cash-card-form" @change="cashToggle($event)">'
+                    //         + '<option value="cash" :selected="currentTemplate.cash">Нал</option>'
+                    //         + '<option value="card" :selected="!currentTemplate.cash">Безнал</option>'
+                    //     + '</select>'
+                    //     // + '<button @click="salaryToggle($event)" v-bind:class="[ currentTemplate.salary ? \'salary\' : \'prepaid\' ]"> </button>'
+                    //     // + '<button @click="cashToggle($event)" v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
+                    // + '</div>'
+                    // + '<div class="sub-edit-block">'
+                    //     + '<button v-if="editMode && editingIndex == index" class="save" @click="saveEditedTemplate()"> </button>'
+                    //     + '<button v-if="editMode && editingIndex == index" class="delete" @click="deleteTemplateFromTemplateList(currentTemplate.templateId)"> </button>'
+                    //     + '<button v-if="!editMode || editingIndex != index" @click="editTemplate(index, currentTemplate.templateId)" class="edit"> </button>'
+                    // + '</div>'
                 + '</v-touch>'
             + '</div>'
         + '</div>',
@@ -248,9 +275,9 @@ function showTemplatesList() {
                 }
             },
             handleInputListName: function(event) {
-                console.log(event.keyCode);
                 if (event.keyCode === 13){
-                    this.pushNewList()
+                    this.pushNewList();
+                    event.target.value = '';
                 } else {
                     this.newListName = event.target.value;
                 }

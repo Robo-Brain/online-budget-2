@@ -86,31 +86,14 @@ button:focus {
 
 /*  TEMPLATES start  */
 
-.month-item.templates-list .name{
-    font-size: 1.2em;
-    width: 36%;
-}
-.month-item.templates-list .deposited {
-    width: 22%;
-}
-.month-item.templates-list .buttons {
-    width: 20%;
-    font-size: .7em;
-    float: left;
-}
-.month-item.templates-list button.salary,
-.month-item.templates-list button.prepaid {
-    width: 55%;
+.month-item.templates-list {
     font-size: 1em;
-    height: 2em;
-    margin: 0 2%;
 }
-.month-item.templates-list button.card,
-.month-item.templates-list button.cash {
-    width: 2em;
+
+.month-item.templates-list .deposited .month-amount{
     font-size: 1em;
-    margin: 0 2%;
 }
+
 .sub-edit-block {
     width: 14%;
     float: right;
@@ -153,17 +136,6 @@ button:focus {
     height: 3em;
     border: none;
     float: right;
-}
-
-.templates-list {
-    float: none !important;
-    display: inline-block;
-    width: 96%;
-    margin: 0 2% 0 2%;
-}
-
-.template-list {
-    padding: .6em 0;
 }
 
 .template-total-window {
@@ -391,16 +363,16 @@ button.salary:after {
     margin-right: 1em;
 }
 
-.template select {
-    font-size: 1em;
-    border-radius: 0.2em;
-    border: solid black 1px;
-    text-align: right;
-    padding: 0 0.1em;
-    margin: 2% 1%;
-    width: 98%;
-    height: 1.6em;
-}
+/*.template select {*/
+    /*font-size: 1em;*/
+    /*border-radius: 0.2em;*/
+    /*border: solid black 1px;*/
+    /*text-align: right;*/
+    /*padding: 0 0.1em;*/
+    /*margin: 2% 1%;*/
+    /*width: 98%;*/
+    /*height: 1.6em;*/
+/*}*/
 
 .templateSpendName, .templateAmount, .templateSalaryOrPrepaid, .templateCashOrCard {
     display: block;
@@ -491,11 +463,10 @@ button.salary:after {
  }
 
 .month-item{
-    width: 65%;
     display: table;
     height: 100%;
-    min-height: 2.5em;
-    line-height: 1em;
+    min-height: 3.5em;
+    line-height: 100%;
     position: relative;
     font-size: 1.5em;
     box-shadow: 2px -2px 5px 0 rgba(0,0,0,.1), -2px -2px 5px 0 rgba(0,0,0,.1), 2px 2px 5px 0 rgba(0,0,0,.1), -2px 2px 5px 0 rgba(0,0,0,.1);
@@ -513,13 +484,20 @@ button.salary:after {
 }
 
 .month-item .name {
-    float: left;
-    font-size: 1.8em;
-    width: 33%;
+    font-size: 1.2em;
+    /* height: auto; */
+    /* line-height: 1.5em; */
+    /* padding: 0.2em 0; */
+    /* position: absolute; */
+    position: absolute;
+    top: 50%;
+    /* left: 30%; */
+    transform: translateY(-50%);
+    width: 38%
 }
 
-.name-notices-block .name {
-    width: 38% !important;
+.month-item.templates-list .salary-cash-select{
+    font-size: .8em;
 }
 
 .month-item .deposited .month-amount{
@@ -529,7 +507,7 @@ button.salary:after {
 
 .month-item .deposited {
     float: left;
-    font-size: 1.8em;
+    font-size: 1.2em;
     width: 33%;
     position: relative;
     text-align: center;
@@ -545,8 +523,8 @@ button.salary:after {
 
 .deposited button.plus-button{
     position: absolute;
-    top: 33%;
-    right: 85%;
+    top: 38%;
+    right: 80%;
     border: none;
     width: 2.5em;
     height: 2.5em;
@@ -566,13 +544,16 @@ button.salary:after {
 .month-item .deposited.lack input{
     border: solid #bc1a0c 1px;
     color: #bc1a0c;
-    margin-right: 0.2em;
 }
 
 .month-item .salary-cash-select {
-    padding: 0 !important;
-    width: 25%;
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translateY(-50%);
     float: left;
+    font-size: 1.2em;
+
 }
 .month-item .salary-cash-select select{
     width: 100%;
@@ -580,6 +561,7 @@ button.salary:after {
 }
 .month-item .salary-cash-select .salary-prepaid-form{
     margin-bottom: .2em;
+    border-radius: .2em;
 }
 
 .month-item .buttons {
@@ -959,10 +941,6 @@ button.notice{
     width: 2em;
     height: 2em;
     vertical-align: middle;
-}
-
-.name-notices-block {
-    position: relative;
 }
 
 .month-notices-show-button {
