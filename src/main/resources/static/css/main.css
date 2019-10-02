@@ -915,10 +915,10 @@ button.notice{
     right: 2px;
     float: right;
     font-weight: bold;
-    width: 20px;
-    height: 20px;
+    width: 1.8em;
+    height: 1.8em;
     text-align: center;
-    line-height: 20px;
+    line-height: 1.8em;
     background-color: rgba(0, 0, 0, 0.05);
     border-radius: 2px;
     cursor: pointer;
