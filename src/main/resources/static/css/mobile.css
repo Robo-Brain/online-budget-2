@@ -60,6 +60,11 @@
         bottom: -.6em !important;
         right: -.4em !important;
     }
+    .sub-edit-block .delete.min {
+        position: absolute !important;
+        bottom: -.4em !important;
+        right: -.2em !important;
+    }
     .sub-edit-block .notice {
         position: absolute !important;
         top: -1.2em !important;
@@ -87,10 +92,10 @@
     /*}*/
     .month-item .deposited {
         width: 28%;
-        /*font-size: 1.2em;*/
+        /* font-size: 1.2em; */
         position: absolute;
         top: 50%;
-        left: 32%;
+        left: 36%;
         transform: translateY(-50%);
     }
 

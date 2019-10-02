@@ -36,7 +36,8 @@ function showLastMonth() {
                 },
                 editingIndex: null,
                 plusIndex: null,
-                notices: []
+                notices: [],
+                deleting: false
             }
         },
         template:
@@ -45,7 +46,7 @@ function showLastMonth() {
                 + '<div v-if="localMonthList.length < 1">'
                     + 'Список пуст, добавь статьи расходов вручную, <a href="#" @click="showNoMonthModal = true">заполни по активному шаблону по предыдущему месяцу</a>'
                 + '</div>'
-                + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" v-for="(month, index, key) in localMonthList" >'
+                + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name-notices-block">'
                         + '<div @click="showAmountHistory(month.monthlySpendsId)" class="name"> {{ month.spendName }} </div>'
                         + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
@@ -64,7 +65,7 @@ function showLastMonth() {
                         + '<button @click="toggleNoticeModal(month.monthlySpendsId)" class="notice"> </button>'
                     + '</div>'
                 + '</div>'
-                + '<div v-if="editMode" class="month-item" v-for="(month, index, key) in localMonthList" >'
+                + '<div v-if="editMode" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name">'
                         + ' {{ month.spendName }}'
                     + '</div>'
@@ -82,13 +83,11 @@ function showLastMonth() {
                             + '<option value="card" :selected="!month.cash">Безнал</option>'
                         + '</select>'
                     + '</div>'
-                    // + '<div class="buttons" v-bind:class="{ edit: editMode }">'
-                    //     + '<button @click="salaryToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.salary ? \'salary\' : \'prepaid\' ]"> </button>'
-                    //     + '<button @click="cashToggle($event, index, month.monthlySpendsId)" v-bind:class="[ month.cash ? \'cash\' : \'card\' ]"> </button>'
-                    // + '</div>'
                     + '<div class="sub-edit-block">'
-                        + '<button v-if="editingIndex == index" class="save" @click="saveSpendInMonth()"> </button>'
-                        + '<button v-else-if="editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId)"> </button>'
+                        + '<button v-if="editingIndex == index && !deleting" class="save" @click="saveSpendInMonth()"> </button>'
+                        + '<button v-else-if="editingIndex != index" class="delete" @click="delMonthSpend(month.monthlySpendsId, index)"> </button>'
+                        + '<span class="monthly-spend-delete-warning" v-if="deleting && editingIndex == index" >при повторном нажатии ✖ БУДЕТ УДАЛЕНО!</span>'
+                        + '<button v-if="deleting && editingIndex == index" class="delete min" @click="delMonthSpend(month.monthlySpendsId, index)"> </button>'
                     + '</div>'
                 + '</div>'
 
@@ -217,6 +216,7 @@ function showLastMonth() {
                     this.showSpendInput = false;
                     this.templateAmount = '';
                     this.editMode = !this.editMode;
+                    this.deleting = false;
                 }
             },
             setAmount: function(event, index, monthlySpendsId) { // установка новой суммы для spend в режиме редактирования monthly_spend
@@ -274,13 +274,20 @@ function showLastMonth() {
                             }
                         });
             },
-            delMonthSpend: function (monthlySpendsId) {
-                axios.delete('month/deleteSpendFromMonth?monthId=' + monthlySpendsId).then(async result => {
-                    await getMissingSpends(result.data[0].dateId).then(res => {
-                        this.missingSpendsList = res.data;
+            delMonthSpend: function (monthlySpendsId, index) {
+                if(this.deleting && this.editingIndex === index){
+                    axios.delete('month/deleteSpendFromMonth?monthId=' + monthlySpendsId).then(async result => {
+                        await getMissingSpends(result.data[0].dateId).then(res => {
+                            this.missingSpendsList = res.data;
+                        });
+                        this.localMonthList = result.data;
                     });
-                    this.localMonthList = result.data;
-                });
+                    this.deleting = false;
+                    this.editingIndex = null;
+                } else {
+                    this.deleting = true;
+                    this.editingIndex = index;
+                }
             },
             async getNoticesAndShowNoticeModal(monthlySpendId) {
                 await axios.get('notices/getByMonthlySpendsId/' + monthlySpendId).then(result => {

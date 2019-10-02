@@ -112,7 +112,7 @@ public class TemplatesService {
         Boolean templatesListsHaveThisTemplateId = false;
         List<TemplatesList> templatesLists = tlr.findAll();
         for (TemplatesList tl : templatesLists) {
-            if (!templatesListsHaveThisTemplateId) {
+            if (Objects.nonNull(tl.getTemplateId()) && !templatesListsHaveThisTemplateId) {
                 String[] id = tl.getTemplateId().split(","); // для каждого templates_list'a получить список template_id
                 templatesListsHaveThisTemplateId = Arrays.asList(id).contains(String.valueOf(templateId)); // если найден templates_list с таким template_id, то прервать цикл и не удалять template_id
             }
