@@ -501,7 +501,7 @@ button.salary:after {
     top: 50%;
     /* left: 30%; */
     transform: translateY(-50%);
-    width: 40%
+    width: 37%
 }
 
 .month-item .deposited .month-amount{
