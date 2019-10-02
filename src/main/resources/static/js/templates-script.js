@@ -151,7 +151,9 @@ function showTemplatesList() {
                  selectedSpendToAdd: '',
                  newListName: '',
                  templateListId: null,
-                 templateNameEditMode: false
+                 templateNameEditMode: false,
+                 deleting: false,
+                 deletingIndex: null
              }
          },
          directives: {
@@ -163,7 +165,7 @@ function showTemplatesList() {
          },
         template:
         '<div class="templatesList">' //родительский шаблон, который вмещает в себя дочерний 'template'
-            +'<div v-if="localTemplatesList.length > 0" v-for="template in localTemplatesList" class="template" :class="{ active: template.templateEnabled }" >'
+            +'<div v-if="localTemplatesList.length > 0" v-for="(template, index, key) in localTemplatesList" class="template" :class="{ active: template.templateEnabled, deleting: index == deletingIndex }" >'
                 + '<div class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
                     + '<button v-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
@@ -178,8 +180,9 @@ function showTemplatesList() {
                     + '</select>'
                 + '</div>'
                 + '<div class="edit-block" v-if="template.id != openedListId">'
+                    + '<span v-if="deleting && deletingIndex == index" class="templates-list-delete-warning">Будет удалено при повторном нажатии!</span>'
                     + '<button @click="copyMonthFromThisTemplate(template.id)" class="copy"> </button>'
-                    + '<button @click="deleteTemplateList(template.id)" class="delete"> </button>'
+                    + '<button @click="deleteTemplateList(template.id, index)" class="delete"> </button>'
                 + '</div>'
             + '</div>'
             + '<div v-if="localTemplatesList.length == 0"><h4>Has no templates yet.</h4></div>'
@@ -212,7 +215,7 @@ function showTemplatesList() {
             },
             editTemplatesListName: function(event) {
                 this.newListName = event.target.value; //функция принимает новое имя и сразу же записывает его в глобальную переменную
-                let tmpVal = event.target.value;//функция принимает новое имя и сразу же записывает его в локальную переменную
+                let tmpVal = event.target.value; //функция принимает новое имя и сразу же записывает его в локальную переменную
                 let self = this;
                 setTimeout(function(){
                     if(tmpVal === self.newListName) { //если глобальная переменная == локальной, тогда записывать
@@ -270,8 +273,15 @@ function showTemplatesList() {
                     this.localTemplatesList = result.data;
                 });
             },
-            deleteTemplateList: function(templateListId) {
-                axios.delete('/templatesList/delete=' + templateListId).then(result => this.localTemplatesList = result.data)
+            deleteTemplateList: function(templateListId, index) {
+                if (this.deleting && this.deletingIndex === index){
+                    axios.delete('/templatesList/delete=' + templateListId).then(result => this.localTemplatesList = result.data);
+                    this.deleting = false;
+                    this.deletingIndex = null;
+                } else {
+                    this.deleting = true;
+                    this.deletingIndex = index;
+                }
             }
         },
         created: function () {

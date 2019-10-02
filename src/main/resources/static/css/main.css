@@ -194,6 +194,15 @@ button:focus {
     float: left;
 }
 
+.templates-list-delete-warning {
+    position: absolute;
+    color: red;
+    top: 0;
+    left: 2%;
+    font-size: .7em;
+    width: 80%;
+}
+
 .template-name {
     width: 95%;
     display: inline-block;
@@ -321,12 +330,15 @@ button.salary:after {
     2px 2px 5px 0 rgba(0,0,0,.1),
     -2px 2px 5px 0 rgba(0,0,0,.1);
     transition: 0.3s all linear;
+    position: relative;
 }
-
 .template.active {
     /*background-color: #3badd6;*/
     background: rgb(59,214,145);
     background: linear-gradient(149deg, rgba(59,214,145,0.91) 0%, rgba(59,173,214,1) 50%);
+}
+.template.deleting {
+    border: solid red 1px;
 }
 
 .template button.name {
