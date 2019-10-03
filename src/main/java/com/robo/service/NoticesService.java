@@ -33,12 +33,13 @@ public class NoticesService {
 
     public void addNotice(Integer monthlySpendId, String text, Boolean remind) {
         if (text.length() > 2) {
-            Integer msId = msr.findOneById(monthlySpendId).isPresent() ? monthlySpendId : null; // проверить есть ли в monthly_spends поле с таким ID, если нет, то заnullить его
+            MonthlySpends ms = msr.findOneById(monthlySpendId).orElseThrow(NotFoundException::new);
             Notices notice = new Notices();
-            notice.setMonthlySpendId(msId);
+            notice.setMonthlySpendId(ms.getId());
             notice.setText(text);
             notice.setRemind(remind);
             notice.setCreationDate(Date.valueOf(LocalDate.now()));
+            notice.setSpendId(ms.getTemplates().getSpendId());
             nr.save(notice);
         }
     }

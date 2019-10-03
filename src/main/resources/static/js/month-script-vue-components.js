@@ -11,7 +11,7 @@ Vue.component('amountHistoryModal', {
     template:
     '<div class="modal">'
         + '<transition name="slideIn" appear>'
-            + '<div v-if="subModal" class="modal-content">'
+            + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                      + '<div class="amount-history" v-for="amountHistory in amountHistoryArr">'
                         + '{{amountHistory[0].date}}<div class="history-item" v-for="item in amountHistory">'
@@ -31,6 +31,9 @@ Vue.component('amountHistoryModal', {
         }
     },
     methods: {
+        handleFocusOut() {
+            this.closeModal();
+        },
         closeModal: function () {
             this.subModal = false;
             this.historyElementId = null;
@@ -175,7 +178,7 @@ Vue.component('noticeModal', {
     template:
     '<div class="modal">'
         + '<transition name="slideIn" appear>'
-            + '<div v-if="subModal" class="modal-content">'
+            + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '<div v-if="notices.length > 0" v-for="notice in notices">'
                     + '<li>{{ notice.text }}</li>'
@@ -184,6 +187,9 @@ Vue.component('noticeModal', {
         + '</transition>'
     + '</div>',
     methods: {
+        handleFocusOut() {
+            this.closeModal();
+        },
         closeModal: function () {
             this.subModal = false;
             let self = this;
@@ -213,7 +219,7 @@ Vue.component('createTemplateModal', {// <modalCreateTemplate v-if="this.showCre
     template:
     '<div class="modal">'
     + '<transition name="slideIn" appear>'
-        + '<div v-if="subModal" class="modal-content new-template">'
+        + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content new-template">'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '{{ bodyText }}'
                 + '<p><input v-model="name" v-on:keyup="handleTemplateName($event)" v-focus /> <button class="save-button" @click="saveTemplateList()"> </button></p>'
@@ -221,6 +227,9 @@ Vue.component('createTemplateModal', {// <modalCreateTemplate v-if="this.showCre
         + '</transition>'
     + '</div>',
     methods: {
+        handleFocusOut() {
+            this.closeModal();
+        },
         closeModal: function () {
             this.subModal = false;
             let self = this;
@@ -484,7 +493,7 @@ Vue.component('plusAmountMonthModal', {
     },
     template:
         '<transition name="slideToRight" appear>'
-            + '<div v-if="subModal" class="modal-plus-content">'
+            + '<div @focusout="handleFocusOut" tabindex="0" v-if="subModal" class="modal-plus-content">'
                 // + '<div @click="closeModal()" class="modal-button close">×</div>'
                 + '<button class="fill" @click="fillMonthAmount()">  </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" v-on:keyup="handleMonthAmount($event)" type="number" v-focus />'
@@ -492,6 +501,9 @@ Vue.component('plusAmountMonthModal', {
             + '</div>'
         + '</transition>',
     methods: {
+        handleFocusOut() {
+            this.closeModal();
+        },
         closeModal: function () {
             this.subModal = false;
             let self = this;
@@ -503,7 +515,6 @@ Vue.component('plusAmountMonthModal', {
             if (event.keyCode === 13) this.plusMonthAmount();
         },
         plusMonthAmount: function () {
-            console.log(this.templateAmount + ' / ' + this.monthlySpendsId);
             if (this.plusAmount > 0 && this.monthlySpendsId > 0){
                 axios.put('month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount)
                     .then(result => {

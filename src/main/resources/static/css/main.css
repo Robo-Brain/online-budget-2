@@ -961,16 +961,12 @@ button.notice{
 
 .month-notices-show-button {
     position: absolute;
-    /*width: 2.8em;*/
-    width: 2.5em;
-    /*height: 2.8em;*/
-    height: 2.5em;
-    /*left: -1.2em;*/
-    left: 96%;
-    /*top: -1.3em;*/
-    top: -1.2em;
+    width: 3em;
+    height: 3em;
+    right: 94%;
+    top: -1em;
     border: none;
-    background: url("/img/notice-red.png") no-repeat 50%;
+    background: url(/img/notice-red.png) no-repeat 50%;
     background-size: 100%;
 }
 
@@ -1016,16 +1012,9 @@ button.notice{
     background-size: 100%;
 }
 
-.months.all-months .name{
-    font-size: 1em !important;
-    width: 29%;
-}
-.months.all-months .deposited{
-    font-size: 1em !important;
-    width: 35%;
-}
-.months.all-months .month-amount{
-    font-size: 1em !important;
+.month-amount.all{
+    font-size: .7em !important;
+    opacity: 1 !important;
 }
 
 /*NOTES START*/

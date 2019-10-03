@@ -114,7 +114,8 @@
                             // timeout: 7000,
                             buttons: [
                                 Noty.button(' ', 'button-mute', function () {
-                                    axios.post('/notices/muteNotice/' + remind.id)
+                                    console.log(remind);
+                                    axios.post('/notices/muteNotice/' + remind.noticeId)
                                         .then(() => n.close())
                                         .catch(error => alert(error))
                                 })
