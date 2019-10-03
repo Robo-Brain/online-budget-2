@@ -104,12 +104,16 @@
         vertical-align: middle;
     }
     .modal-plus-content .plusAmountInput{
-        width: 3em;
         float: left;
-        font-size: .68em;
         padding: 0.2em;
-        border-radius: 0.1em;
+        border: solid #000 1px;
+        border-radius: 0.2em;
+        font-size: 1.7em;
+        width: 3.15em;
+        text-align: center;
+        margin-left: .2em;
     }
+
     .month-item .deposited.edit input {
         margin: 0 !important;
         font-size: 1.3em;
@@ -176,24 +180,5 @@
     .prepaid-block {
         width: 100% !important;
         margin-bottom: 1em;
-    }
-
-    .modal-plus-content {
-        /*top: .3em;*/
-        /* opacity: .9; */
-        left: -3.5em;
-    }
-    .modal-plus-content input {
-        font-size: 1em !important;
-        width: 5em !important;
-    }
-    .modal-plus-content button{
-        /*padding: 0 .7em;*/
-        padding: .45em 1em;
-        opacity: 1;
-    }
-
-    .modal-plus-content .fill {
-        min-width: 2.5em !important;
     }
 }

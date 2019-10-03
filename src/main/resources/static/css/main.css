@@ -803,34 +803,34 @@ button.notice{
 }
 .modal-plus-content {
     position: absolute;
-    top: 0;
-    left: -19.5%;
-    /* left: 1.3em; */
-    /* padding: 22%; */
+    top: 5%;
+    left: 21%;
     display: flex;
 }
 
 .modal-plus-content button {
-    /* margin-left: .3em; */
     font-size: 1em;
     float: right;
-    padding: 0 .5em;
     font-weight: bold;
     border: solid #000 1px;
     border-radius: .1em;
     margin: 0 .2em 0 0;
-    opacity: .8;
-    background-color: transparent;
     box-shadow: 0 0 0 128px rgba(0, 0, 0, 0.25) inset;
+    background-color: transparent;
+    opacity: 2;
+    line-height: .9em;
 }
 
 .modal-plus-content .fill {
-    background: url("/img/fill.png") no-repeat 50%;
+    background: url(/img/fill.png) no-repeat;
     background-size: contain;
-    min-width: 1.6em;
+    padding: 0 1.4em;
+    border-radius: .3em;
 }
 .modal-plus-content .plus {
     margin-left: .2em;
+    font-size: 3em;
+    padding: 0 .2em;
 }
 
 .slideToRight-enter-active {

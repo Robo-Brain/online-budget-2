@@ -503,6 +503,7 @@ Vue.component('plusAmountMonthModal', {
             if (event.keyCode === 13) this.plusMonthAmount();
         },
         plusMonthAmount: function () {
+            console.log(this.templateAmount + ' / ' + this.monthlySpendsId);
             if (this.plusAmount > 0 && this.monthlySpendsId > 0){
                 axios.put('month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount)
                     .then(result => {
