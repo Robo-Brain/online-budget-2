@@ -75,139 +75,56 @@ Vue.component('amountHistoryModal', {
     }
 });
 
-// Vue.component('noMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == true" />
-//     data: function() {
-//         return {
-//             enabledTemplatesHasFound: false,
-//             previousMonthHasFound: false,
-//             hideTimeoutIsOver: false,
-//             subModal: true,
-//             bodyText: 'Создать их по активному шаблону или по платежам за предыдущий месяц?',
-//             warning: false,
-//             templatesList: [],
-//             selectedTemplateId: null
-//         }
-//     },
-//     mounted() {
-//         if (localStorage.date) {
-//             if (new Date() >= new Date(localStorage.date)){ // если текущее время больше, чем сохранненое в localStorage(там сохраняется время + 1минута), значит минута прошла
-//                 this.hideTimeoutIsOver = true; // показать модальное окно "создай новый месяц"
-//                 localStorage.removeItem("date");// удалить дату на всякий случай
-//             }
-//         } else {
-//             this.hideTimeoutIsOver = true;
-//         }
-//         axios.get('templatesList').then(result => {
-//             result.data.forEach(elem => {
-//                 this.templatesList.push(elem);
-//                 if (elem.templateEnabled) {
-//                     this.selectedTemplateId = elem.id;
-//                 }
-//             });
-//         })
-//     },
-//     template:
-//     '<div v-if="(enabledTemplatesHasFound || previousMonthHasFound) && hideTimeoutIsOver" class="modal">' //  && this.date <= actualDate
-//         + '<transition name="slideIn" appear>'
-//             + '<div v-if="subModal" class="modal-content notice">'
-//                 + '<div @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
-//                 + '<p>Внимание, платежи по текущему месяцу не найдены!</p>'
-//                 + '<span v-if="bodyText.length > 1">{{ bodyText }}<br /></span>'
-//                 + '<span class="new-month-warning" v-if="warning"><input id="warning" @click="warningToggle()" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
-//                 + '<div class="buttonBlock">'
-//                     + '<button v-if="!warning" :disabled="!previousMonthHasFound" @click="createMonthByLast()">по последнему месяцу</button>'
-//                 + '</div>'
-//                 + '<div class="buttonBlock">'
-//                     + '<select v-if="!warning" @change="pushSpendToMonth()" >'
-//                         + '<option v-for="template in templatesList" v-bind:value="template.id" :selected="template.templateEnabled === true" >'
-//                         + '{{ template.templateName }}'
-//                         + '</option>'
-//                     + '</select>'
-//                     + '&nbsp;<button v-if="!warning" :disabled="templatesList.length < 1" @click="createMonthBySelected()">по шаблону</button>'
-//                 + '</div>'
-//             + '</div>'
-//         + '</transition>'
-//     + '</div>',
-//     methods: {
-//         closeModal: function () {
-//             this.subModal = false;
-//             let self = this;
-//             setTimeout(function(){
-//                 self.$parent.showNoMonthModal = false;
-//             }, 500);
-//             let d = new Date();
-//             d.setMinutes(d.getMinutes()+5);
-//             localStorage.date = d; // записать время+5мин в localStorage
-//         },
-//         warningToggle: function () {
-//             this.warning = false;
-//             this.bodyText = '';
-//         },
-//         createMonthBySelected: function () {
-//             if (this.selectedTemplateId > 0){
-//                 axios.post('month/createFromTemplateListId?templateListId=' + this.selectedTemplateId).then(result => {
-//                     this.$parent.localMonthList = result.data;
-//                 });
-//                 this.$parent.showNoMonthModal = false;
-//             } else {
-//                 console.log('selectedTemplateId not found or 0 less')
-//             }
-//         },
-//         createMonthByLast: function () {
-//             if (this.previousMonthHasFound) {
-//                 axios.get('month/createFromLastMonth').then(result => {
-//                     this.$parent.localMonthList = result.data;
-//                 });
-//                 this.$parent.showNoMonthModal = false;
-//             }
-//         }
-//     },
-//     created: function () {
-//         axios.get('month/all')
-//             .then(result => {
-//                     if(result.data.length > 0){
-//                         this.previousMonthHasFound = true // сделать кнопку "Заполнить по предыдущему месяцу" активной
-//                     }
-//                 }
-//             ).catch(() => this.previousMonthHasFound = false);
-//         axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.$parent.dateId)
-//             .then(result => {
-//                 switch (result.data) {
-//                     case 'MONTH_OK.FULL_NOT':
-//                         this.bodyText = 'Платежи по текущему месяцу внесены не до конца';
-//                         this.warning = true;
-//                         break;
-//                 }
-//             });
-//     }
-// });
-
-Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMonthModal" :dateId="dateId" />
-        props: ['dateId'],
-        data: function() {
+Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal == true" />
+    data: function() {
         return {
+            enabledTemplatesHasFound: false,
+            previousMonthHasFound: false,
+            hideTimeoutIsOver: false,
+            subModal: true,
             bodyText: 'Создать новый месяц?',
             warning: false,
-            ignoreWarning: false,
-            subModal: true,
-            emptyMonth: false,
-            previousMonthOverpaid: false
+            templatesList: [],
+            selectedTemplateId: null
         }
     },
+    mounted() {
+        if (localStorage.date) {
+            if (new Date() >= new Date(localStorage.date)){ // если текущее время больше, чем сохранненое в localStorage(там сохраняется время + 1минута), значит минута прошла
+                this.hideTimeoutIsOver = true; // показать модальное окно "создай новый месяц"
+                localStorage.removeItem("date");// удалить дату на всякий случай
+            }
+        } else {
+            this.hideTimeoutIsOver = true;
+        }
+        axios.get('templatesList').then(result => {
+            result.data.forEach(elem => {
+                this.templatesList.push(elem);
+                if (elem.templateEnabled) {
+                    this.selectedTemplateId = elem.id;
+                }
+            });
+        })
+    },
     template:
-    '<div class="modal">'// v-if="this.$parent.showCreateMonthModal"
+    '<div class="modal">' //  && this.date <= actualDate
         + '<transition name="slideIn" appear>'
-            + '<div v-if="subModal" class="modal-content new-month">'
-                + '<div @click="closeModal()" class="modal-button close">×</div>'
-                + '<p>'
-                    + '{{ bodyText }}<br />'
-                    + '<button class="new-month-button no" @click="closeModal()">NO</button> '
-                    + '<button v-if="!warning" @click="checkBeforeCreateNewMonth()" class="new-month-button yes">YES</button>'
-                    + '<button v-if="warning" :disabled="!ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button>'
-                    + '<br /><br />'
-                    + '<span class="new-month-warning" v-if="!warning"><input id="emptyMonth" v-model="emptyMonth" type="checkbox" /> <label for="emptyMonth">Создать пустой месяц</label></span>'
-                    + '<span class="new-month-warning" v-if="warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
-                + '</p>'
+            + '<div v-if="subModal" class="modal-content notice">'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'//$emit('close'),
+                + '<p>{{bodyText}}</p>'
+                + '<span v-if="bodyText.length > 1">{{ bodyText }}<br /></span>'
+                + '<span class="new-month-warning" v-if="warning"><input id="warning" @click="warningToggle()" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
+                + '<div class="buttonBlock">'
+                    + '<button v-if="!warning" :disabled="!previousMonthHasFound" @click="createMonthByLast()">по последнему месяцу</button>'
+                + '</div>'
+                + '<div class="buttonBlock">'
+                    + '<select v-if="!warning" >'
+                        + '<option v-for="template in templatesList" v-bind:value="template.id" :selected="template.templateEnabled === true" >'
+                        + '{{ template.templateName }}'
+                        + '</option>'
+                    + '</select>'
+                    + '&nbsp;<button v-if="!warning" :disabled="templatesList.length < 1" @click="createMonthBySelected()">по шаблону</button>'
+                + '</div>'
             + '</div>'
         + '</transition>'
     + '</div>',
@@ -218,67 +135,150 @@ Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMon
             setTimeout(function(){
                 self.$parent.showCreateMonthModal = false;
             }, 500);
-            this.ignoreWarning = this.warning = this.emptyMonth = false;
-            this.bodyText = 'Создать новый месяц?';
+            let d = new Date();
+            d.setMinutes(d.getMinutes()+5);
+            localStorage.date = d; // записать время+5мин в localStorage
         },
-        checkBeforeCreateNewMonth: function () {
-            axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.dateId)
-                .then(result => {
-                    switch (result.data) {
-                        case 'MONTH_OK.FULL_OK':
-                            if(!this.emptyMonth){
-                                this.createNewMonth();
-                            } else {
-                                this.emptyMonth = true;
-                                this.createNewMonth();
-                            }
-                            break;
-                        case 'MONTH_OK.FULL_NOT':
-                            this.bodyText = 'Платежи по текущему месяцу внесены не до конца, продолжить?';
-                            this.warning = true;
-                            break;
-                        case 'MONTH_NOT.FULL_OK':
-                            this.bodyText = 'Календарный месяц еще не завершен, продолжить?';
-                            this.warning = true;
-                            break;
-                        case 'MONTH_NOT.FULL_NOT':
-                            this.bodyText = 'Календарный месяц еще не завершен, платежи по текущему месяцу внесены не до конца, продолжить?';
-                            this.warning = true;
-                            break;
-                    }
-            });
+        warningToggle: function () {
+            this.warning = false;
+            this.bodyText = '';
         },
-        createNewMonth: function () {
-            axios.get('month/getPreviousMonthOverpayment' ).then(() => {
-                this.$parent.showPreviousMonthOverpaidModal = true;
-            });
-            if(!this.emptyMonth){
-                axios.put('month/createNewMonthByDateId?dateId=' + this.dateId)
-                    .then(result => {
-                        this.$parent.localMonthList = result.data;
-                    });
+        createMonthBySelected: function () {
+            if (this.selectedTemplateId > 0){
+                axios.post('month/createFromTemplateListId?templateListId=' + this.selectedTemplateId).then(result => {
+                    this.$parent.localMonthList = result.data;
+                });
+                this.$parent.showCreateMonthModal = false;
             } else {
-                axios.put('dates/makeNewDate')
-                    .then(async result => {
-                        this.$parent.localMonthList = result.data;
-                        this.$parent.editMode = true; // включить режим редактирования принудительно
-
-                        await axios.get('dates/lastDate') // попробовать получить dateId
-                            .then(result => {
-                                this.dateId = result.data.id
-                            });
-                        await axios.get('spends') // попробовать получить dateId
-                            .then(result => {
-                                this.missingSpendsList = result.data;
-                            });
-                    });
+                console.log('selectedTemplateId not found or 0 less')
             }
-            if (!this.previousMonthOverpaid){
-                this.closeModal();
+        },
+        createMonthByLast: function () {
+            if (this.previousMonthHasFound) {
+                axios.get('month/createFromLastMonth').then(result => {
+                    this.$parent.localMonthList = result.data;
+                });
+                this.$parent.showCreateMonthModal = false;
             }
         }
+    },
+    created: function () {
+        axios.get('month/all')
+            .then(result => {
+                    if(result.data.length > 0){
+                        this.previousMonthHasFound = true // сделать кнопку "Заполнить по предыдущему месяцу" активной
+                    }
+                }
+            ).catch(() => this.previousMonthHasFound = false);
+        axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.$parent.dateId)
+            .then(result => {
+                switch (result.data) {
+                    case 'MONTH_OK.FULL_NOT':
+                        this.bodyText = 'Платежи по текущему месяцу внесены не до конца';
+                        this.warning = true;
+                        break;
+                }
+            });
     }
 });
+
+// Vue.component('createMonthModal', { //<modalCreateMonth v-if="this.showCreateMonthModal" :dateId="dateId" />
+//         props: ['dateId'],
+//         data: function() {
+//         return {
+//             bodyText: 'Создать новый месяц?',
+//             warning: false,
+//             ignoreWarning: false,
+//             subModal: true,
+//             emptyMonth: false,
+//             previousMonthOverpaid: false
+//         }
+//     },
+//     template:
+//     '<div class="modal">'// v-if="this.$parent.showCreateMonthModal"
+//         + '<transition name="slideIn" appear>'
+//             + '<div v-if="subModal" class="modal-content new-month">'
+//                 + '<div @click="closeModal()" class="modal-button close">×</div>'
+//                 + '<p>'
+//                     + '{{ bodyText }}<br />'
+//                     + '<button class="new-month-button no" @click="closeModal()">NO</button> '
+//                     + '<button v-if="!warning" @click="checkBeforeCreateNewMonth()" class="new-month-button yes">YES</button>'
+//                     + '<button v-if="warning" :disabled="!ignoreWarning" @click="createNewMonth()" class="new-month-button yes">YES</button>'
+//                     + '<br /><br />'
+//                     + '<span class="new-month-warning" v-if="!warning"><input id="emptyMonth" v-model="emptyMonth" type="checkbox" /> <label for="emptyMonth">Создать пустой месяц</label></span>'
+//                     + '<span class="new-month-warning" v-if="warning"><input id="warning" v-model="ignoreWarning" type="checkbox" /> <label for="warning">Игнорировать предупреждение</label></span>'
+//                 + '</p>'
+//             + '</div>'
+//         + '</transition>'
+//     + '</div>',
+//     methods: {
+//         closeModal: function () {
+//             this.subModal = false;
+//             let self = this;
+//             setTimeout(function(){
+//                 self.$parent.showCreateMonthModal = false;
+//             }, 500);
+//             this.ignoreWarning = this.warning = this.emptyMonth = false;
+//             this.bodyText = 'Создать новый месяц?';
+//         },
+//         checkBeforeCreateNewMonth: function () {
+//             axios.get('month/checkBeforeCreateNewMonth?dateId=' + this.dateId)
+//                 .then(result => {
+//                     switch (result.data) {
+//                         case 'MONTH_OK.FULL_OK':
+//                             if(!this.emptyMonth){
+//                                 this.createNewMonth();
+//                             } else {
+//                                 this.emptyMonth = true;
+//                                 this.createNewMonth();
+//                             }
+//                             break;
+//                         case 'MONTH_OK.FULL_NOT':
+//                             this.bodyText = 'Платежи по текущему месяцу внесены не до конца, продолжить?';
+//                             this.warning = true;
+//                             break;
+//                         case 'MONTH_NOT.FULL_OK':
+//                             this.bodyText = 'Календарный месяц еще не завершен, продолжить?';
+//                             this.warning = true;
+//                             break;
+//                         case 'MONTH_NOT.FULL_NOT':
+//                             this.bodyText = 'Календарный месяц еще не завершен, платежи по текущему месяцу внесены не до конца, продолжить?';
+//                             this.warning = true;
+//                             break;
+//                     }
+//             });
+//         },
+//         createNewMonth: function () {
+//             axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+//                 this.$parent.showPreviousMonthOverpaidModal = true;
+//             });
+//             if(!this.emptyMonth){
+//                 axios.put('month/createNewMonthByDateId?dateId=' + this.dateId)
+//                     .then(result => {
+//                         this.$parent.localMonthList = result.data;
+//                     });
+//             } else {
+//                 axios.put('dates/makeNewDate')
+//                     .then(async result => {
+//                         this.$parent.localMonthList = result.data;
+//                         this.$parent.editMode = true; // включить режим редактирования принудительно
+//
+//                         await axios.get('dates/lastDate') // попробовать получить dateId
+//                             .then(result => {
+//                                 this.dateId = result.data.id
+//                             });
+//                         await axios.get('spends') // попробовать получить dateId
+//                             .then(result => {
+//                                 this.missingSpendsList = result.data;
+//                             });
+//                     });
+//             }
+//             if (!this.previousMonthOverpaid){
+//                 this.closeModal();
+//             }
+//         }
+//     }
+// });
 
 Vue.component('noticeModal', {
     props: ['notices'],
