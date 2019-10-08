@@ -135,4 +135,16 @@ public class MonthlySpendsController {
     public List<MonthlySpendsDTO> plusMonthAmount(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId, @RequestParam(name = "plusAmount") Integer plusAmount){
         return mss.plusMonthAmount(monthlySpendsId, plusAmount);
     }
+
+    @GetMapping("/getPreviousMonthOverpayment")
+    public List<MonthlySpendsDTO> getPreviousMonthOverpayment(){
+        return mss.getPreviousMonthOverpayment();
+    }
+
+    @PostMapping("/transferOverpaymentToCurrentMonth")
+    public List<MonthlySpendsDTO> transferOverpaymentToCurrentMonth(@RequestParam(name = "normalize") Boolean normalize){// current month date.id
+        mss.transferOverpaymentToCurrentMonth(normalize);
+        return getLastMonth();
+    }
+
 }

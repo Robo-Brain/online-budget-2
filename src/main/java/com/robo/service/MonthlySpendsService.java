@@ -14,10 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MonthlySpendsService {
@@ -75,16 +73,16 @@ public class MonthlySpendsService {
 
     public List<MonthlySpendsDTO> getMonthsDTOByDateID(Integer dateId) {
         List<MonthlySpends> allMonthlySpends = getMonthlySpendsByDateId(dateId);
-        if (Objects.nonNull(allMonthlySpends) && allMonthlySpends.size() > 0){
+//        if (Objects.nonNull(allMonthlySpends) && allMonthlySpends.size() > 0){
             List<MonthlySpendsDTO> resultList = new ArrayList<>();
             allMonthlySpends.forEach(monthlySpends -> {
                 MonthlySpendsDTO msDTO = new MonthlySpendsDTO(monthlySpends);
                 resultList.add(msDTO);
             });
             return resultList;
-        } else { // если с таким dateId ничего не найдено, кинуть кастомный эксепшн, на морде будет форма для ручного добавления spends
-            throw new DatesException.DateWOSpends();
-        }
+//        } else { // если с таким dateId ничего не найдено, кинуть кастомный эксепшн, на морде будет форма для ручного добавления spends
+//            throw new DatesException.DateWOSpends();
+//        }
     }
 
     public List<List<MonthlySpendsDTO>> getAllMonthlySpends() { // получить все месяцы
@@ -96,7 +94,7 @@ public class MonthlySpendsService {
 
     List<MonthlySpends> getMonthlySpendsByDateId(Integer id){
         List<MonthlySpends> ms = new ArrayList<>();
-        return msr.findAllByDateId(id).orElse(ms);
+        return msr.findAllByDateId(id).isEmpty() ? ms : msr.findAllByDateId(id);
     }
 
     public void createMonthByEnabledTemplatesList() {
@@ -115,27 +113,31 @@ public class MonthlySpendsService {
 
     public ResponseEntity checkBeforeCreateNewMonth(Integer dateId) {
         if (Objects.nonNull(dateId) && dateId > 0) {
-            List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
-            if (msList.get(0).getDates().getDate().getYear() != LocalDate.now().getYear()
-                || msList.get(0).getDates().getDate().getMonth() != LocalDate.now().getMonthValue()){ // дата ежемесячных платежей НЕ совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц закончен с точки зрения календаря
-                    if (checkMonthForCompletion(dateId)) { // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
-                        createNewMonthByDateId(dateId);
-                        return new ResponseEntity<>("MONTH_OK.FULL_OK", HttpStatus.OK);
-                    } else return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
-            } else { // дата ежемесячных платежей совпадает с СЕГОДНЯШНЕЙ датой в dates, прошлый месяц еще не закончен с точки зрения календаря
+            List<MonthlySpends> msList = msr.findAllByDateId(dateId);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(msList.get(0).getDates().getDate());
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH) + 1;
+
+            if (year == LocalDate.now().getYear() && month == LocalDate.now().getMonthValue()){
                 if (checkMonthForCompletion(dateId))
                     return new ResponseEntity<>("MONTH_NOT.FULL_OK", HttpStatus.OK);
-                else  return new ResponseEntity<>("MONTH_NOT.FULL_NOT", HttpStatus.OK); // текущий календарный месяц еще НЕ закончен и статьи расходов НЕ пополнены необх суммами с точки зрения monthly_spend.amount < templates.amount
+                else return new ResponseEntity<>("MONTH_NOT.FULL_NOT", HttpStatus.OK); // текущий календарный месяц еще НЕ закончен и статьи расходов НЕ пополнены необх суммами с точки зрения monthly_spend.amount < templates.amount
+            } else {
+                if (checkMonthForCompletion(dateId))  // каждая статья расходов пополнена необходимой суммой с точки зрения monthly_spend.amount >= templates.amount
+                    return new ResponseEntity<>("MONTH_OK.FULL_OK", HttpStatus.OK);
+                else return new ResponseEntity<>("MONTH_OK.FULL_NOT", HttpStatus.OK);
             }
+
         } else throw new RuntimeException("dateId cannot be NULL or less than 0");
     }
 
     public void createNewMonthByDateId(Integer dateId) {
-        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId);
         if (!msList.isEmpty()) {
             Dates date = ds.generateDate();
             date.setCompleted(false);
-            System.out.println(date);
             dr.save(date);
             msList.forEach(ms -> {
                 MonthlySpends monthlySpends = new MonthlySpends();
@@ -231,7 +233,7 @@ public class MonthlySpendsService {
         msr.delete(ms);
         ts.deleteTemplate(templateId, dateId);
 
-        if(!msr.findAllByDateId(dateId).isPresent()) { // если месячных трат с таким dateId больше нет(удалил единственный), то удалить и дату(dates)
+        if(msr.findAllByDateId(dateId).isEmpty()) { // если месячных трат с таким dateId больше нет(удалил единственный), то удалить и дату(dates)
             ds.deleteDate(dateId);
         }
 
@@ -239,7 +241,7 @@ public class MonthlySpendsService {
     }
 
     public void deleteMonth(Integer dateId){
-        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId);
         msList.forEach(ms -> {
             Integer templateId = ms.getTemplateId();
             msr.delete(ms);
@@ -250,10 +252,50 @@ public class MonthlySpendsService {
     }
 
     private Boolean checkMonthForCompletion(Integer dateId) { // проверка месяца на завершенность с точки зрения платежей
-        List<MonthlySpends> msList = msr.findAllByDateId(dateId).orElseThrow(NotFoundException::new);
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId);
         Long res = msList.stream().filter(ms -> ms.getMonthAmount() < ms.getTemplates().getAmount()).count();
         return res <= 0;
     }
 
+    public List<MonthlySpendsDTO> getPreviousMonthOverpayment() { // проверить заполнены ли monthly_spends для этого date.id
+        List<Integer> previousDatesList = dr.getOrderedDatesIdRow().stream().skip(1).collect(Collectors.toList()); // возвращает все date.id кроме последнего
+        boolean hasFounded = false;
+        for (Integer prevDateId : previousDatesList) {
+            while (!hasFounded) {
+                hasFounded = ds.checkDateIdForMonthlySpendsFullness(prevDateId);
+                if (hasFounded){
+                    return getOverpaymentSpends(prevDateId);
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private List<MonthlySpendsDTO> getOverpaymentSpends(Integer dateId) {
+        List<MonthlySpendsDTO> msList = getMonthsDTOByDateID(dateId);
+        List<MonthlySpendsDTO> result = msList.stream().filter(ms -> ms.getMonthAmount() > ms.getTemplateAmount()).collect(Collectors.toList());
+        return result.isEmpty() ? new ArrayList<>() : result;
+    }
+
+
+    public void transferOverpaymentToCurrentMonth(Boolean normalizePreviousAmounts) { // перенести переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
+        Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
+        List<MonthlySpendsDTO> previousMonthOverpaymentSpendsDTO = getPreviousMonthOverpayment();
+        previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
+            MonthlySpends ms;
+            try {
+                ms = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
+                ms.setMonthAmount(previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount());
+                msr.save(ms);
+                if (normalizePreviousAmounts){
+                    MonthlySpends previousMS = msr.findOneById(previousMonthSpend.getMonthlySpendsId()).orElseThrow(NotFoundException::new);
+                    previousMS.setMonthAmount(previousMS.getTemplates().getAmount());
+                    msr.save(previousMS);
+                }
+            } catch (NotFoundException e){
+                System.out.println(e);
+            }
+        });
+    }
 }
 

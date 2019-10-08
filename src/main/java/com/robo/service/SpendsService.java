@@ -37,7 +37,7 @@ public class SpendsService {
     }
 
     public List<Spends> getMonthlyMissingSpends(Integer monthlyDateId) {
-        List<MonthlySpends> msList = msr.findAllByDateId(monthlyDateId).orElseThrow(NotFoundException::new); //найти все monthly_spends с одинаковым date_id
+        List<MonthlySpends> msList = msr.findAllByDateId(monthlyDateId); //найти все monthly_spends с одинаковым date_id
         String templatesIdEnum = msList.stream().map((item) -> item.getTemplateId().toString()).collect(Collectors.joining(",","","")); // строка представляющая из себя перечисление template_id через запятую
         return getDifferentialSpendsList(templatesIdEnum);
     }

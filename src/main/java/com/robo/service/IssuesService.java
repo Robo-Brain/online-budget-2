@@ -30,7 +30,7 @@ public class IssuesService {
     }
 
     public boolean fixDateWOSpendsException(Integer dateId) {
-        if (!msr.findAllByDateId(dateId).isPresent()) { // если monthly_spends действительно нет для этого dates
+        if (msr.findAllByDateId(dateId).isEmpty()) { // если monthly_spends действительно нет для этого dates
             dr.findOneById(dateId).ifPresent(dates -> dr.delete(dates));
             return true;
         }

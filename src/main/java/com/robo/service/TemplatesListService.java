@@ -190,13 +190,16 @@ public class TemplatesListService {
         tlr.save(tl);
     }
 
-    Boolean templatesListContainsTemplateWithId(Integer templateId) {
-        return tlr.findAll()
-                .stream()
-                .map(tl ->
-                        Arrays.asList(tl.getTemplateId().split(",")))
-                            .anyMatch(ids ->
-                                    ids.contains(String.valueOf(templateId)));
+    Boolean templatesListContainsTemplateWithId(Integer templateId) { // проверка на наличие template_id в templates_list
+        List<TemplatesList> templatesLists = tlr.findAll();
+        for (TemplatesList tl : templatesLists) {
+            if (Objects.nonNull(tl.getTemplateId()) && !tl.getTemplateId().isEmpty()) {
+                return Arrays.asList(tl.getTemplateId().split(",")).contains(String.valueOf(templateId));
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

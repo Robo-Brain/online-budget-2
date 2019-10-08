@@ -82,7 +82,7 @@ public class DatesService {
             date.setCompleted(false);
             dr.save(date);
         } else { // сегодняшняя дата в базе есть, календарный месяц не завершен
-            if (msr.findAllByDateId(date.getId()).isPresent()){ // сегодняшняя дата найдена и для нее есть платежи, значит создается следующий месяц, все ок, новую дату НУЖНО создать
+            if (!msr.findAllByDateId(date.getId()).isEmpty()){ // сегодняшняя дата найдена и для нее есть платежи, значит создается следующий месяц, все ок, новую дату НУЖНО создать
                 date = new Dates();
                 date.setDate(makeNewDate());
                 date.setCompleted(false);
@@ -90,6 +90,11 @@ public class DatesService {
             } // else сегодняшняя дата найдена и для нее нет платежей, значит заполняется "пустой" месяц, новую дату создавать НЕ нужно
         }
         return date;
+    }
+
+    Boolean checkDateIdForMonthlySpendsFullness(Integer dateId) {// проверить заполнены ли monthly_spends для этого date.id
+        Dates dates = dr.findOneById(dateId).orElseThrow(NotFoundException::new);
+        return !msr.findAllByDateId(dates.getId()).isEmpty();
     }
 
 }

@@ -12,8 +12,7 @@ function showLastMonth() {
             return {
                 localMonthList: [],
                 noticesMonthlySpendsId: [],
-                date: '',
-                showNoMonthModal: false,
+                // showNoMonthModal: false,
                 showCreateNoticeModal: false,
                 showNoticeModal: false,
                 showCreateTemplateModal: false,
@@ -21,6 +20,7 @@ function showLastMonth() {
                 showDeleteMonthModal: false,
                 showPlusAmountMonthModal: false,
                 showAmountHistoryModal: false,
+                showPreviousMonthOverpaidModal: false,
                 spendId: '',
                 missingSpendsList: [],
                 dateId: '',
@@ -42,9 +42,9 @@ function showLastMonth() {
         },
         template:
             '<div class="months">'
-                + '<div class="date">{{ date }}</div>'
+                + '<br /><div v-if="localMonthList.length > 0" class="date">{{ localMonthList[0].date }}</div>'
                 + '<div v-if="localMonthList.length < 1">'
-                    + 'Список пуст, добавь статьи расходов вручную, <a href="#" @click="showNoMonthModal = true">заполни по активному шаблону по предыдущему месяцу</a>'
+                    + 'Список пуст, добавь статьи расходов вручную, <a href="#" @click="showCreateMonthModal = true">заполни по активному шаблону по предыдущему месяцу</a>'
                 + '</div>'
                 + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name-notices-block">'
@@ -64,7 +64,7 @@ function showLastMonth() {
                         + '<button @click="toggleNoticeModal(month.monthlySpendsId)" class="notice"> </button>'
                     + '</div>'
                     + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" :templateAmount="month.templateAmount" />'
-            + '</div>'
+                + '</div>'
                 + '<div v-if="editMode" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name">'
                         + ' {{ month.spendName }}'
@@ -132,7 +132,8 @@ function showLastMonth() {
                     + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
                     + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
-                + '<noMonthModal v-if="showNoMonthModal" />'
+                + '<previousMonthOverpaidModal v-if="showPreviousMonthOverpaidModal" />' //'<span v-if="previousMonthOverpaid">В предыдущем месяце переплаты бла бла <button @click="transfer()">transfer</button></span>'
+                // + '<noMonthModal v-if="showNoMonthModal" />'
                 + '<createMonthModal v-if="showCreateMonthModal" :dateId="dateId" />'
                 + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'
                 + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
@@ -161,10 +162,6 @@ function showLastMonth() {
                         this.totals.depositPrepaidCard = !item.salary && !item.cash ? this.totals.depositPrepaidCard + item.monthAmount : this.totals.depositPrepaidCard;
                     }
                 },
-                deep: true
-            },
-            date: {
-                handler: function (val, oldVal) {},
                 deep: true
             },
             totalAmountSalaryCash: {
@@ -261,7 +258,6 @@ function showLastMonth() {
                 axios.put('month/pushSpendToMonth?spendId=' + this.spendId + '&dateId=' + this.dateId)
                         .then(async result => {
                             if (result.data.length > 0) {
-                                this.date = result.data[0].date;
                                 this.dateId = result.data[0].dateId;
 
                                 this.localMonthList = result.data;
@@ -316,7 +312,6 @@ function showLastMonth() {
                         this.editMode = true; // включить режим редактирования принудительно
                         await axios.get('dates/lastDate') // попробовать получить dateId
                             .then(result => {
-                                this.date = result.data.date;
                                 this.dateId = result.data.id
                             });
                         await axios.get('spends')
@@ -324,19 +319,18 @@ function showLastMonth() {
                                 this.missingSpendsList = result.data;
                             });
                     }
-                    let lastDBDate = new Date(result.data[0].date);
-                    let curDate = new Date();
-                    if (parseInt(lastDBDate.getMonth(),10)
-                        <
-                        parseInt(curDate.getMonth(),10)){
-                            this.showNoMonthModal = true;
-                    } else if(parseInt(lastDBDate.getFullYear(),10)
-                        <
-                        parseInt(curDate.getFullYear(),10)) {
-                            this.showNoMonthModal = true;
-                    }
+                    // let lastDBDate = new Date(result.data[0].date);
+                    // let curDate = new Date();
+                    // if (parseInt(lastDBDate.getMonth(),10)
+                    //     <
+                    //     parseInt(curDate.getMonth(),10)){
+                    //         this.showNoMonthModal = true;
+                    // } else if(parseInt(lastDBDate.getFullYear(),10)
+                    //     <
+                    //     parseInt(curDate.getFullYear(),10)) {
+                    //         this.showNoMonthModal = true;
+                    // }
 
-                    this.date = result.data[0].date;
                     this.dateId = result.data[0].dateId;
                     result.data.forEach(month => {
                         this.localMonthList.push(month);

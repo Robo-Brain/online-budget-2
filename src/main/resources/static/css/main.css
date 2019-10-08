@@ -947,7 +947,7 @@ button.notice{
     width: 100%;
     text-align: justify;
 }
-.modal-content.new-month .new-month-button {
+.new-month-button {
     width: 48%;
     height: 3em;
     margin-top: 2em;
