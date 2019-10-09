@@ -101,11 +101,6 @@ public class MonthlySpendsService {
         createNewMonthByTemplatesListId(tls.getEnabledTemplate().getId());
     }
 
-    public void createMonthFromLastMonth() {
-        MonthlySpends ms = msr.findTopByOrderByIdDesc();
-        createNewMonthByDateId(ms.getDateId());
-    }
-
     public ResponseEntity checkLastMonthBeforeCreateNewMonth() {
         Integer dateId = msr.findTopByOrderByIdDesc().getDateId();
         return checkBeforeCreateNewMonth(dateId);
@@ -133,8 +128,9 @@ public class MonthlySpendsService {
         } else throw new RuntimeException("dateId cannot be NULL or less than 0");
     }
 
-    public void createNewMonthByDateId(Integer dateId) {
-        List<MonthlySpends> msList = msr.findAllByDateId(dateId);
+    public List<MonthlySpendsDTO> createNewMonthByPreviousMonth() {
+        MonthlySpends lastMS = msr.findTopByOrderByIdDesc();
+        List<MonthlySpends> msList = msr.findAllByDateId(lastMS.getDateId());
         if (!msList.isEmpty()) {
             Dates date = ds.generateDate();
             date.setCompleted(false);
@@ -146,7 +142,26 @@ public class MonthlySpendsService {
                 monthlySpends.setMonthAmount(0);
                 msr.save(monthlySpends);
             });
+
+            return getMonthsDTOByDateID(date.getId());
+
         }else throw new DatesException.DateWOSpends();
+    }
+
+    public void fillCurrentMonthByPreviousMonth(Integer dateId) { //date.id ЗАПОЛНЯЕМОГО месяца
+        List<MonthlySpends> msList = msr.findAllByDateId(dateId); // если в ЗАПОЛНЯЕМОМ месяце что-то есть >>
+        if (!msList.isEmpty()) {
+            msList.forEach(ms -> msr.delete(ms)); // >> удалить
+        }
+        MonthlySpends lastMS = msr.findTopByOrderByIdDesc(); // найти последнюю запись в monthly_spends
+        msList = msr.findAllByDateId(lastMS.getDateId()); // получить все строки с date_id предыдущего месяца
+        msList.forEach(ms -> {
+            MonthlySpends monthlySpends = new MonthlySpends();
+            monthlySpends.setDateId(dateId);
+            monthlySpends.setTemplateId(ms.getTemplateId());
+            monthlySpends.setMonthAmount(0);
+            msr.save(monthlySpends);
+        });
     }
 
     public void createNewMonthByTemplatesListId(Integer templatesListId) {
@@ -167,6 +182,23 @@ public class MonthlySpendsService {
                 msr.save(ms);
             });
         }
+    }
+
+    public List<MonthlySpendsDTO> fillCurrentMonthByTemplatesListId(Integer templatesListId, Integer dateId) {
+        if (Objects.nonNull(templatesListId) && Objects.nonNull(dateId)){
+            TemplatesList tl = tlr.findOneById(templatesListId).orElseThrow(NotFoundException::new);
+            String[] tmpIds = tl.getTemplateId().split(",");
+            Arrays.stream(tmpIds).forEach(tmpId -> {
+                Templates template = tr.findOneById(Integer.valueOf(tmpId)).orElseThrow(NotFoundException::new);
+                MonthlySpends ms = new MonthlySpends();
+                ms.setDateId(dateId);
+                ms.setTemplateId(template.getId());
+                ms.setMonthAmount(0);
+                msr.save(ms);
+            });
+
+            return getMonthsDTOByDateID(dateId);
+        } else throw new RuntimeException();
     }
 
     public List<MonthlySpendsDTO> saveMonthAmount(Integer monthlySpendsId, Integer amount) {
@@ -297,5 +329,6 @@ public class MonthlySpendsService {
             }
         });
     }
+
 }
 

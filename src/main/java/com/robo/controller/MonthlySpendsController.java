@@ -68,12 +68,6 @@ public class MonthlySpendsController {
         return getLastMonth();
     }
 
-    @GetMapping("/createFromLastMonth")
-    public List<MonthlySpendsDTO> createMonthFromLastMonth(){
-        mss.createMonthFromLastMonth();
-        return getLastMonth();
-    }
-
     @GetMapping("/checkBeforeCreateNewMonth")
     public ResponseEntity checkBeforeCreateNewMonth(@RequestParam(name = "dateId") Integer dateId){
         return mss.checkBeforeCreateNewMonth(dateId);
@@ -83,15 +77,25 @@ public class MonthlySpendsController {
         return mss.checkLastMonthBeforeCreateNewMonth();
     }
 
-    @PutMapping("/createNewMonthByDateId")
-    public List<MonthlySpendsDTO> createNewMonthByDateId(@RequestParam(name = "dateId") Integer dateId){
-        mss.createNewMonthByDateId(dateId);
-        return getLastMonth();
+    @PutMapping("/createNewMonthByPreviousMonth")
+    public List<MonthlySpendsDTO> createNewMonthByPreviousMonth(){
+        return mss.createNewMonthByPreviousMonth();
+    }
+
+    @PutMapping("/fillCurrentMonthByPreviousMonth")
+    public List<MonthlySpendsDTO> fillCurrentMonthByPreviousMonth(@RequestParam(name = "dateId") Integer dateId){
+        mss.fillCurrentMonthByPreviousMonth(dateId);
+        return getMonthWithDateId(dateId);
     }
 
     @PutMapping("/createNewMonthByTemplatesListId")
     public void createMonthByTemplatesList(@RequestParam(name = "templateListId") Integer templateListId){
         mss.createNewMonthByTemplatesListId(templateListId);
+    }
+
+    @PutMapping("/fillCurrentMonthByTemplatesListId")
+    public List<MonthlySpendsDTO> fillCurrentMonthByTemplatesListId(@RequestParam(name = "templateListId") Integer templateListId, @RequestParam(name = "dateId") Integer dateId){
+        return mss.fillCurrentMonthByTemplatesListId(templateListId, dateId);
     }
 
     @GetMapping("/getMonthWithDateId")
