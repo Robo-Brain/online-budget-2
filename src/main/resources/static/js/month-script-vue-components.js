@@ -593,7 +593,7 @@ Vue.component('previousMonthOverpaidModal', {
     data: function() {
         return {
             subModal: true,
-            normalizePreviousAmounts: false,
+            normalizePreviousAmounts: true,
             showOverpaids: false,
             overpaidsList: [],
             selectedOverpaids: [],
@@ -609,7 +609,7 @@ Vue.component('previousMonthOverpaidModal', {
                         + 'В предыдущем месяце найдена <a @click="showOverpaids = !showOverpaids">переплата</a>, перенести её в текущий месяц?<br />'
                         + '<button class="new-month-button no" @click="closeModal()">NO</button>'
                         + '<button :disabled="!selectAllOverpaids && selectedOverpaids.length < 1" @click="transfer()" class="new-month-button yes">YES</button><br /><br />'
-                        + '<span class="new-month-warning"><input id="warning" v-model="normalizePreviousAmounts" checked type="checkbox" /> <label for="warning">Удалить переплаты из прошлого месяца</label></span>'
+                        + '<span class="new-month-warning"><input id="warning" v-model="normalizePreviousAmounts" type="checkbox"/> <label for="warning">Удалить переплаты из прошлого месяца</label></span>'
                     + '</p>'
                     + '<input type="checkbox" v-model="selectAllOverpaids" id="selectAll" v-if="showOverpaids" /><label v-if="showOverpaids" for="selectAll">Выбрать все</label>'
                     + '<li v-if="showOverpaids" v-for="(overpaid, index) in overpaidsList">'

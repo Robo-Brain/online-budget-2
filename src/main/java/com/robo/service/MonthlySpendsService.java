@@ -36,6 +36,9 @@ public class MonthlySpendsService {
     MonthAmountHistoryRepo mahr;
 
     @Autowired
+    DatesRepo dr;
+
+    @Autowired
     MonthAmountHistoryService mahs;
 
     @Autowired
@@ -49,9 +52,6 @@ public class MonthlySpendsService {
 
     @Autowired
     DatesService ds;
-
-    @Autowired
-    DatesRepo dr;
 
     public List<MonthlySpendsDTO> getCurrentMonth() {// переписать метод, не нужно кидать 404
         Dates date = ds.getTodaysDate(); // получить сегодняшнюю дату и вернуть для нее entity dates иначе new Dates()
@@ -314,16 +314,21 @@ public class MonthlySpendsService {
         Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
         List<MonthlySpendsDTO> previousMonthOverpaymentSpendsDTO = getPreviousMonthOverpayment();
         previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
-            MonthlySpends ms;
+            MonthlySpends currentMS;
             try {
-                ms = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()).orElseThrow(NotFoundException::new); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
-                ms.setMonthAmount(previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount());
-                msr.save(ms);
+                currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()).orElseThrow(NotFoundException::new); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
+                Integer overpaymentAmount = previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount();
+                currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
+                msr.save(currentMS);
+
+                String comment = normalizePreviousAmounts ? "Перенос из прошлого месяца С удалением переплаты" : "Перенос из прошлого месяца БЕЗ удаления переплаты";
+
                 if (normalizePreviousAmounts){
                     MonthlySpends previousMS = msr.findOneById(previousMonthSpend.getMonthlySpendsId()).orElseThrow(NotFoundException::new);
                     previousMS.setMonthAmount(previousMS.getTemplates().getAmount());
                     msr.save(previousMS);
                 }
+                mahs.addNewHistoryElement(currentMS.getId(), overpaymentAmount, comment);
             } catch (NotFoundException e){
                 System.out.println(e);
             }
@@ -340,10 +345,14 @@ public class MonthlySpendsService {
             currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
             msr.save(currentMS);
 
+            String comment = normalize ? "Перенос из прошлого месяца С удалением переплаты" : "Перенос из прошлого месяца БЕЗ удаления переплаты";
+
             if (normalize) {
                 previousMS.setMonthAmount(tmp.getAmount());
                 msr.save(previousMS);
             }
+
+            mahs.addNewHistoryElement(currentMS.getId(), overpaymentAmount, comment);
         });
     }
 

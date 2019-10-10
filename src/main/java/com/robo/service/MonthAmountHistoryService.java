@@ -58,7 +58,13 @@ public class MonthAmountHistoryService {
         return result;
     }
 
-    void addNewHistoryElement(Integer monthlySpendsId, Integer newAmount) {
+
+    void addNewHistoryElement(Integer monthlySpendsId, Integer newAmount, String comment){
+        MonthAmountHistory mah = addNewHistoryElement(monthlySpendsId, newAmount);
+        setCommentToAmountHistoryElement(mah.getId(), comment);
+    }
+
+    MonthAmountHistory addNewHistoryElement(Integer monthlySpendsId, Integer newAmount) {
         List<MonthAmountHistory> historyListForMonthlySpendsId = mahr.findAllByMonthlySpendsId(monthlySpendsId);
 
         Calendar cal = Calendar.getInstance();
@@ -69,13 +75,18 @@ public class MonthAmountHistoryService {
 
         if (historyListForMonthlySpendsId.isEmpty()
                 || historyListForMonthlySpendsId.stream()
-                .noneMatch(history -> history.getAmount() >= newAmount)){ // если нет истории для этого monthlySpendsId, то сохранить "не глядя" или если старая сумма НЕ МЕНЬШЕ новой
+                .noneMatch(history -> history.getAmount() >= newAmount)){
+            System.out.println("dsds");// если нет истории для этого monthlySpendsId, то сохранить "не глядя" или если старая сумма НЕ МЕНЬШЕ новой
             MonthAmountHistory mah = new MonthAmountHistory();
             mah.setDate(Date.valueOf(LocalDate.now()));
             mah.setTime(Time.valueOf(sdf.format(time.getTime())));
             mah.setMonthlySpendsId(monthlySpendsId);
             mah.setAmount(newAmount);
             mahr.save(mah);
+            return mah;
+        } else {
+            System.out.println("else" + historyListForMonthlySpendsId);
+            return null;
         }
     }
 
