@@ -87,7 +87,8 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
             warning: false,
             templatesList: [],
             selectedTemplateId: null,
-            emptyMonth: false
+            emptyMonth: false,
+            previousMonthOverpaid: false
         }
     },
     mounted() {
@@ -141,6 +142,9 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
             }, 500);
             this.ignoreWarning = this.warning = this.emptyMonth = false;
             this.bodyText = '';
+            if (this.previousMonthOverpaid){
+                this.$parent.showPreviousMonthOverpaidModal = true;
+            }
         },
         warningToggle: function () {
             this.warning = false;
@@ -155,7 +159,6 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                         this.$parent.localMonthList = result.data;
                     });
                     this.$parent.editMode = false;
-                    this.closeModal();
                 } else {
                     console.log('selectedTemplateId not found or 0 less')
                 }
@@ -164,10 +167,8 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                     this.$parent.localMonthList = result.data;
                 });
                 this.$parent.editMode = false;
-                this.closeModal();
             } else {
-                console.log('Ubnormal statement!\nthis.emptyMonth: %s\nthis.fillCurrentMonth: %s', this.emptyMonth, this.fillCurrentMonth )
-                this.closeModal();
+                console.log('Abnormal statement!\nthis.emptyMonth: %s\nthis.fillCurrentMonth: %s', this.emptyMonth, this.fillCurrentMonth );
             }
         },
         createMonthByLast: function () {
@@ -175,7 +176,7 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                 this.createEmptyMonth();
             } else if (!this.emptyMonth && !this.fillCurrentMonth) {
                 if (this.previousMonthHasFound) {
-                    axios.get('month/createNewMonthByPreviousMonth').then(result => {
+                    axios.put('month/createNewMonthByPreviousMonth').then(result => {
                         this.$parent.localMonthList = result.data;
                     });
                     this.$parent.editMode = false;
@@ -189,7 +190,7 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                 this.closeModal();
             } else {
                 this.closeModal();
-                console.log('Ubnormal statement!\nthis.emptyMonth: %s\nthis.fillCurrentMonth: %s', this.emptyMonth, this.fillCurrentMonth )
+                console.log('Abnormal statement!\nthis.emptyMonth: %s\nthis.fillCurrentMonth: %s', this.emptyMonth, this.fillCurrentMonth );
             }
         },
         createEmptyMonth: function () {
@@ -236,6 +237,10 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
         } else {
             this.bodyText = 'Заполнить текущий месяц?';
         }
+
+        axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+            this.previousMonthOverpaid = true;
+        });
     }
 });
 
@@ -588,27 +593,45 @@ Vue.component('previousMonthOverpaidModal', {
     data: function() {
         return {
             subModal: true,
-            normalizePreviousAmounts: false
+            normalizePreviousAmounts: false,
+            showOverpaids: false,
+            overpaidsList: [],
+            selectedOverpaids: [],
+            selectAllOverpaids: true
         }
     },
     template:
         '<div class="modal">'
             + '<transition name="slideIn" appear>'
-                + '<div v-if="subModal" class="modal-content">'
+                + '<div v-if="subModal" class="modal-content overpaid">'
                     + '<div @click="closeModal()" class="modal-button close">×</div>'
                     + '<p>'
-                        + 'В предыдущем месяце найдены переплаты, перенести их в текущий месяц?<br />'
-                        + '<button class="new-month-button no" @click="closeModal()">NO</button> <button @click="transfer()" class="new-month-button yes">YES</button><br /><br />'
+                        + 'В предыдущем месяце найдена <a @click="showOverpaids = !showOverpaids">переплата</a>, перенести её в текущий месяц?<br />'
+                        + '<button class="new-month-button no" @click="closeModal()">NO</button>'
+                        + '<button :disabled="!selectAllOverpaids && selectedOverpaids.length < 1" @click="transfer()" class="new-month-button yes">YES</button><br /><br />'
                         + '<span class="new-month-warning"><input id="warning" v-model="normalizePreviousAmounts" checked type="checkbox" /> <label for="warning">Удалить переплаты из прошлого месяца</label></span>'
                     + '</p>'
+                    + '<input type="checkbox" v-model="selectAllOverpaids" id="selectAll" v-if="showOverpaids" /><label v-if="showOverpaids" for="selectAll">Выбрать все</label>'
+                    + '<li v-if="showOverpaids" v-for="(overpaid, index) in overpaidsList">'
+                        + '<input @change="select(overpaid.monthlySpendsId)" type="checkbox" :id="index" :value="overpaid.monthlySpendsId" :disabled="selectAllOverpaids" :checked="selectAllOverpaids">'
+                        + '<label :for="index">{{overpaid.spendName}}: {{overpaid.monthAmount - overpaid.templateAmount}}р.</label>'
+                    + '</li>'
                 + '</div>'
             + '</transition>'
         + '</div>',
     methods: {
         transfer: function() {
-            axios.post('/month/transferOverpaymentToCurrentMonth?normalize=' + this.normalizePreviousAmounts).then(result => {
-                this.$parent.localMonthList = result.data;
-            });
+            console.log(this.selectAllOverpaids);
+            console.log(this.selectedOverpaids.length);
+            if (this.selectAllOverpaids){
+                axios.post('month/transferOverpaymentToCurrentMonth?normalize=' + this.normalizePreviousAmounts).then(result => {
+                    this.$parent.localMonthList = result.data;
+                });
+            } else if(!this.selectAllOverpaids && this.selectedOverpaids.length > 0){
+                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + this.selectedOverpaids + '&normalize=' + this.normalizePreviousAmounts).then(result => {
+                    this.$parent.localMonthList = result.data;
+                });
+            }
             this.closeModal();
         },
         closeModal: function () {
@@ -617,7 +640,21 @@ Vue.component('previousMonthOverpaidModal', {
             setTimeout(function(){
                 self.$parent.showPreviousMonthOverpaidModal = false;
             }, 500);
+        },
+        select: function (monthlySpendsId) {
+            if (this.selectedOverpaids.includes(monthlySpendsId)) {
+                this.selectedOverpaids.splice(this.selectedOverpaids.indexOf(monthlySpendsId), 1)
+            } else {
+                this.selectedOverpaids.push(monthlySpendsId)
+            }
         }
+    },
+    created: function () {
+        axios.get('month/getPreviousMonthOverpayment' ).then(result => {
+            console.log(result.data);
+            this.overpaidsList = result.data;
+            if (this.overpaidsList.length < 1) self.$parent.showPreviousMonthOverpaidModal = false;
+        });
     }
 });
 

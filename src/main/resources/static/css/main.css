@@ -447,6 +447,15 @@ button.salary:after {
     margin: 0 auto;
     text-align: center;
     font-size: 1.8em;
+    position: relative;
+}
+.overpaid-icon {
+    position: absolute;
+    margin-left: .5em;
+    background: url("/img/overpaid.png") no-repeat 50%;
+    background-size: cover;
+    width: 1.1em;
+    height: 1.1em;
 }
 .submenu-buttons {
     width: 96%;
@@ -801,6 +810,11 @@ button.notice{
     cursor: pointer;
     margin-right: 2.8em;
 }
+
+.modal-content.overpaid a{
+    color:green;
+}
+
 .modal-plus-content {
     position: absolute;
     top: 5%;

@@ -39,12 +39,13 @@ function showLastMonth() {
                 plusIndex: null,
                 notices: [],
                 deleting: false,
-                fillCurrentMonth: false
+                fillCurrentMonth: false,
+                previousMonthOverpaid: false
             }
         },
         template:
             '<div class="months">'
-                + '<div v-if="localMonthList.length > 0" class="date">{{ localMonthList[0].date}}</div>'
+                + '<div v-if="localMonthList.length > 0" class="date">{{ localMonthList[0].date}} <span class="overpaid-icon" @click="showPreviousMonthOverpaidModal = true" v-if="previousMonthOverpaid"> </span></div>'
                 + '<div v-if="localMonthList.length < 1">'
                     + '<div v-if="date.length > 0" class="date">{{ date}}</div>'
                     + '<br />Список пуст, добавь статьи расходов вручную, <a href="#" @click="createMonthModal(true)">заполни по шаблону или предыдущему месяцу</a>'
@@ -368,6 +369,10 @@ function showLastMonth() {
                     await getMissingSpends(this.dateId)
                         .then(res => this.missingSpendsList = res.data);
                 });
+
+            axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+                this.previousMonthOverpaid = true;
+            });
         }
     });
 

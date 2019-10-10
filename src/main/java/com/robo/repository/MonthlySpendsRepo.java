@@ -18,5 +18,5 @@ public interface MonthlySpendsRepo extends JpaRepository<MonthlySpends, Integer>
 
     MonthlySpends findTopByOrderByIdDesc();
 
-    MonthlySpends findOneByDateIdAndTemplateId(Integer dateId, Integer templateId);
+    Optional<MonthlySpends> findOneByDateIdAndTemplateId(Integer dateId, Integer templateId);
 }

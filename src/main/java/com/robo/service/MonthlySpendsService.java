@@ -289,7 +289,7 @@ public class MonthlySpendsService {
         return res <= 0;
     }
 
-    public List<MonthlySpendsDTO> getPreviousMonthOverpayment() { // проверить заполнены ли monthly_spends для этого date.id
+    public List<MonthlySpendsDTO> getPreviousMonthOverpayment() {
         List<Integer> previousDatesList = dr.getOrderedDatesIdRow().stream().skip(1).collect(Collectors.toList()); // возвращает все date.id кроме последнего
         boolean hasFounded = false;
         for (Integer prevDateId : previousDatesList) {
@@ -316,7 +316,7 @@ public class MonthlySpendsService {
         previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
             MonthlySpends ms;
             try {
-                ms = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
+                ms = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()).orElseThrow(NotFoundException::new); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
                 ms.setMonthAmount(previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount());
                 msr.save(ms);
                 if (normalizePreviousAmounts){
@@ -326,6 +326,23 @@ public class MonthlySpendsService {
                 }
             } catch (NotFoundException e){
                 System.out.println(e);
+            }
+        });
+    }
+
+    public void transferSelectedOverpaymentToCurrentMonth(List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
+        Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
+        overpaymentId.forEach(id -> {
+            MonthlySpends previousMS = msr.findOneById(id).orElseThrow(NotFoundException::new); // получили MonthlySpends у которого есть overpaid с морды
+            Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(NotFoundException::new); // получили для него templates по template_id
+            Integer overpaymentAmount = previousMS.getMonthAmount() - tmp.getAmount(); // получили фактическую сумму переплаты
+            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(NotFoundException::new); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
+            currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
+            msr.save(currentMS);
+
+            if (normalize) {
+                previousMS.setMonthAmount(tmp.getAmount());
+                msr.save(previousMS);
             }
         });
     }

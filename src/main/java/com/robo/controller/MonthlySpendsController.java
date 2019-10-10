@@ -151,4 +151,11 @@ public class MonthlySpendsController {
         return getLastMonth();
     }
 
+    @PostMapping("/transferSelectedOverpaymentToCurrentMonth")
+    public List<MonthlySpendsDTO> transferSelectedOverpaymentToCurrentMonth(@RequestParam(name = "overpaymentId") List<Integer> overpaymentId, @RequestParam(name = "normalize") Boolean normalize){// current month date.id
+        System.out.println(overpaymentId);
+        mss.transferSelectedOverpaymentToCurrentMonth(overpaymentId, normalize);
+        return getLastMonth();
+    }
+
 }
