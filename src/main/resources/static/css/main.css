@@ -814,6 +814,18 @@ button.notice{
 .modal-content.overpaid a{
     color:green;
 }
+.modal-content.overpaid label{
+    font-size: 1.2em;
+}
+.modal-content.overpaid li{
+    font-size: 1.2em;
+    padding: .3em 0 .2em .8em;
+    list-style: none;
+}
+.modal-content.overpaid input{
+    width: 2em;
+    height: 2em;
+}
 
 .modal-plus-content {
     position: absolute;
