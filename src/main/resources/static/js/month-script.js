@@ -235,17 +235,11 @@ function showLastMonth() {
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
                 this.isSalary = event.target.value === 'salary';
-                console.log('ЗП: ' + this.isSalary)
-                // this.isSalary = event.target.className !== 'salary';
-                // event.target.className = this.isSalary ? 'salary' : 'prepaid';
             },
             cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
                 this.monthlySpendsId = monthlySpendsId;
                 this.editingIndex = index;
                 this.isCash = event.target.value === 'cash';
-                console.log('Нал: ' + this.isCash)
-                // this.isCash = event.target.className !== 'cash';
-                // event.target.className = this.isCash ? 'cash' : 'card';
             },
             saveSpendInMonth: function () {
                 if (this.monthlySpendsId > 0){

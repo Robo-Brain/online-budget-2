@@ -42,10 +42,16 @@ function showTemplatesList() {
         '<div @click="$parent.templateNameEditMode = false" class="months">'
             + '<div @click="minimizedSum = !minimizedSum" v-bind:class="{ minimized: minimizedSum }" class="template-total-window">'
                 + '<p v-if="this.totals.totalAmountSalaryCash > 0 && !minimizedSum">ЗП нал: {{totals.totalAmountSalaryCash}} </p>'
-                + '<p v-if="this.totals.totalAmountSalaryCard > 0 && !minimizedSum">ЗП крт: {{totals.totalAmountSalaryCard}} </p>'
-                + '<p v-if="this.totals.totalAmountPrepaidCash > 0 && !minimizedSum">Авнс нал: {{totals.totalAmountPrepaidCash}} </p>'
-                + '<p v-if="this.totals.totalAmountPrepaidCard > 0 && !minimizedSum">Авнс крт: {{totals.totalAmountPrepaidCard}} </p>'
-                + '<p>Итого: {{totals.totalAmountSalaryCash + totals.totalAmountSalaryCard + totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard}} </p>'
+                + '<p v-if="this.totals.totalAmountSalaryCard > 0 && !minimizedSum">ЗП карта: {{totals.totalAmountSalaryCard}} </p>'
+                + '<p v-if="totals.totalAmountSalaryCash + totals.totalAmountSalaryCard > 0  && !minimizedSum" class="subtotal">'
+                    + 'ЗП итого: {{totals.totalAmountSalaryCash + totals.totalAmountSalaryCard}}'
+                + '</p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCash > 0 && !minimizedSum">Аванс нал: {{totals.totalAmountPrepaidCash}} </p>'
+                + '<p v-if="this.totals.totalAmountPrepaidCard > 0 && !minimizedSum">Аванс карта: {{totals.totalAmountPrepaidCard}} </p>'
+                + '<p v-if="totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard > 0  && !minimizedSum" class="subtotal">'
+                    + 'Аванс итого: {{totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard}}'
+                + '</p>'
+                + '<p class="total">Итого: {{totals.totalAmountSalaryCash + totals.totalAmountSalaryCard + totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard}} </p>'
             + '</div>'
             + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<v-touch v-on:swipe="editTemplate(index, currentTemplate.templateId)">'
@@ -61,14 +67,14 @@ function showTemplatesList() {
                         + '<button v-bind:class="[ currentTemplate.cash ? \'cash\' : \'card\' ]"> </button>'
                     + '</div>'
                     + '<div v-if="editMode && editingIndex == index" class="salary-cash-select">'
-                        + '<select class="salary-prepaid-form">'
+                        + '<select class="salary-prepaid-form" @change="salaryToggle($event, index, currentTemplate.templateId)">'
                             + '<option value="salary" :selected="currentTemplate.salary">ЗП</option>'
                             + '<option value="prepaid" :selected="!currentTemplate.salary">Аванс</option>'
                         + '</select>'
                         + '<br />'
-                        + '<select class="cash-card-form" @change="cashToggle($event, index, month.monthlySpendsId)">'
+                        + '<select class="cash-card-form" @change="cashToggle($event, index, currentTemplate.templateId)">'
                             + '<option value="cash" :selected="currentTemplate.cash">Нал</option>'
-                            + '<option value="card" :selected="!currentTemplate.cash">Безнал</option>'
+                            + '<option value="card" :selected="!currentTemplate.cash">Карта</option>'
                         + '</select>'
                     + '</div>'
                     + '<div class="sub-edit-block">'
@@ -107,13 +113,19 @@ function showTemplatesList() {
             editTemplateAmount: function (event) {
                 if (event.target.value > 0) this.amount = event.target.value;
             },
-            salaryToggle: function (event) {
+            salaryToggle: function (event, index, editingTemplateId) { // изменение стиля кнопки salary <-> prepaid и установка значения в this.isSalary
+                this.editingTemplateId = editingTemplateId;
+                this.editingIndex = index;
                 this.isSalary = event.target.value === 'salary';
-                console.log('this.isSalary: ' + this.isSalary)
+                console.log(this.editingTemplateId)
+                console.log(this.isSalary)
             },
-            cashToggle: function (event) {
+            cashToggle: function (event, index, monthlySpendsId) { // изменение стиля кнопки cash <-> card и установка значения в this.isCash
+                this.monthlySpendsId = monthlySpendsId;
+                this.editingIndex = index;
                 this.isCash = event.target.value === 'cash';
-                console.log('this.isCash: ' + this.isCash)
+                console.log(this.editingTemplateId)
+                console.log(this.isCash)
             },
             saveEditedTemplate: function () {
                 axios.put('templatesList/editTemplateInList?templatesListId=' + this.openedListId
@@ -204,9 +216,10 @@ function showTemplatesList() {
                     this.openedListTemplates = [];
                     this.missingSpendsList = [];
 
-                    axios.get('templates/' + this.openedListId).then(result =>
+                    axios.get('templates/' + this.openedListId).then(result => {
+                        console.log(result.data);
                         this.openedListTemplates = result.data
-                    );
+                    });
 
                     axios.get('spends/' + this.openedListId).then(result =>
                             this.missingSpendsList = result.data

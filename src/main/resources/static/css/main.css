@@ -150,8 +150,9 @@ button:focus {
     position: fixed;
     right: 1%;
     top: 1%;
-    font-size: 1em;
+    font-size: .85em;
     background-color: #fff;
+    color: #2F2F2F;
     z-index: 2;
     opacity: .9;
     border-radius: .1em;
@@ -161,10 +162,19 @@ button:focus {
     top: .1%;
     opacity: .7;
 }
-
+.template-total-window .subtotal {
+    border-top: #666666 dashed 1px;
+    border-bottom: #666666 dashed 1px;
+    font-size: .7em;
+    text-align: right;
+}
+.template-total-window .total {
+    font-size: .9em;
+    text-align: right;
+}
 .template-total-window p {
     margin: 0;
-    padding: .2em;
+    padding: 0 .2em .2em .2em;
 }
 
 .template-list-item {
