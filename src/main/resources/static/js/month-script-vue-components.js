@@ -562,6 +562,7 @@ Vue.component('plusAmountMonthModal', {
         + '</transition>',
     methods: {
         handleFocusOut() {
+            console.log(this.plusAmount);
             if (this.plusAmount < 1){
                 this.closeModal();
             }
