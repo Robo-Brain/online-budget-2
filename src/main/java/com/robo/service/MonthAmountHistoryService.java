@@ -73,18 +73,24 @@ public class MonthAmountHistoryService {
         java.util.Date time = cal.getTime();//fkin heroku have no timezone UTC+5
         time.setHours(time.getHours() + 5);
 
-        if (historyListForMonthlySpendsId.isEmpty()
+        Date todaysDate = Date.valueOf(LocalDate.now());
+        Time todaysTime = Time.valueOf(sdf.format(time.getTime()));
+
+        if (historyListForMonthlySpendsId.isEmpty() // если нет истории для этого monthlySpendsId, то сохранить "не глядя"
                 || historyListForMonthlySpendsId.stream()
-                .noneMatch(history -> history.getAmount() >= newAmount)){
-            System.out.println("dsds");// если нет истории для этого monthlySpendsId, то сохранить "не глядя" или если старая сумма НЕ МЕНЬШЕ новой
+                .noneMatch(historyElem ->
+                        historyElem.getAmount() >= newAmount // или если старая сумма НЕ МЕНЬШЕ новой
+                                && (historyElem.getDate().equals(todaysDate) // и
+                                || historyElem.getTime().equals(todaysTime)))){
             MonthAmountHistory mah = new MonthAmountHistory();
-            mah.setDate(Date.valueOf(LocalDate.now()));
-            mah.setTime(Time.valueOf(sdf.format(time.getTime())));
+            mah.setDate(todaysDate);
+            mah.setTime(todaysTime);
             mah.setMonthlySpendsId(monthlySpendsId);
             mah.setAmount(newAmount);
             mahr.save(mah);
             return mah;
-        } else {
+        }
+        else {
             System.out.println("else" + historyListForMonthlySpendsId);
             return null;
         }

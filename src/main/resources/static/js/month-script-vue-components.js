@@ -5,7 +5,9 @@ Vue.component('amountHistoryModal', {
             subModal: true,
             amountHistoryArr: [],
             unexpectedDelete: true,
-            historyElementId: null
+            historyElementId: null,
+            historyAmountId: null,
+            comment: ''
         }
     },
     template:
@@ -44,7 +46,13 @@ Vue.component('amountHistoryModal', {
             }, 500);
         },
         setComment: function (itemId) {
-            axios.post('monthAmountHistory?historyAmountId=' + itemId + '&comment=' + event.target.value);
+            if (this.historyAmountId !== itemId || this.comment === event.target.value) {
+                this.historyAmountId = itemId;
+                this.comment = event.target.value;
+                axios.post('monthAmountHistory?historyAmountId=' + this.historyAmountId + '&comment=' + this.comment);
+            } else {
+                console.log('duplicate entry with id: %d, and comment: %s', itemId, event.target.value)
+            }
         },
         deleteHistoryElement: function (itemId) {
             if (this.unexpectedDelete){
@@ -554,10 +562,13 @@ Vue.component('plusAmountMonthModal', {
         + '</transition>',
     methods: {
         handleFocusOut() {
-            this.closeModal();
+            if (this.plusAmount < 1){
+                this.closeModal();
+            }
         },
         closeModal: function () {
             this.subModal = false;
+            this.plusAmount = '';
             let self = this;
             setTimeout(function(){
                 self.$parent.showPlusAmountMonthModal = false;
