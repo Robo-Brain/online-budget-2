@@ -46,13 +46,24 @@ Vue.component('amountHistoryModal', {
             }, 500);
         },
         setComment: function (itemId) {
-            if (this.historyAmountId !== itemId || this.comment === event.target.value) {
-                this.historyAmountId = itemId;
-                this.comment = event.target.value;
-                axios.post('monthAmountHistory?historyAmountId=' + this.historyAmountId + '&comment=' + this.comment);
-            } else {
-                console.log('duplicate entry with id: %d, and comment: %s', itemId, event.target.value)
-            }
+            this.historyAmountId = itemId;
+            this.comment = event.target.value;
+            
+            let tmpId = this.historyAmountId
+            let comment = this.comment;
+            let self = this;
+            setTimeout(function(){
+                if(tmpId === self.newMonthAmount && comment === self.comment) {
+                    axios.post('monthAmountHistory?historyAmountId=' + self.historyAmountId + '&comment=' + comment);
+                    self.historyAmountId = null;
+                    self.comment = '';
+                }
+            }, 1500);
+            //if (this.historyAmountId !== itemId || this.comment === event.target.value) {
+
+            //} else {
+             //   console.log('duplicate entry with id: %d, and comment: %s', itemId, event.target.value)
+            //}
         },
         deleteHistoryElement: function (itemId) {
             if (this.unexpectedDelete){
