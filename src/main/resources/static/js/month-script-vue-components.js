@@ -48,15 +48,17 @@ Vue.component('amountHistoryModal', {
         setComment: function (itemId) {
             this.historyAmountId = itemId;
             this.comment = event.target.value;
-            
-            let tmpId = this.historyAmountId
+
+            let tmpId = this.historyAmountId;
             let comment = this.comment;
             let self = this;
             setTimeout(function(){
-                if(tmpId === self.newMonthAmount && comment === self.comment) {
+                if(tmpId === self.historyAmountId && comment === self.comment) {
                     axios.post('monthAmountHistory?historyAmountId=' + self.historyAmountId + '&comment=' + comment);
                     self.historyAmountId = null;
                     self.comment = '';
+                } else {
+                    console.log('tmpId === self.historyAmountId %s / comment === self.comment %s', tmpId === self.historyAmountId, comment === self.comment)
                 }
             }, 1500);
             //if (this.historyAmountId !== itemId || this.comment === event.target.value) {
@@ -573,7 +575,6 @@ Vue.component('plusAmountMonthModal', {
         + '</transition>',
     methods: {
         handleFocusOut() {
-            console.log(this.plusAmount);
             if (this.plusAmount < 1){
                 this.closeModal();
             }
