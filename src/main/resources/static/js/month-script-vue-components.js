@@ -363,6 +363,71 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
 //     }
 // });
 
+Vue.component('totalAmountModal', {
+    props: ['localMonthList', 'properties'],
+    data: function() {
+        return {
+            subModal: true
+        }
+    },
+    template:
+    '<div class="modal">'
+        + '<transition name="slideIn" appear>'
+            + '<div v-if="subModal" class="modal-content">'
+                + '<div @click="closeModal()" class="modal-button close">×</div>'
+                + '<h4>Суммируемые в "Итого" статьи расходов:</h4>'
+                + '<div v-for="month in localMonthList">'
+                    + '<div class="watch-total-item">{{ month.spendName  }} <input @change="disableTemplateInSummary(month.templateId)" type="checkbox" :checked="!itemsContains(month.templateId)"></div>'
+                + '</div>'
+            + '</div>'
+        + '</transition>'
+    + '</div>',
+    methods: {
+        itemsContains: function(templateId) {
+            if (this.properties.templates_ignore && properties.templates_ignore.length > 0){
+                return this.properties.templates_ignore.indexOf(templateId) > -1
+            } else return false
+        },
+        disableTemplateInSummary: function(templateId) {
+            if (this.properties.templates_ignore && properties.templates_ignore.length > 0 && this.properties.templates_ignore.indexOf(templateId) > -1){
+                this.properties.templates_ignore = this.properties.templates_ignore.filter(e => e !== templateId);
+            } else if(!this.properties.templates_ignore){
+                this.properties.templates_ignore = [];
+                this.properties.templates_ignore.push(templateId)
+            } else {
+                this.properties.templates_ignore.push(templateId)
+            }
+
+            // if (this.properties.templates_ignore && properties.templates_ignore.length > 0){
+            //     this.properties.templates_ignore = this.properties.templates_ignore.filter(e => e !== templateId);
+            // } else if(this.properties.templates_ignore){
+            //     this.properties.templates_ignore.push(templateId)
+            // } else if(!this.properties.templates_ignore){
+            //     this.properties.templates_ignore = [];
+            //     this.properties.templates_ignore.push(templateId)
+            // } else console.log('waaaat');
+
+            options.properties = this.properties;
+
+            axios({
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'put',
+                url: '/options/setProperties',
+                data: JSON.stringify(options)
+            }).then(() => this.$parent.properties = options.properties);
+        },
+        closeModal: function () {
+            this.subModal = false;
+            let self = this;
+            setTimeout(function(){
+                self.$parent.showTotalAmountModal = false;
+            }, 500);
+        }
+    }
+});
+
 Vue.component('noticeModal', {
     props: ['notices'],
     data: function() {

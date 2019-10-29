@@ -1,11 +1,12 @@
 // *** SPENDS start *** //
 
 function showSpendsList() {
+    $('#spends').show();
 
     $('#templates-list').hide();
     $('#month').hide();
     $('#allMonths').hide();
-    $('#spends').show();
+    $('#options').hide();
 
     Vue.component('spends-list', {
         data: function() {

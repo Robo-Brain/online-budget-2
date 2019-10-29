@@ -1,7 +1,7 @@
 package com.robo.conf;
 
 import com.robo.Entities.User;
-import com.robo.repository.UserDetailsRepo;
+import com.robo.repository.UserRepo;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
@@ -78,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PrincipalExtractor principalExtractor(UserDetailsRepo userDetailsRepo) {
+    public PrincipalExtractor principalExtractor(UserRepo userDetailsRepo) {
 
         return map -> {
             String id = (String) map.get("sub");
@@ -91,7 +91,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            );
 
             User user = userDetailsRepo.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
-
             user.setLastVisit(LocalDateTime.now());
             return userDetailsRepo.save(user);
         };

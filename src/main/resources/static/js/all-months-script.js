@@ -1,12 +1,12 @@
 // *** SPENDS start *** //
 
 function showAllMonths() {
+    $('#allMonths').show();
 
     $('#templates-list').hide();
     $('#month').hide();
-    $('#allMonths').show();
-
     $('#spends').hide();
+    $('#options').hide();
 
     Vue.component('all-month-single-template',{
         props: ['openedListSpends', 'noticesByMonthlySpendsId'],

@@ -80,8 +80,14 @@ button:focus {
 .link{
     display: flex;
     justify-content: space-between;
-    font-size: 1.4em;
+    font-size: 1.2em;
     margin-bottom: 1.5em;
+}
+.link a{
+    margin-top: .5em;
+}
+.link img{
+    width: 2.5em;
 }
 
 /*  TEMPLATES start  */
@@ -515,6 +521,9 @@ button.salary:after {
     background: linear-gradient(149deg, rgba(59,214,145,0.91) 0%, rgba(59,173,214,1) 50%);
     margin: .5em auto;
     padding: 0.2em;
+}
+.month-item.notInTotal{
+    border-left: solid gray 5px;
 }
 
 .month-item:nth-child(odd) {
@@ -1167,4 +1176,14 @@ button.notice{
 .history-item button.delete:hover,
 .history-item button.delete:active{
     opacity: 1;
+}
+
+.watch-total-item {
+    font-size: 1.2em;
+    line-height: 1.5em;
+}
+.watch-total-item input{
+    line-height: 1.5em;
+    width: 1.5em;
+    height: 1.5em;
 }

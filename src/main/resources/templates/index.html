@@ -18,6 +18,7 @@
 
         <div id="upper-menu">
             <div class="link">
+                <div id="user"></div>
                 <a id="upper-menu-templates" href="#">Шаблоны</a>
                 <a id="upper-menu-month" href="#">Текущий</a>
                 <a id="upper-menu-allMonths" href="#">Все месяцы</a>
@@ -30,22 +31,28 @@
         <div id="allMonths"></div>
         <div id="templates-list"></div>
         <div id="spends"></div>
-
-        <script type="text/javascript" src="/js/month-script.js"></script>
-        <script type="text/javascript" src="/js/month-script-vue-components.js"></script>
-        <script type="text/javascript" src="/js/all-months-script.js"></script>
-        <script type="text/javascript" src="/js/templates-script.js"></script>
-        <script type="text/javascript" src="/js/spends-script.js"></script>
-        <script type="text/javascript" src="/js/warnings-script.js"></script>
+        <div id="options"></div>
 
         <script th:inline="javascript">
+
+            window.properties = [];
+            window.options = [];
+
+            axios.get('options').then(async result => {
+                window.options = result.data;
+                await optionsFill(result.data);
+            });
+
+            function optionsFill(data) {
+                window.properties = JSON.parse(data.properties);
+            }
 
             Vue.use(VueTouch, {name: 'v-touch'});
             VueTouch.config.swipe = {
                 direction: 'horizontal'
             };
 
-            let exc = new Vue({ //exc.e.push({test1 : 'test one'})
+            let exc = new Vue({
                 el: '#exceptions',
                 data: {
                     exceptionsArr: []
@@ -63,6 +70,7 @@
             });
 
             $( document ).ready(function() {
+
                 // warningsCheck();
                 if (localStorage.page === 'TL'){
                     showTemplatesList();
@@ -90,6 +98,9 @@
                 $('#upper-menu-spends').click(function () {
                     localStorage.page = 'SL';
                     showSpendsList();
+                });
+                $('#upper-menu-user').click(function () {
+                    showUserMenu();
                 });
 
             })
@@ -125,6 +136,14 @@
             })
                 .catch(error => alert(error))
         </script>
+
+        <script type="text/javascript" src="/js/month-script.js"></script>
+        <script type="text/javascript" src="/js/month-script-vue-components.js"></script>
+        <script type="text/javascript" src="/js/all-months-script.js"></script>
+        <script type="text/javascript" src="/js/templates-script.js"></script>
+        <script type="text/javascript" src="/js/spends-script.js"></script>
+        <!--<script type="text/javascript" src="/js/warnings-script.js"></script>-->
+        <script type="text/javascript" src="/js/options.js"></script>
 
     </th:block>
 </body>

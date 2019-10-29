@@ -3,9 +3,11 @@
 function showTemplatesList() {
 
     $('#templates-list').show();
+
     $('#month').hide();
     $('#spends').hide();
     $('#allMonths').hide();
+    $('#options').hide();
 
     Vue.component('single-template',{
         props: ['openedListTemplates', 'openedListId'],
