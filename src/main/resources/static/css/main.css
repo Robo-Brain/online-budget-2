@@ -90,6 +90,14 @@ button:focus {
     width: 2.5em;
 }
 
+.selected-menu-item {
+    color: #e6e6e6;
+    text-decoration: none;
+    cursor: default;
+    font-size: 1.2em !important;
+    margin-top: .3em !important;
+}
+
 /*  TEMPLATES start  */
 
 .month-item.templates-list {
@@ -523,7 +531,7 @@ button.salary:after {
     padding: 0.2em;
 }
 .month-item.notInTotal{
-    border-left: solid gray 5px;
+    border-left: solid gray 0.15em;
 }
 
 .month-item:nth-child(odd) {

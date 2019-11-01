@@ -35,17 +35,18 @@
 
         <script th:inline="javascript">
 
-            window.properties = [];
-            window.options = [];
+            window.options = {};
 
-            axios.get('options').then(async result => {
-                window.options = result.data;
-                await optionsFill(result.data);
+            let optionsPromise = new Promise(function(resolve, reject) {
+                axios.get('options').then(result => {
+                    resolve(result.data);
+                });
             });
 
-            function optionsFill(data) {
-                window.properties = JSON.parse(data.properties);
-            }
+            optionsPromise.then(data => {
+                window.options = data;
+            });
+
 
             Vue.use(VueTouch, {name: 'v-touch'});
             VueTouch.config.swipe = {

@@ -2,11 +2,16 @@
 
 function showSpendsList() {
     $('#spends').show();
+    $('#upper-menu-spends').addClass('selected-menu-item');
 
     $('#templates-list').hide();
     $('#month').hide();
     $('#allMonths').hide();
     $('#options').hide();
+
+    $('#upper-menu-allMonths').removeClass('selected-menu-item');
+    $('#upper-menu-month').removeClass('selected-menu-item');
+    $('#upper-menu-templates').removeClass('selected-menu-item');
 
     Vue.component('spends-list', {
         data: function() {

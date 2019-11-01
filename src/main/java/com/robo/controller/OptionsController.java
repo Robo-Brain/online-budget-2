@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("options")
@@ -22,20 +23,24 @@ public class OptionsController {
     @GetMapping
     public Options getProperties(Principal principal) {
         User loginedUser = (User) ((Authentication) principal).getPrincipal();
-        if (or.findOneByUserId(loginedUser.getId()).isPresent()){
-            return or.findOneByUserId(loginedUser.getId()).get();
+        Optional<Options> opt = or.findOneByUserId(loginedUser.getId());
+        if (opt.isPresent()){
+            if(opt.get().getProperties().equals("{}")) {
+                opt.get().setProperties("{\"templates_ignore\": [], \"color_scheme\" : \"default\"}");
+                or.save(opt.get());
+            }
+            return opt.get();
         } else {
-            Options opt = new Options();
-            opt.setUserId(loginedUser.getId());
-            opt.setProperties("{}");
-            or.save(opt);
-            return opt;
+            Options options = new Options();
+            options.setUserId(loginedUser.getId());
+            options.setProperties("{\"templates_ignore\": \"[]\", \"color_scheme\" : \"default\"}");
+            or.save(options);
+            return options;
         }
     }
 
     @PutMapping("/setProperties")
     public void setProperties(@RequestBody String requestString, Principal principal) {
-
         try {
             JSONObject jsonObj = new JSONObject(requestString);
             String jsonUserID = jsonObj.get("userId").toString();

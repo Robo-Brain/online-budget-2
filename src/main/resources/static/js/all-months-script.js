@@ -2,11 +2,16 @@
 
 function showAllMonths() {
     $('#allMonths').show();
+    $('#upper-menu-allMonths').addClass('selected-menu-item');
 
     $('#templates-list').hide();
     $('#month').hide();
     $('#spends').hide();
     $('#options').hide();
+
+    $('#upper-menu-month').removeClass('selected-menu-item');
+    $('#upper-menu-spends').removeClass('selected-menu-item');
+    $('#upper-menu-templates').removeClass('selected-menu-item');
 
     Vue.component('all-month-single-template',{
         props: ['openedListSpends', 'noticesByMonthlySpendsId'],

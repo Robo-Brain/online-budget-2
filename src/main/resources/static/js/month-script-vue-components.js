@@ -364,7 +364,7 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
 // });
 
 Vue.component('totalAmountModal', {
-    props: ['localMonthList', 'properties'],
+    props: ['localMonthList', 'prop'],
     data: function() {
         return {
             subModal: true
@@ -384,30 +384,25 @@ Vue.component('totalAmountModal', {
     + '</div>',
     methods: {
         itemsContains: function(templateId) {
-            if (this.properties.templates_ignore && properties.templates_ignore.length > 0){
-                return this.properties.templates_ignore.indexOf(templateId) > -1
+            if (this.prop.templates_ignore && this.prop.templates_ignore.length > 0){
+                return this.prop.templates_ignore.indexOf(templateId) > -1
             } else return false
         },
         disableTemplateInSummary: function(templateId) {
-            if (this.properties.templates_ignore && properties.templates_ignore.length > 0 && this.properties.templates_ignore.indexOf(templateId) > -1){
-                this.properties.templates_ignore = this.properties.templates_ignore.filter(e => e !== templateId);
-            } else if(!this.properties.templates_ignore){
-                this.properties.templates_ignore = [];
-                this.properties.templates_ignore.push(templateId)
-            } else {
-                this.properties.templates_ignore.push(templateId)
+            let index = -1;
+            if (this.prop.templates_ignore && this.prop.templates_ignore.length > 0){
+                index = this.prop.templates_ignore.indexOf(templateId);
+            } else if(!this.prop.templates_ignore || this.prop.templates_ignore.length === 0){
+                this.prop.templates_ignore = [];
             }
 
-            // if (this.properties.templates_ignore && properties.templates_ignore.length > 0){
-            //     this.properties.templates_ignore = this.properties.templates_ignore.filter(e => e !== templateId);
-            // } else if(this.properties.templates_ignore){
-            //     this.properties.templates_ignore.push(templateId)
-            // } else if(!this.properties.templates_ignore){
-            //     this.properties.templates_ignore = [];
-            //     this.properties.templates_ignore.push(templateId)
-            // } else console.log('waaaat');
+            if (index > -1){
+                this.prop.templates_ignore.splice(index, 1);
+            } else {
+                this.prop.templates_ignore.push(templateId);
+            }
 
-            options.properties = this.properties;
+            // this.$parent.prop = this.prop;
 
             axios({
                 headers: {
@@ -415,8 +410,9 @@ Vue.component('totalAmountModal', {
                 },
                 method: 'put',
                 url: '/options/setProperties',
-                data: JSON.stringify(options)
-            }).then(() => this.$parent.properties = options.properties);
+                data: window.options
+            })
+                .then(() => this.$parent.prop = this.prop);
         },
         closeModal: function () {
             this.subModal = false;
@@ -424,6 +420,19 @@ Vue.component('totalAmountModal', {
             setTimeout(function(){
                 self.$parent.showTotalAmountModal = false;
             }, 500);
+        }
+    },
+    created: function () {
+        if (!window.options || window.options.length < 1){
+            let optionsPromise = new Promise(function(resolve, reject) {
+                axios.get('options').then(result => {
+                    resolve(result.data);
+                });
+            });
+
+            optionsPromise.then(data => {
+                window.options = data;
+            });
         }
     }
 });

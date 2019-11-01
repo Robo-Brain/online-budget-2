@@ -3,11 +3,16 @@
 function showTemplatesList() {
 
     $('#templates-list').show();
+    $('#upper-menu-templates').addClass('selected-menu-item');
 
     $('#month').hide();
     $('#spends').hide();
     $('#allMonths').hide();
     $('#options').hide();
+    $('#upper-menu-month').removeClass('selected-menu-item');
+    $('#upper-menu-allMonths').removeClass('selected-menu-item');
+    $('#upper-menu-spends').removeClass('selected-menu-item');
+
 
     Vue.component('single-template',{
         props: ['openedListTemplates', 'openedListId'],

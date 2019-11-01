@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     UserRepo ur;
 
-    @GetMapping
+    @GetMapping // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public User getUser(Principal principal) {
         return (User) ((Authentication) principal).getPrincipal();
     }
