@@ -28,7 +28,7 @@ function showTemplatesList() {
                 minimizedSum: false,
                 totals: {
                     totalAmountSalaryCard: 0, totalAmountSalaryCash: 0, totalAmountPrepaidCard: 0, totalAmountPrepaidCash: 0
-                },
+                }
             }
         },
         watch: {
@@ -60,7 +60,7 @@ function showTemplatesList() {
                 + '</p>'
                 + '<p class="total">Итого: {{totals.totalAmountSalaryCash + totals.totalAmountSalaryCard + totals.totalAmountPrepaidCash + totals.totalAmountPrepaidCard}} </p>'
             + '</div>'
-            + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-for="(currentTemplate, index) in openedListTemplates" >'
+            + '<div v-if="!!currentTemplate.spendName" class="month-item templates-list" v-bind:class="[{ gray: colorScheme == \'gray\' }]" v-for="(currentTemplate, index) in openedListTemplates" >'
                 + '<v-touch v-on:swipe="editTemplate(index, currentTemplate.templateId)">'
                     + '<div class="name-notices-block">'
                         + '<div class="name"> {{ currentTemplate.spendName }} </div>'
@@ -172,7 +172,8 @@ function showTemplatesList() {
                  templateListId: null,
                  templateNameEditMode: false,
                  deleting: false,
-                 deletingIndex: null
+                 deletingIndex: null,
+                 colorScheme: ''
              }
          },
          directives: {
@@ -184,7 +185,7 @@ function showTemplatesList() {
          },
         template:
         '<div class="templatesList">' //родительский шаблон, который вмещает в себя дочерний 'template'
-            +'<div v-if="localTemplatesList.length > 0" v-for="(template, index, key) in localTemplatesList" class="template" :class="{ active: template.templateEnabled, deleting: index == deletingIndex && deleting }" >'
+            +'<div v-if="localTemplatesList.length > 0" v-for="(template, index, key) in localTemplatesList" class="template" :class="{ active: template.templateEnabled, deleting: index == deletingIndex && deleting, gray: colorScheme == \'gray\' }" >'
                 + '<div @click="deleting = false" class="template-name"  :class="{ editing: template.id == openedListId }" :id="template.id">'
                     + '<input class="isActive" type="radio" @click="activateTemplate(template.id)" :checked="template.templateEnabled" />'
                     + '<button v-if="!templateNameEditMode || template.id != openedListId" class="name" @click="openOneMonth(template.id)"> {{ template.templateName }} </button>'
@@ -308,6 +309,21 @@ function showTemplatesList() {
             axios.get('templatesList').then(result => {
                 this.localTemplatesList = result.data
             }); // получаем все листы из templates_list
+
+
+            axios.get('options').then(result => {
+                let arr = {};
+                arr = result.data.properties;
+                window.options = result.data;
+                try{
+                    arr = JSON.parse(result.data.properties);
+                } catch (e) {
+                    console.log('already object \'created\'');
+                }
+
+                this.colorScheme = arr.color_scheme;
+
+            });
         }
     });
 

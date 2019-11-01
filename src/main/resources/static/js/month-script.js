@@ -47,17 +47,23 @@ function showLastMonth() {
                 notices: [],
                 deleting: false,
                 fillCurrentMonth: false,
-                previousMonthOverpaid: false
+                previousMonthOverpaid: false,
+                prop: {},
+                colorScheme: ''
             }
         },
         template:
-            '<div class="months">'
-                + '<div v-if="localMonthList.length > 0" class="date">{{ localMonthList[0].date}} <span class="overpaid-icon" @click="showPreviousMonthOverpaidModal = true" v-if="previousMonthOverpaid"> </span></div>'
+            '<div class="months" v-bind:class="[{ gray: colorScheme == \'gray\' }]">'
+                + '<div v-if="localMonthList.length > 0" class="date">'
+                    + '{{ localMonthList[0].date}}'
+                    + '<span class="overpaid-icon" @click="showPreviousMonthOverpaidModal = true" v-if="previousMonthOverpaid"> </span>'
+                + '</div>'
                 + '<div v-if="localMonthList.length < 1">'
                     + '<div v-if="date.length > 0" class="date">{{ date}}</div>'
                     + '<br />Список пуст, добавь статьи расходов вручную, <a href="#" @click="createMonthModal(true)">заполни по шаблону или предыдущему месяцу</a>'
                 + '</div>'
-                + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList"  v-bind:class="{ notInTotal: prop.highlight_unsum && itemsContains(month.templateId) }" >'
+                + '<div v-if="!editMode && localMonthList.length > 0" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" '
+                    + 'v-bind:class="{ notInTotal: prop.highlight_unsum && itemsContains(month.templateId) }" >'
                     // + '<div v-if="itemsContains(month.templateId)">ITSALIVE</div>'
                     + '<div class="name-notices-block">'
                         + '<div @click="showAmountHistory(month.monthlySpendsId)" class="name"> {{ month.spendName }} </div>'
@@ -77,6 +83,7 @@ function showLastMonth() {
                     + '</div>'
                     + '<plusAmountMonthModal v-if="showPlusAmountMonthModal && plusIndex == index" :monthlySpendsId="monthlySpendsId" :templateAmount="month.templateAmount" />'
                 + '</div>'
+
                 + '<div v-if="editMode" class="month-item" :key="month.id" v-for="(month, index, key) in localMonthList" >'
                     + '<div class="name">'
                         + ' {{ month.spendName }}'
@@ -103,7 +110,7 @@ function showLastMonth() {
                     + '</div>'
                 + '</div>'
 
-                + '<div @click="showTotalAmountModal = true" v-if="!editMode" class="total-amount">'
+                + '<div @click="showTotalAmountModal = true" v-if="!editMode" class="total-amount" >'
                     + '<div class="salary-block">'
                         + '<div class="salary-total">'
                             + 'ЗП: '
@@ -138,7 +145,7 @@ function showLastMonth() {
                         + '{{ spend.name }}'
                     + '</option>'
                 + '</select>'
-                + '<div class="submenu-buttons">'
+                + '<div class="submenu-buttons" v-bind:class="[{ gray: colorScheme == \'gray\' }]">'
                     + '<button v-show="!editMode" title="Создать следующий месяц по текущему месяцу" class="create-month-button" @click="createMonthModal(false)"> </button>'
                     + '<button v-show="!editMode" title="Создать шаблон по текущему месяцу" class="create-template-button" @click="showCreateTemplateModal = true"> </button>'
                     + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
@@ -194,21 +201,9 @@ function showLastMonth() {
             totalAmountPrepaidCard: {
                 handler: function (val, oldVal) {},
                 deep: true
-            }
-        },
-        computed: {
+            },
             prop: {
-                get: function () {
-                    try{
-                        return JSON.parse(window.options.properties)
-                    } catch (e) {
-                        console.log('options already parsed');
-                        return window.options.properties
-                    }
-                },
-                set: function (newProp) {
-                    window.options.properties = newProp;
-
+                handler: function (val, oldVal) {
                     this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
                     this.totals.depositSalaryCard = this.totals.depositSalaryCash = this.totals.depositPrepaidCard = this.totals.depositPrepaidCash = null;
                     for (const item of this.localMonthList){
@@ -224,7 +219,8 @@ function showLastMonth() {
                             this.totals.depositPrepaidCard = !item.salary && !item.cash ? this.totals.depositPrepaidCard + item.monthAmount : this.totals.depositPrepaidCard;
                         }
                     }
-                }
+                },
+                deep: true
             }
         },
         methods: {
@@ -400,18 +396,33 @@ function showLastMonth() {
                 this.previousMonthOverpaid = true;
             });
 
-            if (!window.options || window.options.length < 1){
-                let optionsPromise = new Promise(function(resolve, reject) {
-                    axios.get('options').then(result => {
-                        resolve(result.data);
-                    });
-                });
+            axios.get('options').then(result => {
+                this.prop = result.data.properties;
+                window.options = result.data;
+                try{
+                    this.prop = JSON.parse(result.data.properties);
+                } catch (e) {
+                    console.log('already object \'created\'');
+                }
 
-                optionsPromise.then(data => {
-                    window.options = data;
-                });
-            }
+                this.colorScheme = this.prop.color_scheme;
 
+                this.totals.totalAmountSalaryCash = this.totals.totalAmountSalaryCard = this.totals.totalAmountPrepaidCash = this.totals.totalAmountPrepaidCard = null;
+                this.totals.depositSalaryCard = this.totals.depositSalaryCash = this.totals.depositPrepaidCard = this.totals.depositPrepaidCash = null;
+                for (const item of this.localMonthList){
+                    if (this.prop.templates_ignore && !this.prop.templates_ignore.includes(item.templateId)){
+                        this.totals.totalAmountSalaryCash = item.salary && item.cash ? this.totals.totalAmountSalaryCash + item.templateAmount : this.totals.totalAmountSalaryCash;
+                        this.totals.totalAmountSalaryCard = item.salary && !item.cash ? this.totals.totalAmountSalaryCard + item.templateAmount : this.totals.totalAmountSalaryCard;
+                        this.totals.totalAmountPrepaidCash = !item.salary && item.cash ? this.totals.totalAmountPrepaidCash + item.templateAmount : this.totals.totalAmountPrepaidCash;
+                        this.totals.totalAmountPrepaidCard = !item.salary && !item.cash ? this.totals.totalAmountPrepaidCard + item.templateAmount : this.totals.totalAmountPrepaidCard;
+
+                        this.totals.depositSalaryCash = item.salary && item.cash ? this.totals.depositSalaryCash + item.monthAmount : this.totals.depositSalaryCash;
+                        this.totals.depositSalaryCard = item.salary && !item.cash ? this.totals.depositSalaryCard + item.monthAmount : this.totals.depositSalaryCard;
+                        this.totals.depositPrepaidCash = !item.salary && item.cash ? this.totals.depositPrepaidCash + item.monthAmount : this.totals.depositPrepaidCash;
+                        this.totals.depositPrepaidCard = !item.salary && !item.cash ? this.totals.depositPrepaidCard + item.monthAmount : this.totals.depositPrepaidCard;
+                    }
+                }
+            });
         }
     });
 

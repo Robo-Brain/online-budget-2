@@ -1,0 +1,84 @@
+/* GRAY STYLE START */
+
+.months.gray .overpaid-icon {
+    background: url(/img/overpaid_black.png) no-repeat 50%;
+    background-size: cover;
+}
+
+.months.gray .month-item{
+    background: #bababa !important;
+}
+.months.gray .month-item.notInTotal {
+    border-left: solid #666666 0.15em !important;
+}
+.months.gray .month-item .deposited input {
+    font-size: 1.4em;
+    vertical-align: middle;
+    border: solid #bababa 1px;
+}
+.months.gray .month-item .deposited.lack input {
+     border: solid black 1px;
+     color: #000;
+ }
+.months.gray .month-item .deposited button.plus-button {
+    background: url(/img/plus_black.png) no-repeat 50%;
+    background-size: 100%;
+ }
+.months.gray button.cash  {
+    background: url(/img/cash_black.png) no-repeat 50%;
+    background-size: 100%;
+ }
+.months.gray button.card  {
+    background: url(/img/card_black.png) no-repeat 50%;
+    background-size: 100%;
+ }
+.months.gray .sub-edit-block .save{
+    background: url(/img/save2_black.png) no-repeat 50%;
+    background-size: 100% 100%;
+}
+.months.gray .sub-edit-block .delete{
+    background: url(/img/delete3_black.png) no-repeat 50%;
+    background-size: 100% 100%;
+}
+
+.submenu-buttons.gray .create-month-button {
+    background: url(/img/create-new_black.png) no-repeat 50%;
+}
+.submenu-buttons.gray .create-template-button {
+    background: url(/img/create-template_black.png) no-repeat 50%;
+}
+.submenu-buttons.gray .delete-month-button {
+    background: url(/img/delete_black.png) no-repeat 50%;
+}
+.submenu-buttons.gray .edit-button {
+    background: url(/img/edit_black.png) no-repeat 50%;
+}
+
+
+.template.gray {
+    background: #e8e8e8 !important;
+}
+.template.active.gray {
+    background: #bababa !important;
+}
+
+.template.gray .month-item{
+    background: #a7a7a7 !important;
+}
+
+.template.gray .month-item button.card{
+    background: url(/img/card_black.png) no-repeat 50%;
+    background-size: 100%;
+}
+.template.gray .month-item button.cash{
+    background: url(/img/cash_black.png) no-repeat 50%;
+    background-size: 100%;
+}
+.template.gray .sub-edit-block .save{
+    background: url(/img/save2_black.png) no-repeat 50%;
+    background-size: 100% 100%;
+}
+.template.gray .sub-edit-block .delete{
+    background: url(/img/delete3_black.png) no-repeat 50%;
+    background-size: 100% 100%;
+}

@@ -390,6 +390,7 @@ Vue.component('totalAmountModal', {
         },
         disableTemplateInSummary: function(templateId) {
             let index = -1;
+
             if (this.prop.templates_ignore && this.prop.templates_ignore.length > 0){
                 index = this.prop.templates_ignore.indexOf(templateId);
             } else if(!this.prop.templates_ignore || this.prop.templates_ignore.length === 0){
@@ -402,7 +403,7 @@ Vue.component('totalAmountModal', {
                 this.prop.templates_ignore.push(templateId);
             }
 
-            // this.$parent.prop = this.prop;
+            window.options.properties = this.prop;
 
             axios({
                 headers: {
@@ -412,7 +413,6 @@ Vue.component('totalAmountModal', {
                 url: '/options/setProperties',
                 data: window.options
             })
-                .then(() => this.$parent.prop = this.prop);
         },
         closeModal: function () {
             this.subModal = false;
@@ -420,19 +420,6 @@ Vue.component('totalAmountModal', {
             setTimeout(function(){
                 self.$parent.showTotalAmountModal = false;
             }, 500);
-        }
-    },
-    created: function () {
-        if (!window.options || window.options.length < 1){
-            let optionsPromise = new Promise(function(resolve, reject) {
-                axios.get('options').then(result => {
-                    resolve(result.data);
-                });
-            });
-
-            optionsPromise.then(data => {
-                window.options = data;
-            });
         }
     }
 });

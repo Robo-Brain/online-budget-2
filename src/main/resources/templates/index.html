@@ -1,6 +1,20 @@
 <!doctype html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:v-bind="http://www.w3.org/1999/xhtml">
     <th:block th:include="_head"></th:block>
+    <script th:inline="javascript">
+
+        window.options = {};
+
+        let optionsPromise = new Promise(async function (resolve, reject) {
+            await axios.get('options').then(result => {
+                resolve(result.data);
+            });
+        });
+
+        optionsPromise.then(data => {
+            window.options = data;
+        });
+    </script>
     <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
     <meta name="viewport" content="initial-scale=0.7, maximum-scale=0.7">
 <body>
@@ -34,20 +48,6 @@
         <div id="options"></div>
 
         <script th:inline="javascript">
-
-            window.options = {};
-
-            let optionsPromise = new Promise(function(resolve, reject) {
-                axios.get('options').then(result => {
-                    resolve(result.data);
-                });
-            });
-
-            optionsPromise.then(data => {
-                window.options = data;
-            });
-
-
             Vue.use(VueTouch, {name: 'v-touch'});
             VueTouch.config.swipe = {
                 direction: 'horizontal'

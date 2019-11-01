@@ -30,37 +30,24 @@ function showUserMenu() {
     Vue.component('userMenu', {
         data: function() {
             return {
-
-            }
-        },
-        computed: {
-            prop: {
-                get: function () {
-                    try{
-                        return JSON.parse(window.options.properties)
-                    } catch (e) {
-                        console.log('options already parsed');
-                        return window.options.properties
-                    }
-                },
-                set: function (newProp) {
-                    window.options.properties = newProp;
-                }
+                prop: {},
+                colorScheme: '',
+                highlightUnsum: ''
             }
         },
         template:
         '<div>'
             + '<div class="color-scheme">Цветовая схема: '
                 + '<select @change="colorSchemeChange($event)">'
-                    + '<option value="def" :selected="prop.color_scheme == \'def\'">Default</option>'
-                    + '<option value="gray" :selected="prop.color_scheme == \'gray\'">Gray</option>'
+                    + '<option value="def" :selected="colorScheme == \'def\'">Default</option>'
+                    + '<option value="gray" :selected="colorScheme == \'gray\'">Gray</option>'
                 + '</select>'
-                + '<br />Выделять не отслеживаемые платежи: <input @change="highlightUnsummaryToggle()" type="checkbox" :checked="this.prop.highlight_unsum" />'
+                + '<br />Выделять не отслеживаемые платежи: <input @change="highlightUnsummaryToggle()" type="checkbox" :checked="highlightUnsum" />'
             + '</div>'
         + '</div>',
         methods: {
             colorSchemeChange: function (event) {
-                if (this.prop.color_scheme !== event.target.value){
+                if (this.colorScheme !== event.target.value){
                     let arr = this.prop;
                     arr.color_scheme = event.target.value;
                     this.prop = arr;
@@ -76,6 +63,7 @@ function showUserMenu() {
                 this.sendOptions();
             },
             sendOptions: function () {
+                window.options.properties = this.prop;
                 axios({
                     headers: {
                         'Content-Type': 'application/json'
@@ -85,14 +73,25 @@ function showUserMenu() {
                     data: window.options
                 })
             }
+        },
+        created: function () {
+            axios.get('options').then(result => {
+                this.prop = result.data.properties;
+                window.options = result.data;
+                try{
+                    this.prop = JSON.parse(result.data.properties);
+                } catch (e) {
+                    console.log('already object \'created\'');
+                }
+            });
+
+            this.colorScheme = this.prop.color_scheme;
+            this.highlightUnsum = this.prop.highlight_unsum;
         }
     });
 
     let options = new Vue({
         el: '#options',
-        data: {
-            properties: []
-        },
         template: '<div id="options"><userMenu /></div>'
     });
 
