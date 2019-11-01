@@ -83,10 +83,11 @@ function showUserMenu() {
                 } catch (e) {
                     console.log('already object \'created\'');
                 }
+                this.colorScheme = this.prop.color_scheme;
+                this.highlightUnsum = this.prop.highlight_unsum;
+                console.log(this.highlightUnsum)
             });
 
-            this.colorScheme = this.prop.color_scheme;
-            this.highlightUnsum = this.prop.highlight_unsum;
         }
     });
 
