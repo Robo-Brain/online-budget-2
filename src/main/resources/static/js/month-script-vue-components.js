@@ -163,9 +163,9 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
             }, 500);
             this.ignoreWarning = this.warning = this.emptyMonth = false;
             this.bodyText = '';
-            if (this.previousMonthOverpaid){
-                this.$parent.showPreviousMonthOverpaidModal = true;
-            }
+            // if (this.previousMonthOverpaid){
+            //     this.$parent.showPreviousMonthOverpaidModal = true;
+            // }
         },
         warningToggle: function () {
             this.warning = false;
@@ -202,6 +202,9 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                     });
                     this.$parent.editMode = false;
                     this.closeModal();
+                    axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+                        this.$parent.showPreviousMonthOverpaidModal = true;
+                    });
                 }
             } else if (!this.emptyMonth && this.fillCurrentMonth) {
                 axios.put('month/fillCurrentMonthByPreviousMonth?dateId=' + this.dateId).then(result => {
@@ -209,6 +212,9 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
                 });
                 this.$parent.editMode = false;
                 this.closeModal();
+                axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+                    this.$parent.showPreviousMonthOverpaidModal = true;
+                });
             } else {
                 this.closeModal();
                 console.log('Abnormal statement!\nthis.emptyMonth: %s\nthis.fillCurrentMonth: %s', this.emptyMonth, this.fillCurrentMonth );
@@ -259,9 +265,9 @@ Vue.component('createMonthModal', { //'<modalNoMonth v-if="this.showNoMonthModal
             this.bodyText = 'Заполнить текущий месяц?';
         }
 
-        axios.get('month/getPreviousMonthOverpayment' ).then(() => {
-            this.previousMonthOverpaid = true;
-        });
+        // axios.get('month/getPreviousMonthOverpayment' ).then(() => {
+        //     this.previousMonthOverpaid = true;
+        // });
     }
 });
 
