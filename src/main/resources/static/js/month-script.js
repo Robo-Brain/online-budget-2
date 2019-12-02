@@ -29,6 +29,7 @@ function showLastMonth() {
                 showPreviousMonthOverpaidModal: false,
                 showTotalAmountModal: false,
                 spendId: '',
+                spendName: '',
                 missingSpendsList: [],
                 date: '',
                 dateId: '',
@@ -66,7 +67,7 @@ function showLastMonth() {
                     + 'v-bind:class="{ notInTotal: prop.highlight_unsum && itemsContains(month.templateId) }" >'
                     // + '<div v-if="itemsContains(month.templateId)">ITSALIVE</div>'
                     + '<div class="name-notices-block">'
-                        + '<div @click="showAmountHistory(month.monthlySpendsId)" class="name"> {{ month.spendName }} </div>'
+                        + '<div @click="showAmountHistory(month.monthlySpendsId, month.spendName)" class="name"> {{ month.spendName }} </div>'
                         + '<button v-if="hasNotice(month.monthlySpendsId)" @click="getNoticesAndShowNoticeModal(month.monthlySpendsId)" class="month-notices-show-button" > </button>'
                     + '</div>'
                     + '<div class="deposited" v-bind:class="{ lack: month.monthAmount <  month.templateAmount }">'
@@ -158,7 +159,7 @@ function showLastMonth() {
                 + '<createNoticeModal v-if="showCreateNoticeModal" :monthlySpendsId="monthlySpendsId" />'
                 + '<noticeModal v-if="showNoticeModal" :notices="notices" />'
                 + '<deleteMonthModal v-if="showDeleteMonthModal" :dateId="dateId" />'
-                + '<amountHistoryModal v-if="showAmountHistoryModal" :monthlySpendsId="monthlySpendsId" />'
+                + '<amountHistoryModal v-if="showAmountHistoryModal" :monthlySpendsId="monthlySpendsId" :spendName="spendName" />'
                 + '<totalAmountModal v-if="showTotalAmountModal" :localMonthList="localMonthList" :prop="prop" />'
             + '</div>',
         watch: {
@@ -235,7 +236,8 @@ function showLastMonth() {
                 }
                 this.showCreateMonthModal = true;
             },
-            showAmountHistory: function(monthlySpendsId) {
+            showAmountHistory: function(monthlySpendsId, spendName) {
+                this.spendName = spendName;
                 this.monthlySpendsId = monthlySpendsId;
                 this.showAmountHistoryModal = true;
             },

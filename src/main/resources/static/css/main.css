@@ -800,7 +800,6 @@ button.notice{
     background-color: rgba(59,214,145,0.97); /*#60A917*/
     position: relative;
     margin: auto 1% auto 1%;
-
     top: 50%;
     transform: translateY(-50%);
     max-height: 15em;
@@ -809,6 +808,10 @@ button.notice{
     color: #ffffff;
     border-radius: 0.2em;
     overflow-y: auto;
+}
+
+.modal-content h3 {
+    margin: 0 0 1em 0;
 }
 
 .modal-content .notices{
@@ -1184,6 +1187,23 @@ button.notice{
 .history-item button.delete:hover,
 .history-item button.delete:active{
     opacity: 1;
+}
+
+.history-item .difference{
+    display: block;
+    margin-top: -.4em;
+}
+
+.difference-hidden-date {
+    font-size: 1em;
+    color: transparent !important;
+    visibility: hidden;
+}
+
+.history-item .difference-amount{
+    font-size: .7em;
+    opacity: .8;
+    padding-left: .5em;
 }
 
 .watch-total-item {

@@ -1,5 +1,5 @@
 Vue.component('amountHistoryModal', {
-    props: ['monthlySpendsId'],
+    props: ['monthlySpendsId', 'spendName'],
     data: function() {
         return {
             subModal: true,
@@ -14,13 +14,20 @@ Vue.component('amountHistoryModal', {
     '<div class="modal">'
         + '<transition name="slideIn" appear>'
             + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content">'
+                + '<h3>{{ spendName }}</h3>'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
                      + '<div class="amount-history" v-for="amountHistory in amountHistoryArr">'
-                        + '{{amountHistory[0].date}}<div class="history-item" v-for="item in amountHistory">'
+                        + '{{amountHistory[0].date}}<div class="history-item" v-for="(item, iter) in amountHistory">'
                             + '<span>{{ item.time }} - {{ item.amount }}р.</span> '
                             + '<span v-if="!unexpectedDelete && item.id == historyElementId " class="delete-warning-text">Будет удалено при повторном нажатии:<br/></span>'
                             + '<input v-bind:class="{ deleting: !unexpectedDelete && item.id == historyElementId }" @input="setComment(item.id)" :value="item.comment" />'
                             + '<button @click="deleteHistoryElement(item.id)" class="delete"> </button>'
+
+                            + '<span class="difference">'
+                                + '<span class="difference-hidden-date">{{ item.time }}</span>'
+                                + '<span v-if="iter > 0" class="difference-amount">+ {{ item.amount - amountHistory[0].amount }}р.</span>'
+                                + '<span v-else class="difference-amount">+ {{ item.amount }}р.</span>'
+                            + '</span>'
                         + '</div>'
                      + '</div>'
             + '</div>'
