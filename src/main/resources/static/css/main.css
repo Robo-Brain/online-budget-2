@@ -1203,7 +1203,7 @@ button.notice{
 .history-item .difference-amount{
     font-size: .7em;
     opacity: .8;
-    padding-left: .5em;
+    /*padding-left: .5em;*/
 }
 
 .watch-total-item {

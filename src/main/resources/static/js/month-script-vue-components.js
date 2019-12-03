@@ -16,8 +16,8 @@ Vue.component('amountHistoryModal', {
             + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content">'
                 + '<h3>{{ spendName }}</h3>'
                 + '<div @click="closeModal()" class="modal-button close">×</div>'
-                     + '<div class="amount-history" v-for="amountHistory in amountHistoryArr">'
-                        + '{{amountHistory[0].date}}<div class="history-item" v-for="(item, iter) in amountHistory">'
+                     + '<div class="amount-history" v-for="(amountHistory, key, parentIter) in amountHistoryArr">' //  дата : { платежи }
+                        + '{{amountHistory[0].date}}<div class="history-item" v-for="(item, subIter) in amountHistory">' // платеж : { ... }
                             + '<span>{{ item.time }} - {{ item.amount }}р.</span> '
                             + '<span v-if="!unexpectedDelete && item.id == historyElementId " class="delete-warning-text">Будет удалено при повторном нажатии:<br/></span>'
                             + '<input v-bind:class="{ deleting: !unexpectedDelete && item.id == historyElementId }" @input="setComment(item.id)" :value="item.comment" />'
@@ -25,8 +25,12 @@ Vue.component('amountHistoryModal', {
 
                             + '<span class="difference">'
                                 + '<span class="difference-hidden-date">{{ item.time }}</span>'
-                                + '<span v-if="iter > 0" class="difference-amount">+ {{ item.amount - amountHistory[0].amount }}р.</span>'
-                                + '<span v-else class="difference-amount">+ {{ item.amount }}р.</span>'
+                                + '<span v-if="parentIter > 0 && subIter == 0" class="difference-amount">' // если для статьи больше 1 элемента истории и он первый для этой даты
+                                    + '+ {{ getAmount(item.amount, parentIter) }}р.'
+                                + '</span>'
+                                + '<span v-else-if="subIter > 0" class="difference-amount">'
+                                    + '+ {{ item.amount - amountHistory[subIter - 1].amount }}р.'
+                                + '</span>'
                             + '</span>'
                         + '</div>'
                      + '</div>'
@@ -40,6 +44,11 @@ Vue.component('amountHistoryModal', {
         }
     },
     methods: {
+        getAmount(currentAmount, iter) {
+            let arr = Object.values(this.amountHistoryArr)[iter - 1];
+            let amount = arr[arr.length - 1].amount;
+            return currentAmount - amount;
+        },
         handleFocusOut() {
             this.closeModal();
         },
