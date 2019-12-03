@@ -966,9 +966,12 @@ button.notice{
 }
 
 .modal-button {
-    position: absolute;
-    top: 2px;
-    right: 2px;
+    /*position: absolute;*/
+    /*top: 2px;*/
+    /*right: 2px;*/
+    top: 0;
+    right: 0;
+    position: sticky;
     float: right;
     font-weight: bold;
     width: 1.8em;

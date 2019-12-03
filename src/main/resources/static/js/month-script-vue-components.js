@@ -14,8 +14,8 @@ Vue.component('amountHistoryModal', {
     '<div class="modal">'
         + '<transition name="slideIn" appear>'
             + '<div @focusout="handleFocusOut" v-if="subModal" class="modal-content">'
-                + '<h3>{{ spendName }}</h3>'
-                + '<div @click="closeModal()" class="modal-button close">×</div>'
+                    + '<div @click="closeModal()" class="modal-button close">×</div>'
+                    + '<h3>{{ spendName }}</h3>'
                      + '<div class="amount-history" v-for="(amountHistory, key, parentIter) in amountHistoryArr">' //  дата : { платежи }
                         + '{{amountHistory[0].date}}<div class="history-item" v-for="(item, subIter) in amountHistory">' // платеж : { ... }
                             + '<span>{{ item.time }} - {{ item.amount }}р.</span> '
