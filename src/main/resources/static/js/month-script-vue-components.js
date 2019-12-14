@@ -727,13 +727,24 @@ Vue.component('previousMonthOverpaidModal', {
             + '</transition>'
         + '</div>',
     methods: {
+        select: function (monthlySpendsId) {
+            if (this.selectedOverpaids.includes(monthlySpendsId)) {
+                this.selectedOverpaids.splice(this.selectedOverpaids.indexOf(monthlySpendsId), 1)
+            } else {
+                this.selectedOverpaids.push(monthlySpendsId)
+            }
+            console.log("this.selectedOverpaids = " + this.selectedOverpaids);
+            console.log("this.selectedOverpaids.length = " + this.selectedOverpaids.length);
+        },
         transfer: function() {
             if (this.selectAllOverpaids){
                 axios.post('month/transferOverpaymentToCurrentMonth?normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
                 });
             } else if(!this.selectAllOverpaids && this.selectedOverpaids.length > 0){
-                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + this.selectedOverpaids + '&normalize=' + this.normalizePreviousAmounts).then(result => {
+                let arr = Array.from(this.selectedOverpaids, x => x);
+                console.log("arr = " + arr);
+                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + arr + '&normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
                 });
             }
@@ -745,13 +756,6 @@ Vue.component('previousMonthOverpaidModal', {
             setTimeout(function(){
                 self.$parent.showPreviousMonthOverpaidModal = false;
             }, 500);
-        },
-        select: function (monthlySpendsId) {
-            if (this.selectedOverpaids.includes(monthlySpendsId)) {
-                this.selectedOverpaids.splice(this.selectedOverpaids.indexOf(monthlySpendsId), 1)
-            } else {
-                this.selectedOverpaids.push(monthlySpendsId)
-            }
         }
     },
     created: function () {
