@@ -76,6 +76,12 @@
         width: 96%;
     }
 
+    .month-item .name{
+        font-size: 1.2em !important;
+        width: 37%;
+        margin-left: 0 !important;
+    }
+
     .name-buttons button.has-notice-button {
         width: 2.8em;
         height: 2.8em;

@@ -342,7 +342,7 @@ public class MonthlySpendsService {
             Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(NotFoundException::new); // получили для него templates по template_id
             Integer overpaymentAmount = previousMS.getMonthAmount() - tmp.getAmount(); // получили фактическую сумму переплаты
             MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(NotFoundException::new); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
-            currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
+            currentMS.setMonthAmount(currentMS.getMonthAmount() + overpaymentAmount);
             msr.save(currentMS);
 
             String comment = normalize ? "Перенос из прошлого месяца С удалением переплаты" : "Перенос из прошлого месяца БЕЗ удаления переплаты";

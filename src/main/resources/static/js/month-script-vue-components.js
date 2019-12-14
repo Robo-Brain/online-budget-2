@@ -728,8 +728,6 @@ Vue.component('previousMonthOverpaidModal', {
         + '</div>',
     methods: {
         transfer: function() {
-            console.log(this.selectAllOverpaids);
-            console.log(this.selectedOverpaids.length);
             if (this.selectAllOverpaids){
                 axios.post('month/transferOverpaymentToCurrentMonth?normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
