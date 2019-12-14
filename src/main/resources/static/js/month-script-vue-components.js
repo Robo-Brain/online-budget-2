@@ -733,8 +733,6 @@ Vue.component('previousMonthOverpaidModal', {
             } else {
                 this.selectedOverpaids.push(monthlySpendsId)
             }
-            console.log("this.selectedOverpaids = " + this.selectedOverpaids);
-            console.log("this.selectedOverpaids.length = " + this.selectedOverpaids.length);
         },
         transfer: function() {
             if (this.selectAllOverpaids){
@@ -742,9 +740,7 @@ Vue.component('previousMonthOverpaidModal', {
                     this.$parent.localMonthList = result.data;
                 });
             } else if(!this.selectAllOverpaids && this.selectedOverpaids.length > 0){
-                let arr = Array.from(this.selectedOverpaids, x => x);
-                console.log("arr = " + arr);
-                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + arr + '&normalize=' + this.normalizePreviousAmounts).then(result => {
+                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + this.selectedOverpaids + '&normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
                 });
             }

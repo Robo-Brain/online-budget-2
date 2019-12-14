@@ -335,6 +335,9 @@ public class MonthlySpendsService {
         });
     }
 
+    public void transferSelectedOverpaymentToCurrentMonth(Integer overpaymentId, Boolean normalize) {
+        transferSelectedOverpaymentToCurrentMonth(new ArrayList<>(overpaymentId), normalize);
+    }
     public void transferSelectedOverpaymentToCurrentMonth(List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
         Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
         overpaymentId.forEach(id -> {
