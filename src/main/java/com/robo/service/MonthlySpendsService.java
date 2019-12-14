@@ -311,43 +311,39 @@ public class MonthlySpendsService {
 
 
     public void transferOverpaymentToCurrentMonth(Integer dateId, Boolean normalizePreviousAmounts) { // перенести переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
-        Dates dates = dr.findOneById(dateId).orElseThrow(NotFoundException::new);// возвращает последний dates
         List<MonthlySpendsDTO> previousMonthOverpaymentSpendsDTO = getPreviousMonthOverpayment();
-        previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
-            MonthlySpends currentMS;
-            try {
-                currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()).orElseThrow(NotFoundException::new); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
-                Integer overpaymentAmount = previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount();
-                currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
-                msr.save(currentMS);
-
-                String comment = normalizePreviousAmounts ? "Перенос из прошлого месяца С удалением переплаты" : "Перенос из прошлого месяца БЕЗ удаления переплаты";
-
-                if (normalizePreviousAmounts){
-                    MonthlySpends previousMS = msr.findOneById(previousMonthSpend.getMonthlySpendsId()).orElseThrow(NotFoundException::new);
-                    previousMS.setMonthAmount(previousMS.getTemplates().getAmount());
-                    msr.save(previousMS);
-                }
-                mahs.addNewHistoryElement(currentMS.getId(), overpaymentAmount, comment);
-            } catch (NotFoundException e){
-                System.out.println(e);
-            }
-        });
+        List<Integer> overpaymentIds = previousMonthOverpaymentSpendsDTO.stream().map(MonthlySpendsDTO::getMonthlySpendsId).collect(Collectors.toList());
+        transferSelectedOverpaymentToCurrentMonth(dateId, overpaymentIds, normalizePreviousAmounts);
+//        previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
+//            MonthlySpends currentMS;
+//            try {
+//                currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), previousMonthSpend.getTemplateId()).orElseThrow(NotFoundException::new); //нужна проверка на то, что месяц вообще создается, а не просто сто раз нажимается кнопка переноса платежей
+//                Integer overpaymentAmount = previousMonthSpend.getMonthAmount() - previousMonthSpend.getTemplateAmount();
+//                currentMS.setMonthAmount(overpaymentAmount > 0 ? overpaymentAmount : 0);
+//                msr.save(currentMS);
+//
+//                String comment = normalizePreviousAmounts ? "Перенос из прошлого месяца С удалением переплаты" : "Перенос из прошлого месяца БЕЗ удаления переплаты";
+//
+//                if (normalizePreviousAmounts){
+//                    MonthlySpends previousMS = msr.findOneById(previousMonthSpend.getMonthlySpendsId()).orElseThrow(NotFoundException::new);
+//                    previousMS.setMonthAmount(previousMS.getTemplates().getAmount());
+//                    msr.save(previousMS);
+//                }
+//                mahs.addNewHistoryElement(currentMS.getId(), overpaymentAmount, comment);
+//            } catch (NotFoundException e){
+//                System.out.println(e);
+//            }
+//        });
     }
 
     public void transferSelectedOverpaymentToCurrentMonth(Integer dateId, List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
         Dates dates = dr.findOneById(dateId).orElseThrow(() -> new NotFoundException("Не могу найти последнюю дату. "));// возвращает последний dates
-        System.out.println("dates: " + dates);
-        System.out.println("overpaymentId.size: " + overpaymentId.size());
         List<MonthlySpends> allMonthlySpends = msr.findAllByDateId(dateId);
 
         overpaymentId.forEach(id -> {
             MonthlySpends previousMS = msr.findOneById(id).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким Id: " + id)); // получили MonthlySpends у которого есть overpaid с морды
-            System.out.println("previousMS = " + previousMS);
             Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(() -> new NotFoundException("Не найден Templates с таким Id: " + previousMS.getTemplateId())); // получили для него templates по template_id
-            System.out.println("tmp = " + tmp);
             Integer overpaymentAmount = previousMS.getMonthAmount() - tmp.getAmount(); // получили фактическую сумму переплаты
-//            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким DateId" + dates.getId() + " и TemplateId: " + tmp.getId())); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
             MonthlySpends currentMS;
             if (msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).isPresent()){ // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
                 currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).get();
@@ -355,7 +351,6 @@ public class MonthlySpendsService {
                 Integer spendId = tmp.getSpendId();
                 currentMS = allMonthlySpends.stream().filter(ms -> spendId.equals(ms.getTemplates().getSpendId())).findAny().get();
             }
-            System.out.println("currentMS = " + currentMS);
             currentMS.setMonthAmount(currentMS.getMonthAmount() + overpaymentAmount);
             msr.save(currentMS);
 
