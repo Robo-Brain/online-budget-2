@@ -339,13 +339,22 @@ public class MonthlySpendsService {
         Dates dates = dr.findOneById(dateId).orElseThrow(() -> new NotFoundException("Не могу найти последнюю дату. "));// возвращает последний dates
         System.out.println("dates: " + dates);
         System.out.println("overpaymentId.size: " + overpaymentId.size());
+        List<MonthlySpends> allMonthlySpends = msr.findAllByDateId(dateId);
+
         overpaymentId.forEach(id -> {
             MonthlySpends previousMS = msr.findOneById(id).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким Id: " + id)); // получили MonthlySpends у которого есть overpaid с морды
             System.out.println("previousMS = " + previousMS);
             Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(() -> new NotFoundException("Не найден Templates с таким Id: " + previousMS.getTemplateId())); // получили для него templates по template_id
             System.out.println("tmp = " + tmp);
             Integer overpaymentAmount = previousMS.getMonthAmount() - tmp.getAmount(); // получили фактическую сумму переплаты
-            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким DateId" + dates.getId() + " и TemplateId: " + tmp.getId())); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
+//            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким DateId" + dates.getId() + " и TemplateId: " + tmp.getId())); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
+            MonthlySpends currentMS;
+            if (msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).isPresent()){ // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
+                currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).get();
+            } else { // иначе попробовать найти по spendId
+                Integer spendId = tmp.getSpendId();
+                currentMS = allMonthlySpends.stream().filter(ms -> spendId.equals(ms.getTemplates().getSpendId())).findAny().get();
+            }
             System.out.println("currentMS = " + currentMS);
             currentMS.setMonthAmount(currentMS.getMonthAmount() + overpaymentAmount);
             msr.save(currentMS);
