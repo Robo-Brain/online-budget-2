@@ -338,10 +338,10 @@ public class MonthlySpendsService {
     public void transferSelectedOverpaymentToCurrentMonth(List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
         Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
         overpaymentId.forEach(id -> {
-            MonthlySpends previousMS = msr.findOneById(id).orElseThrow(NotFoundException::new); // получили MonthlySpends у которого есть overpaid с морды
-            Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(NotFoundException::new); // получили для него templates по template_id
+            MonthlySpends previousMS = msr.findOneById(id).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким Id: " + id)); // получили MonthlySpends у которого есть overpaid с морды
+            Templates tmp = tr.findOneById(previousMS.getTemplateId()).orElseThrow(() -> new NotFoundException("Не найден Templates с таким Id: " + previousMS.getTemplateId())); // получили для него templates по template_id
             Integer overpaymentAmount = previousMS.getMonthAmount() - tmp.getAmount(); // получили фактическую сумму переплаты
-            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(NotFoundException::new); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
+            MonthlySpends currentMS = msr.findOneByDateIdAndTemplateId(dates.getId(), tmp.getId()).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким DateId" + dates.getId() + " и TemplateId: " + tmp.getId())); // найти MonthlySpends в текущем(последнем) месяце по его dateId & templateId
             currentMS.setMonthAmount(currentMS.getMonthAmount() + overpaymentAmount);
             msr.save(currentMS);
 
