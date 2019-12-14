@@ -336,6 +336,7 @@ public class MonthlySpendsService {
     }
 
     public void transferSelectedOverpaymentToCurrentMonth(List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
+        System.out.println("<<< " + overpaymentId);
         Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(() -> new NotFoundException("Не могу найти последнюю дату. "));// возвращает последний dates
         overpaymentId.forEach(id -> {
             MonthlySpends previousMS = msr.findOneById(id).orElseThrow(() -> new NotFoundException("Не найден MonthlySPends с таким Id: " + id)); // получили MonthlySpends у которого есть overpaid с морды
