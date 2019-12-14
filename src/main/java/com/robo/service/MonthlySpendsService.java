@@ -310,8 +310,8 @@ public class MonthlySpendsService {
     }
 
 
-    public void transferOverpaymentToCurrentMonth(Boolean normalizePreviousAmounts) { // перенести переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
-        Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(NotFoundException::new);// возвращает последний dates
+    public void transferOverpaymentToCurrentMonth(Integer dateId, Boolean normalizePreviousAmounts) { // перенести переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
+        Dates dates = dr.findOneById(dateId).orElseThrow(NotFoundException::new);// возвращает последний dates
         List<MonthlySpendsDTO> previousMonthOverpaymentSpendsDTO = getPreviousMonthOverpayment();
         previousMonthOverpaymentSpendsDTO.forEach(previousMonthSpend -> {
             MonthlySpends currentMS;
@@ -335,9 +335,8 @@ public class MonthlySpendsService {
         });
     }
 
-    public void transferSelectedOverpaymentToCurrentMonth(List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
-        System.out.println("<<< " + overpaymentId);
-        Dates dates = dr.findTopByOrderByIdDesc().orElseThrow(() -> new NotFoundException("Не могу найти последнюю дату. "));// возвращает последний dates
+    public void transferSelectedOverpaymentToCurrentMonth(Integer dateId, List<Integer> overpaymentId, Boolean normalize) { // перенести НЕКОТОРЫЕ переплаты на новый месяц (с пропорциональным уменьшением за прошлый месяц или нет)
+        Dates dates = dr.findOneById(dateId).orElseThrow(() -> new NotFoundException("Не могу найти последнюю дату. "));// возвращает последний dates
         System.out.println("dates: " + dates);
         System.out.println("overpaymentId.size: " + overpaymentId.size());
         overpaymentId.forEach(id -> {

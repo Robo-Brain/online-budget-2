@@ -152,7 +152,7 @@ function showLastMonth() {
                     + '<button v-show="editMode && localMonthList.length > 0" title="Удалить текущий месяц" class="delete-month-button" @click="showDeleteMonthModal = true"> </button>'
                     + '<button v-show="localMonthList.length > 0" title="Редактировать" class="edit-button" v-bind:class="{ true: editMode }" @click="editModeToggle()"> </button>'
                 + '</div>'
-                + '<previousMonthOverpaidModal v-if="showPreviousMonthOverpaidModal" />' //'<span v-if="previousMonthOverpaid">В предыдущем месяце переплаты бла бла <button @click="transfer()">transfer</button></span>'
+                + '<previousMonthOverpaidModal v-if="showPreviousMonthOverpaidModal" :dateId="dateId" />' //'<span v-if="previousMonthOverpaid">В предыдущем месяце переплаты бла бла <button @click="transfer()">transfer</button></span>'
                 // + '<noMonthModal v-if="showNoMonthModal" />'
                 + '<createMonthModal v-if="showCreateMonthModal" :dateId="dateId" :fillCurrentMonth="fillCurrentMonth" />'
                 + '<createTemplateModal v-if="showCreateTemplateModal" :dateId="dateId" />'

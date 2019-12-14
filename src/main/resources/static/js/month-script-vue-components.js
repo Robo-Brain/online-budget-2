@@ -697,6 +697,7 @@ Vue.component('plusAmountMonthModal', {
 });
 
 Vue.component('previousMonthOverpaidModal', {
+    props: ['dateId'],
     data: function() {
         return {
             subModal: true,
@@ -735,12 +736,13 @@ Vue.component('previousMonthOverpaidModal', {
             }
         },
         transfer: function() {
+            console.log("dateId must be 6, received: " + this.dateId);
             if (this.selectAllOverpaids){
-                axios.post('month/transferOverpaymentToCurrentMonth?normalize=' + this.normalizePreviousAmounts).then(result => {
+                axios.post('month/transferOverpaymentToCurrentMonth?dateId=' + this.dateId + '&normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
                 });
             } else if(!this.selectAllOverpaids && this.selectedOverpaids.length > 0){
-                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?overpaymentId=' + this.selectedOverpaids + '&normalize=' + this.normalizePreviousAmounts).then(result => {
+                axios.post('/month/transferSelectedOverpaymentToCurrentMonth?dateId=' + this.dateId + '&overpaymentId=' + this.selectedOverpaids + '&normalize=' + this.normalizePreviousAmounts).then(result => {
                     this.$parent.localMonthList = result.data;
                 });
             }

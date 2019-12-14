@@ -146,15 +146,17 @@ public class MonthlySpendsController {
     }
 
     @PostMapping("/transferOverpaymentToCurrentMonth")
-    public List<MonthlySpendsDTO> transferOverpaymentToCurrentMonth(@RequestParam(name = "normalize") Boolean normalize){// current month date.id
-        mss.transferOverpaymentToCurrentMonth(normalize);
+    public List<MonthlySpendsDTO> transferOverpaymentToCurrentMonth(@RequestParam(name = "dateId") Integer dateId, @RequestParam(name = "normalize") Boolean normalize){// current month date.id
+        mss.transferOverpaymentToCurrentMonth(dateId, normalize);
         return getLastMonth();
     }
 
     @PostMapping("/transferSelectedOverpaymentToCurrentMonth")
-    public List<MonthlySpendsDTO> transferSelectedOverpaymentToCurrentMonth(@RequestParam(name = "overpaymentId") List<Integer> overpaymentId, @RequestParam(name = "normalize") Boolean normalize){// current month date.id
+    public List<MonthlySpendsDTO> transferSelectedOverpaymentToCurrentMonth(@RequestParam(name = "dateId") Integer dateId,
+                                                                            @RequestParam(name = "overpaymentId") List<Integer> overpaymentId,
+                                                                            @RequestParam(name = "normalize") Boolean normalize){// current month date.id
         System.out.println(">>> " + overpaymentId);
-        mss.transferSelectedOverpaymentToCurrentMonth(overpaymentId, normalize);
+        mss.transferSelectedOverpaymentToCurrentMonth(dateId, overpaymentId, normalize);
         return getLastMonth();
     }
 
