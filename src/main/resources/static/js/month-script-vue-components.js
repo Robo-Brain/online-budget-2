@@ -639,7 +639,8 @@ Vue.component('plusAmountMonthModal', {
         return {
             subModal: true,
             plusAmount: '',
-            comment: ''
+            comment: '',
+            clickOutside: 0
         }
     },
     directives: {
@@ -647,14 +648,44 @@ Vue.component('plusAmountMonthModal', {
             inserted: function (el) {
                 el.focus()
             }
+        },
+        'click-outside': {
+            bind: function(el, binding, vNode) {
+                // Provided expression must evaluate to a function.
+                if (typeof binding.value !== 'function') {
+                    const compName = vNode.context.name
+                    let warn = `[Vue-click-outside:] provided expression '${binding.expression}' is not a function, but has to be`
+                    if (compName) { warn += `Found in component '${compName}'` }
+
+                    console.warn(warn)
+                }
+                // Define Handler and cache it on the element
+                const bubble = binding.modifiers.bubble
+                const handler = (e) => {
+                    if (bubble || (!el.contains(e.target) && el !== e.target)) {
+                        binding.value(e)
+                    }
+                }
+                el.__vueClickOutside__ = handler
+
+                // add Event Listeners
+                document.addEventListener('click', handler)
+            },
+
+            unbind: function(el, binding) {
+                // Remove Event Listeners
+                document.removeEventListener('click', el.__vueClickOutside__)
+                el.__vueClickOutside__ = null
+
+            }
         }
     },
     template:
     '<div class="modal">'
         + '<transition name="slideToRight" appear>'
-        + '<div v-if="subModal" class="modal-content plus">'
+        + '<div v-if="subModal" class="modal-content plus" v-click-outside="outside">'
             // + '<div @click="closeModal()" class="modal-button close">×</div>'
-            + '<div @focusout="handleFocusOut" tabindex="0" v-if="subModal" class="modal-plus-content">' // @focusout="handleFocusOut"
+            + '<div tabindex="0" v-if="subModal" class="modal-plus-content">' // @focusout="handleFocusOut"
                 + '<button class="fill" @click="fillMonthAmount()">  </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" v-on:keyup="handleMonthAmount($event)" type="number" v-focus />'
                 + '<button class="plus" @click="plusMonthAmount()"> + </button>'
@@ -709,6 +740,12 @@ Vue.component('plusAmountMonthModal', {
                     });
             } else if(this.templateAmount === 0) {
                 this.closeModal();
+            }
+        },
+        outside: function(e) {
+            this.clickOutside += 1;
+            if (this.clickOutside > 1){
+                this.closeModal()
             }
         }
     }
