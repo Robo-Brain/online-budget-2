@@ -201,6 +201,7 @@ public class MonthlySpendsService {
         } else throw new RuntimeException();
     }
 
+
     public List<MonthlySpendsDTO> saveMonthAmount(Integer monthlySpendsId, Integer amount) {
         MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
         Integer newAmount = Objects.isNull(amount) || amount < 0 ? 0 : amount;
@@ -215,6 +216,17 @@ public class MonthlySpendsService {
     public List<MonthlySpendsDTO> plusMonthAmount(Integer monthlySpendsId, Integer plusAmount) {
         MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
         return saveMonthAmount(monthlySpendsId, ms.getMonthAmount() + plusAmount);
+    }
+    public List<MonthlySpendsDTO> plusMonthAmountWithComment(Integer monthlySpendsId, Integer plusAmount, String comment) {
+        MonthlySpends ms = msr.findOneById(monthlySpendsId).orElseThrow(NotFoundException::new);
+        Integer amount = ms.getMonthAmount() + plusAmount;
+        Integer newAmount = amount < 0 ? 0 : amount;
+        if (!ms.getMonthAmount().equals(newAmount)){
+            ms.setMonthAmount(newAmount);
+            msr.save(ms);
+            mahs.addNewHistoryElement(monthlySpendsId, newAmount, comment);
+        }
+        return getMonthsDTOByDateID(ms.getDateId());
     }
 
     public List<MonthlySpendsDTO> pushSpendToMonth(Integer spendId, Integer dateId) {

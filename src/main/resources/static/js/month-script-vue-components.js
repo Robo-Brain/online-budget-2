@@ -638,7 +638,8 @@ Vue.component('plusAmountMonthModal', {
     data: function() {
         return {
             subModal: true,
-            plusAmount: ''
+            plusAmount: '',
+            comment: ''
         }
     },
     directives: {
@@ -649,13 +650,22 @@ Vue.component('plusAmountMonthModal', {
         }
     },
     template:
-        '<transition name="slideToRight" appear>'
-            + '<div @focusout="handleFocusOut" tabindex="0" v-if="subModal" class="modal-plus-content">'
+    '<div class="modal">'
+        + '<transition name="slideToRight" appear>'
+        + '<div v-if="subModal" class="modal-content plus">'
+            // + '<div @click="closeModal()" class="modal-button close">×</div>'
+            + '<div tabindex="0" v-if="subModal" class="modal-plus-content">' // @focusout="handleFocusOut"
                 + '<button class="fill" @click="fillMonthAmount()">  </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" v-on:keyup="handleMonthAmount($event)" type="number" v-focus />'
                 + '<button class="plus" @click="plusMonthAmount()"> + </button>'
             + '</div>'
-        + '</transition>',
+            + '<div>'
+                + '<span class="comment">Комментарий:</span>'
+                + '<input class="comment-input" v-model="comment" />'
+            + '</div>'
+        + '</div>'
+        + '</transition>'
+    + '</div>',
     methods: {
         handleFocusOut() {
             if (this.plusAmount < 1){
@@ -665,6 +675,7 @@ Vue.component('plusAmountMonthModal', {
         closeModal: function () {
             this.subModal = false;
             this.plusAmount = '';
+            this.comment = '';
             let self = this;
             setTimeout(function(){
                 self.$parent.showPlusAmountMonthModal = false;
@@ -675,11 +686,18 @@ Vue.component('plusAmountMonthModal', {
         },
         plusMonthAmount: function () {
             if (this.plusAmount > 0 && this.monthlySpendsId > 0){
-                axios.put('month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount)
+                let query = this.comment.length > 1
+                    ?
+                    'month/plusMonthAmountWithComment?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount + '&comment=' + this.comment
+                    :
+                    'month/plusMonthAmount?monthlySpendsId=' + this.monthlySpendsId + '&plusAmount=' + this.plusAmount;
+
+                axios.put(query)
                     .then(result => {
                         this.$parent.localMonthList = result.data;
                         this.closeModal();
-                    })
+                    });
+
             }
         },
         fillMonthAmount: function () {
@@ -688,7 +706,7 @@ Vue.component('plusAmountMonthModal', {
                     .then(result => {
                         this.$parent.localMonthList = result.data;
                         this.closeModal();
-                    })
+                    });
             } else if(this.templateAmount === 0) {
                 this.closeModal();
             }

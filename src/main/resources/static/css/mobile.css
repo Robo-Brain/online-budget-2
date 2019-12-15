@@ -109,16 +109,6 @@
         font-size: 1.4em;
         vertical-align: middle;
     }
-    .modal-plus-content .plusAmountInput{
-        float: left;
-        padding: 0.2em;
-        border: solid #000 1px;
-        border-radius: 0.2em;
-        font-size: 1.7em;
-        width: 3.15em;
-        text-align: center;
-        margin-left: .2em;
-    }
 
     .month-item .deposited.edit input {
         margin: 0 !important;

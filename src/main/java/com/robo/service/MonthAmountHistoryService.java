@@ -58,8 +58,7 @@ public class MonthAmountHistoryService {
         return result;
     }
 
-
-    void addNewHistoryElement(Integer monthlySpendsId, Integer newAmount, String comment){
+    public void addNewHistoryElement(Integer monthlySpendsId, Integer newAmount, String comment){
         MonthAmountHistory mah = addNewHistoryElement(monthlySpendsId, newAmount);
         setCommentToAmountHistoryElement(mah.getId(), comment);
     }
@@ -80,7 +79,7 @@ public class MonthAmountHistoryService {
                 || historyListForMonthlySpendsId.stream()
                 .noneMatch(historyElem ->
                         historyElem.getAmount() >= newAmount // или если старая сумма НЕ МЕНЬШЕ новой
-                                && (historyElem.getDate().equals(todaysDate) // и
+                                && (historyElem.getDate().equals(todaysDate) // и дата/время не дублируются
                                 || historyElem.getTime().equals(todaysTime)))){
             MonthAmountHistory mah = new MonthAmountHistory();
             mah.setDate(todaysDate);

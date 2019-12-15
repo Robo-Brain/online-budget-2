@@ -25,6 +25,13 @@ public class MonthAmountHistoryController {
         return result;
     }
 
+    @PostMapping("/addNewHistoryElement")
+    public void setCommentToMonthlySpend(@RequestParam(name = "monthlySpendId") Integer monthlySpendId,
+                                         @RequestParam(name = "amount") Integer amount,
+                                         @RequestParam(name = "comment") String comment) {
+        mahs.addNewHistoryElement(monthlySpendId, amount, comment);
+    }
+
     @PostMapping
     public void setCommentToAmountHistoryElement(@RequestParam(name = "historyAmountId") Integer historyAmountId,
                                                  @RequestParam(name = "comment") String comment) {

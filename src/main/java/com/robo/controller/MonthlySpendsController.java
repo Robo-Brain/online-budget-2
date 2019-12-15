@@ -139,6 +139,12 @@ public class MonthlySpendsController {
     public List<MonthlySpendsDTO> plusMonthAmount(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId, @RequestParam(name = "plusAmount") Integer plusAmount){
         return mss.plusMonthAmount(monthlySpendsId, plusAmount);
     }
+    @PutMapping("/plusMonthAmountWithComment") //
+    public List<MonthlySpendsDTO> plusMonthAmountWithComment(@RequestParam(name = "monthlySpendsId") Integer monthlySpendsId,
+                                                             @RequestParam(name = "plusAmount") Integer plusAmount,
+                                                             @RequestParam(name = "comment") String comment){
+        return mss.plusMonthAmountWithComment(monthlySpendsId, plusAmount, comment);
+    }
 
     @GetMapping("/getPreviousMonthOverpayment")
     public List<MonthlySpendsDTO> getPreviousMonthOverpayment(){
