@@ -654,7 +654,7 @@ Vue.component('plusAmountMonthModal', {
         + '<transition name="slideToRight" appear>'
         + '<div v-if="subModal" class="modal-content plus">'
             // + '<div @click="closeModal()" class="modal-button close">×</div>'
-            + '<div tabindex="0" v-if="subModal" class="modal-plus-content">' // @focusout="handleFocusOut"
+            + '<div @focusout="handleFocusOut" tabindex="0" v-if="subModal" class="modal-plus-content">' // @focusout="handleFocusOut"
                 + '<button class="fill" @click="fillMonthAmount()">  </button>'
                 + '<input class="plusAmountInput" v-model="plusAmount" v-on:keyup="handleMonthAmount($event)" type="number" v-focus />'
                 + '<button class="plus" @click="plusMonthAmount()"> + </button>'
