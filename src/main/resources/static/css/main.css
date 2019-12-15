@@ -886,22 +886,22 @@ button.notice{
     background-size: contain;
     background-position: center;
     border-radius: .3em;
-    width: 3em;
-    height: 3em;
+    width: 2.7em;
+    height: 2.7em;
     float: left;
 }
 .modal-plus-content .plusAmountInput {
     border: solid #000 1px;
     border-radius: 0.2em;
     font-size: 2em;
-    width: 5.1em;
-    height: 1.4em;
+    width: 4.75em;
+    height: 1.3em;
     text-align: center;
     float: left;
     margin: 0 .2em 0 .1em;
 }
 .modal-content .plus {
-    font-size: 3em;
+    font-size: 2.7em;
     padding: 0 .2em;
     width: 1em;
     height: 1em;
@@ -914,7 +914,7 @@ button.notice{
 }
 .comment-input {
     font-size: 1.5em;
-    width: 11.2em;
+    width: 98%;
     border-radius: .1em;
     border: solid white 1px;
     padding: .1em;
